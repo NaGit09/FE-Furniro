@@ -9,7 +9,7 @@ const PageNavigate = ({
 }: {
   title: string;
   category: string;
-  id: string;
+  id: number;
 }) => {
   return (
     <div className="h-[100px] w-full bg-amber-50 flex items-center justify-start">

@@ -1,8 +1,17 @@
 import { z } from "zod";
 
+enum ProductStatus {
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE"
+}
+
 export const ProductCardResSchema = z.object({
-  productId: z.string(),
+
+  productID: z.number(),
   name: z.string(),
+  status: z.enum(ProductStatus),
+  brand: z.string(),
+  description: z.string(),
   basePrice: z.number(),
   url: z.string(),
 });
@@ -40,3 +49,4 @@ export const ProductDetailSchema = z.object({
 });
 
 export type ProductDetail = z.infer<typeof ProductDetailSchema>;
+

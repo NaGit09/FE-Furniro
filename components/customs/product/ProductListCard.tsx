@@ -1,38 +1,14 @@
 "use client";
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { get_product_list } from "@/services/api/product.service";
-import {
-  setProducts,
-  setLoading,
-  setError,
-} from "@/stores/slices/product.store";
 import ProductCard from "./ProductCard";
+import { useSelector } from "react-redux";
 import { RootState } from "@/stores/store";
 
-const ProductListCard = ({page , size } : {page : number , size : number}) => {
-
-  const dispatch = useDispatch();
+const ProductListCard = () => {
 
   const { products, isLoading, error } = useSelector(
     (state: RootState) => state.productSlice,
   );
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      dispatch(setLoading(true));
-      try {
-        const res = await get_product_list(page, size);
-        dispatch(setProducts(res.content));
-      } catch (error) {
-        dispatch(setError(error));
-      } finally {
-        dispatch(setLoading(false));
-      }
-    };
-    fetchProducts();
-  }, []);
-  
   return (
     <section className="w-full p-6" id="product">
       {isLoading ? (
@@ -61,9 +37,9 @@ const ProductListCard = ({page , size } : {page : number , size : number}) => {
         <div className="max-w-7xl mx-auto">
           {/* Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {products.map((product: any) => (
+            {products.map((product) => (
               <div
-                key={product.productId}
+                key={product.productID}
                 className="transition-transform duration-200 hover:-translate-y-1"
               >
                 <ProductCard product={product} />

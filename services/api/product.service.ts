@@ -1,10 +1,13 @@
 import { ProductCardRes, ProductDetail } from "@/schema/response/product.res";
 import axiosInstance from "../AxiosInstance";
-import { PageResponse } from "@/schema/common/pagination";
+import { ApiResponse } from "@/schema/common/AType";
+import { Page } from "@/schema/common/pagination";
+
+const baseProductApi = "product-service/products";
 
 export const get_product_list = async (page = 0, size = 10) => {
-  const res = await axiosInstance.get<PageResponse<ProductCardRes>>(
-    "/products",
+  const res = await axiosInstance.get<ApiResponse<Page<ProductCardRes>>>(
+    `${baseProductApi}`,
     {
       params: {
         page,
@@ -16,6 +19,8 @@ export const get_product_list = async (page = 0, size = 10) => {
 };
 
 export const get_product_detail = async (id: string) => {
-  const res = await axiosInstance.get<ProductDetail>(`/product/${id}`);
+  const res = await axiosInstance.get<ApiResponse<ProductDetail>>(
+    `${baseProductApi}/${id}`,
+  );
   return res.data;
-}
+};

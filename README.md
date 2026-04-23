@@ -1,99 +1,112 @@
-# 🛋️ Furniro - Luxury Furniture Milan
+<div align="center">
+  <img src="public/images/readme-banner.png" alt="Furniro Banner" width="100%" />
 
-[![Next.js](https://img.shields.io/badge/Next.js-15.1.7-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
-[![Tailwind CSS 4](https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
-[![Redux Toolkit](https://img.shields.io/badge/Redux_Toolkit-2.0-764ABC?style=for-the-badge&logo=redux)](https://redux-toolkit.js.org/)
+  # 🛋️ Furniro
+  ### Elevated Furniture for Modern Living
+  
+  [![Next.js 15](https://img.shields.io/badge/Next.js-15.1.7-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+  [![Tailwind CSS 4](https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+  [![Redux Toolkit](https://img.shields.io/badge/Redux_Toolkit-2.1-764ABC?style=for-the-badge&logo=redux)](https://redux-toolkit.js.org/)
 
-**Furniro** is a premium, high-end e-commerce experience crafted for the modern furniture connoisseur. Built with a focus on cinematic aesthetics and seamless interactivity, Furniro brings the essence of Milanese design to your fingertips.
+  **Furniro** is a high-performance, cinematic e-commerce platform dedicated to luxury furniture. Crafted with a focus on immersive user experience, glassmorphic design, and seamless interactivity.
+
+  [Core Experience](#-core-features) • [Tech Stack](#-technology-stack) • [Getting Started](#-getting-started) • [Architecture](#-project-structure)
+</div>
 
 ---
 
-## ✨ Key Features
+## ✨ Core Features
 
-### 🎞️ Cinematic Home Experience
-*   **Immersive Hero**: A full-viewport, animated hero section with glassmorphism and slow-zoom transitions.
-*   **Inspiration Gallery**: A dynamic, masonry-style lifestyle grid showcasing Furniro in real homes.
-*   **Trust Markers**: Integrated high-quality support and warranty features to build immediate customer confidence.
+### 🛍️ Premium Catalog Experience
+*   **Dynamic Product Discovery**: Advanced filtering and sorting systems built with performance in mind.
+*   **Cinematic Galleries**: High-resolution image showcases with smooth transitions and zoom capabilities.
+*   **Detailed Information**: Comprehensive product breakdowns including specifications, agreements, and rich descriptions.
 
-### 📜 Our Story (About Us)
-*   **Narrative Design**: A split-layout storytelling experience covering our heritage since 1995.
-*   **Visionary Goals**: Dedicated sections for sustainability and futuristic design philosophy.
-*   **Craftsmanship Focus**: High-resolution visuals emphasizing the artisan hands behind every piece.
+### 🔐 Secure User Ecosystem
+*   **Unified Authentication**: Elegant login and registration flows featuring real-time validation.
+*   **Personalization**: Persistent user sessions and profile management via Redux Toolkit.
+*   **Smart Forms**: Robust data handling using `React Hook Form` and `Zod` for type-safe validation.
 
-### ✉️ Strategic Contact & News
-*   **Interactive Forms**: Robust Contact Us page built with `react-hook-form` and `sonner` notifications.
-*   **News Circle**: Integrated newsletter registration ("Register News") with focus on design insights and exclusive access.
-*   **Milanese Style**: Minimalist architectural photography and clean typography across all touchpoints.
+### 🚀 Performance & UX
+*   **Silk-Smooth Motion**: Integrated [Lenis](https://lenis.darkroom.engineering/) for high-end inertial scrolling.
+*   **Glassmorphic UI**: Modern aesthetic using semi-transparent layers and blurred backdrops for a premium feel.
+*   **Responsive Precision**: Meticulously crafted for all devices, from mobile to ultra-wide displays.
+*   **Instant Feedback**: Non-intrusive `Sonner` toast notifications for all system events.
 
 ---
 
 ## 🛠️ Technology Stack
 
-*   **Framework**: [Next.js 15 (App Router)](https://nextjs.org/)
-*   **Styling**: [Tailwind CSS 4](https://tailwindcss.com/) (using the latest `@linear-to-*` and dynamic class syntax)
-*   **State Management**: [Redux Toolkit](https://redux-toolkit.js.org/)
-*   **Form Handling**: [React Hook Form](https://react-hook-form.com/) & [Zod](https://zod.dev/)
-*   **Icons**: [Lucide React](https://lucide.dev/)
-*   **Animations**: Built-in CSS animations and Tailwind transitions
-*   **Notifications**: [Sonner](https://sonner.stevenly.me/)
+| Category | Technology | Purpose |
+| :--- | :--- | :--- |
+| **Framework** | [Next.js 15](https://nextjs.org/) | App Router architecture, Server Components, and optimized rendering. |
+| **Styling** | [Tailwind CSS 4](https://tailwindcss.com/) | Cutting-edge CSS engine for rapid, maintainable design. |
+| **State** | [Redux Toolkit](https://redux-toolkit.js.org/) | Centralized, predictable application state management. |
+| **Motion** | [Lenis](https://lenis.darkroom.engineering/) | Premium smooth-scrolling engine for immersive browsing. |
+| **Forms** | [React Hook Form](https://react-hook-form.com/) | Performant, flexible, and extensible forms with validation. |
+| **Validation** | [Zod](https://zod.dev/) | TypeScript-first schema declaration and validation. |
+| **UI Library** | [Shadcn UI](https://ui.shadcn.com/) | Accessible, beautiful primitive components. |
+
+---
+
+## 🏗️ Project Structure
+
+```bash
+frontend/
+├── app/                  # Next.js App Router (Routing & Pages)
+├── components/           
+│   ├── customs/          # Brand-specific specialized components (Hero, Gallery, etc.)
+│   └── ui/               # Reusable primitive UI atoms (Shadcn UI)
+├── services/             # API communication layer (Axios instances & services)
+├── stores/               # Global state management logic (Redux Slices & Hooks)
+├── schema/               # Type-safe request/response definitions
+├── lib/                  # Shared utilities and helper functions
+└── public/               # High-resolution assets and media
+```
 
 ---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-*   Node.js (v18 or higher)
-*   npm or yarn
+*   **Node.js**: v18.0 or higher
+*   **Package Manager**: `npm` or `yarn`
 
 ### Installation
-1.  **Clone the repository**:
+
+1.  **Clone & Navigate**:
     ```bash
-    git clone https://github.com/yourusername/furniro.git
-    cd furniro/frontend
+    git clone https://github.com/NaGit09/FE-Furniro.git
+    cd FE-Furniro
     ```
-2.  **Install dependencies**:
+
+2.  **Install Runtime**:
     ```bash
     npm install
     ```
-3.  **Run the development server**:
+
+3.  **Launch Workspace**:
     ```bash
     npm run dev
     ```
-4.  **Open the app**: Visit [http://localhost:3000](http://localhost:3000)
+
+4.  **Explore**: Navigate to `http://localhost:3000` to view the application.
 
 ---
 
-## 🏗️ Project Structure
+## 🎨 Design Identity
 
-```text
-frontend/
-├── app/                  # Next.js App Router (About, Contact, Product, etc.)
-├── components/           
-│   ├── customs/          # Specialized brand components (Hero, Story, Form, etc.)
-│   └── ui/               # Reusable primitive UI components (Shadcn UI)
-├── public/               
-│   └── images/           # Generated high-resolution assets & brand visuals
-└── services/             # API services and business logic
-```
+Furniro's aesthetic is built on three pillars:
+1.  **Warm Minimalism**: Neutral tones paired with wood-inspired accents (#B88E2F).
+2.  **Visual Depth**: Strategic use of shadows and glassmorphism to create a layered interface.
+3.  **Typography**: Clean, professional sans-serif hierarchy for maximum readability.
 
 ---
 
-## 🎨 Design Philosophy
+<div align="center">
+  Developed with excellence for the modern web.
+  <br />
+  <b>© 2026 Furniro. All rights reserved.</b>
+</div>
 
-Furniro follows a **"Modern Luxury"** aesthetic:
-*   **Warmth**: Using orange and yellow-800 accents to create a welcoming atmosphere.
-*   **Precision**: Sharp, semantic typography (Geist font family).
-*   **Immersion**: Large-scale imagery and subtle motion to guide the user's eye.
-
----
-
-## 📝 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
----
-
-<p align="center">
-  Crafted with ❤️ by <b>Antigravity</b>
-</p>

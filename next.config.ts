@@ -12,6 +12,10 @@ const nextConfig: NextConfig = {
           protocol: "https",
           hostname: "zsofa.vn",
         },
+        {
+          protocol: "https",
+          hostname: "images.furniro.com",
+        },
       ],
   },
 };
