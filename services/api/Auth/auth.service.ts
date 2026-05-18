@@ -1,0 +1,95 @@
+import axiosInstance from "@/services/AxiosInstance";
+import { ApiResponse } from "@/schema/common/AType";
+import { setCookie } from "@/lib/cookieUtils";
+import { LoginFormData } from "@/schema/request/login.req";
+import { LoginRes } from "@/schema/response/login.res";
+import { RegisterFormData } from "@/schema/request/register.req";
+import { AUTH_URL } from "@/lib/constant/Auth/auth.url";
+import { ConfirmOTPFormData } from "@/schema/request/confirm.req";
+import { ChangePasswordFormData } from "@/schema/request/change.req";
+
+export const login = async (req: LoginFormData) => {
+  try {
+    const res = await axiosInstance.post<ApiResponse<LoginRes>>(
+      AUTH_URL.LOGIN,
+      req,
+    );
+    setCookie("AccessToken", res.data.data.AccessToken, 1);
+    setCookie("RefreshToken", res.data.data.RefreshToken, 7);
+    return res.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const register = async (req: RegisterFormData) => {
+  try {
+    const res = await axiosInstance.post<ApiResponse<boolean>>(
+      AUTH_URL.REGISTER,
+      req,
+    );
+    return res.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const logout = async () => {
+  try {
+    const res = await axiosInstance.post<ApiResponse<boolean>>(
+      AUTH_URL.LOGOUT,
+    );
+    return res.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const refreshToken = async () => {
+    try {
+      const res = await axiosInstance.post<ApiResponse<LoginRes>>(
+        AUTH_URL.REFRESH,
+      );
+      setCookie("AccessToken", res.data.data.AccessToken, 1);
+      setCookie("RefreshToken", res.data.data.RefreshToken, 7);
+      return res.data;
+    } catch (error) {
+      console.log(error);
+    }
+};
+
+export const sendOTP = async (email: string) => {
+  try {
+    const res = await axiosInstance.post<ApiResponse<boolean>>(
+      AUTH_URL.SEND_OTP,
+      {email},
+    );
+    return res.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const changePassword = async (req: ChangePasswordFormData) => {
+  try {
+    const res = await axiosInstance.post<ApiResponse<boolean>>(
+      AUTH_URL.CHANGE_PASSWORD,
+      req,
+    );
+    return res.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const confirmOTP = async (req: ConfirmOTPFormData) => {
+  try {
+    const res = await axiosInstance.post<ApiResponse<boolean>>(
+      AUTH_URL.CONFIRM_OTP,
+      req,
+    );
+    return res.data;
+  } catch (error) {
+    console.log(error);
+  }
+};

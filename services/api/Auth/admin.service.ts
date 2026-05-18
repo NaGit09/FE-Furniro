@@ -1,0 +1,67 @@
+import axiosInstance from "@/services/AxiosInstance";
+import { ApiResponse } from "@/schema/common/AType";
+import { ADMIN_URL } from "@/lib/constant/Auth/admin.url";
+
+export const getAllUsers = async (
+  page = 1,
+  size = 20,
+  sortBy = "createdAt",
+) => {
+  try {
+    const res = await axiosInstance.get<ApiResponse<number[]>>(
+      ADMIN_URL.GET_ALL_ACCOUNT,
+      { params: { page, size, sortBy } },
+    );
+    return res.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const banUser = async (userIds: number[]) => {
+  try {
+    const res = await axiosInstance.post<ApiResponse<boolean>>(
+      ADMIN_URL.BAN_ACCOUNT,
+      userIds,
+    );
+    return res.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const unbanUser = async (userIds: number[]) => {
+  try {
+    const res = await axiosInstance.post<ApiResponse<boolean>>(
+      ADMIN_URL.UNBAN_ACCOUNT,
+      userIds,
+    );
+    return res.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const deleteUser = async (userIds: number[]) => {
+  try {
+    const res = await axiosInstance.post<ApiResponse<boolean>>(
+      ADMIN_URL.DELETE_ACCOUNT,
+      userIds,
+    );
+    return res.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const resetPassword = async (userIds: number[]) => {
+  try {
+    const res = await axiosInstance.post<ApiResponse<boolean>>(
+      ADMIN_URL.RESET_PASSWORD,
+      userIds,
+    );
+    return res.data;
+  } catch (error) {
+    console.log(error);
+  }
+};

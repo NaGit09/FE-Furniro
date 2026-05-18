@@ -6,7 +6,7 @@ import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 
 import { LoginFormData, loginSchema } from "@/schema/request/login.req";
-import { login } from "@/services/api/auth.service";
+import { login } from "@/services/api/Auth/auth.service";
 import { login as loginAction } from "@/stores/slices/auth.store";
 
 // shadcn components
