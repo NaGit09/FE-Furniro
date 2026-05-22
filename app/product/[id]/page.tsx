@@ -1,6 +1,5 @@
 import ProductDetailClient from "@/components/customs/product/ProductDetailClient";
-import { get_product_detail } from "@/services/api/product.service";
-
+import { ProductApi } from "@/services/api/Product/product.service";
 export default async function Page({
   params,
 }: {
@@ -8,7 +7,7 @@ export default async function Page({
 }) {
   const { id } = await params;
 
-  const res = await get_product_detail(id);
+  const res = await ProductApi.get_product_detail(id);
 
   const product = res.data;
 

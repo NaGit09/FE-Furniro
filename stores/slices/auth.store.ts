@@ -2,11 +2,11 @@ import { createSlice } from "@reduxjs/toolkit";
 
 interface AuthState {
     isLoggedIn: boolean;
-    FirstName: String;
-    LastName: String;
-    UserName: String;
-    Email: String;
-    AvatarURL: String;
+    FirstName: string;
+    LastName: string;
+    UserName: string;
+    Email: string;
+    AvatarURL: string;
 }
 
 const initAuthSlice: AuthState = {

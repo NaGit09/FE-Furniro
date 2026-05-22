@@ -21,6 +21,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { removeCookie } from "@/lib/cookieUtils";
 
 export default function LoginForm() {
   const dispatch = useDispatch();
@@ -37,6 +38,8 @@ export default function LoginForm() {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
+      // xoa token cu
+      removeCookie("jwt");
       const res = await login(data);
 
       if (res?.code === 200) {

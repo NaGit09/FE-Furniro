@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect } from "react";
@@ -10,15 +11,15 @@ import {
   setError,
 } from "@/stores/slices/product.store";
 import { RootState } from "@/stores/store";
-import { get_product_list } from "@/services/api/product.service";
 
 import ProductFilter from "./ProductFilter";
 import ProductListCard from "./ProductListCard";
 import PaginationControl from "../common/PaginationControl";
 import ProductAgreement from "./ProductAgreement";
 import PageBanner from "../common/ThemBackground";
+import { ProductApi } from "@/services/api/Product/product.service";
 
-const ProductPage = ({ initialData }: any) => {
+const ProductPage = () => {
   const dispatch = useDispatch();
 
   const { filter, pageable, totalPages } = useSelector(
@@ -26,16 +27,10 @@ const ProductPage = ({ initialData }: any) => {
   );
 
   useEffect(() => {
-    dispatch(setProducts(initialData.content));
-    dispatch(setTotalElements(initialData.totalElements));
-    dispatch(setTotalPages(initialData.totalPages));
-  }, []);
-
-  useEffect(() => {
     const fetchProducts = async () => {
       dispatch(setLoading(true));
       try {
-        const res = await get_product_list(
+        const res = await ProductApi.get_product_list(
           pageable.pageNumber,
           pageable.pageSize,
         );
