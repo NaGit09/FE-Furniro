@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { ProductDetail } from "@/schema/response/product.res";
+import { ProductDetail } from "@/schema/response/product/product.res";
 import { Minus, Plus, Star } from "lucide-react";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Input } from "@/components/ui/input";

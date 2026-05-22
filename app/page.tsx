@@ -41,7 +41,7 @@ export default function Home() {
                  <p className="max-w-xl text-zinc-500 font-medium italic">Handselected pieces that define the new standard of modern living.</p>
                  <div className="h-1 w-24 bg-yellow-600 rounded-full" />
               </div>
-              <ProductListCard page={1} size={10} />
+              <ProductListCard />
            </div>
         </section>
 

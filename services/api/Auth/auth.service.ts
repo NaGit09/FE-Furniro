@@ -1,12 +1,12 @@
 import axiosInstance from "@/services/AxiosInstance";
 import { ApiResponse } from "@/schema/common/AType";
 import { setCookie } from "@/lib/cookieUtils";
-import { LoginFormData } from "@/schema/request/login.req";
-import { LoginRes } from "@/schema/response/login.res";
-import { RegisterFormData } from "@/schema/request/register.req";
+import { LoginFormData } from "@/schema/request/auth/account/login.req";
+import { LoginRes } from "@/schema/response/auth/login.res";
+import { RegisterFormData } from "@/schema/request/auth/account/register.req";
 import { AUTH_URL } from "@/lib/constant/Auth/auth.url";
-import { ConfirmOTPFormData } from "@/schema/request/confirm.req";
-import { ChangePasswordFormData } from "@/schema/request/change.req";
+import { ConfirmOTPFormData } from "@/schema/request/auth/account/confirm.req";
+import { ChangePasswordFormData } from "@/schema/request/auth/account/change.req";
 
 export const login = async (req: LoginFormData) => {
   try {
@@ -24,7 +24,7 @@ export const login = async (req: LoginFormData) => {
 
 export const register = async (req: RegisterFormData) => {
   try {
-    const res = await axiosInstance.post<ApiResponse<boolean>>(
+    const res = await axiosInstance.post<ApiResponse<LoginRes>>(
       AUTH_URL.REGISTER,
       req,
     );
@@ -90,6 +90,18 @@ export const confirmOTP = async (req: ConfirmOTPFormData) => {
     );
     return res.data;
   } catch (error) {
+    console.log(error);
+  }
+};
+
+export const activeAccount = async (accountID: number) => {
+  try {
+    const res = await axiosInstance.get<ApiResponse<boolean>>(
+      `${AUTH_URL.ACTIVE}?id=${accountID}`,
+    );
+    return res.data;
+  }
+ catch (error) {
     console.log(error);
   }
 };

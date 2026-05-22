@@ -1,5 +1,5 @@
 import { Pageable } from "@/schema/common/pagination";
-import { ProductCardRes } from "@/schema/response/product.res";
+import { ProductCardRes } from "@/schema/response/product/product.res";
 import { createSlice } from "@reduxjs/toolkit";
 
 interface ProductFilter {

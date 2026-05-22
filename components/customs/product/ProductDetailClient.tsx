@@ -1,6 +1,6 @@
 "use client";
 
-import { ProductDetail } from "@/schema/response/product.res";
+import { ProductDetail } from "@/schema/response/product/product.res";
 import ProductImageGallery from "./ProductImageGallery";
 import ProductInformation from "./ProductInformation";
 import PageNavigate from "../common/PageNavigate";

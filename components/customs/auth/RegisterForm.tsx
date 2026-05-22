@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import {
   RegisterFormData,
   registerSchema,
-} from "@/schema/request/register.req";
+} from "@/schema/request/auth/account/register.req";
 import { register } from "@/services/api/Auth/auth.service";
 import { register as registerAction } from "@/stores/slices/auth.store";
 import PhoneInput from "./PhoneInput";

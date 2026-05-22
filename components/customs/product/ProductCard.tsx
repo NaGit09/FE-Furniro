@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ShoppingCart, Eye } from "lucide-react";
-import { ProductCardRes } from "@/schema/response/product.res";
+import { ProductCardRes } from "@/schema/response/product/product.res";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

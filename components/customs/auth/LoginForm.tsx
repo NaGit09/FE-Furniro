@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 
-import { LoginFormData, loginSchema } from "@/schema/request/login.req";
+import { LoginFormData, loginSchema } from "@/schema/request/auth/account/login.req";
 import { login } from "@/services/api/Auth/auth.service";
 import { login as loginAction } from "@/stores/slices/auth.store";
 
@@ -17,7 +17,6 @@ import {
   CardAction,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";

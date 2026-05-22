@@ -1,4 +1,4 @@
-import { ProductDetail } from "@/schema/response/product.res";
+import { ProductDetail } from "@/schema/response/product/product.res";
 import React from "react";
 
 const ProductDescription = ({ data }: { data: ProductDetail }) => {

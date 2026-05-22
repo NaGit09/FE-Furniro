@@ -2,11 +2,10 @@ import { z } from "zod";
 
 enum ProductStatus {
   ACTIVE = "ACTIVE",
-  INACTIVE = "INACTIVE"
+  INACTIVE = "INACTIVE",
 }
 
 export const ProductCardResSchema = z.object({
-
   productID: z.number(),
   name: z.string(),
   status: z.enum(ProductStatus),
@@ -17,7 +16,6 @@ export const ProductCardResSchema = z.object({
 });
 
 export type ProductCardRes = z.infer<typeof ProductCardResSchema>;
-
 
 export const ProductDetailSchema = z.object({
   productId: z.number().int().positive(),
@@ -50,3 +48,32 @@ export const ProductDetailSchema = z.object({
 
 export type ProductDetail = z.infer<typeof ProductDetailSchema>;
 
+export const ProductCompareResSchema = z.object({
+  productID: z.number(),
+  name: z.string(),
+  basePrice: z.number(),
+  image: z.string(),
+  width: z.number(),
+  height: z.number(),
+  depth: z.number(),
+  weight: z.number(),
+  material: z.string(),
+  warranty: z.string(),
+});
+
+export type ProductCompareRes = z.infer<typeof ProductCompareResSchema>;
+
+export const CategoryResSchema = z.object({
+
+  categoryID: z.number(),
+  categoryName: z.string(),
+  subCategories: z.array(
+    z.object({
+      categoryID: z.number(),
+      categoryName: z.string(),
+      subCategories: z.array(z.any()), 
+    })
+  ),
+});
+
+export type CategoryRes = z.infer<typeof CategoryResSchema>;
