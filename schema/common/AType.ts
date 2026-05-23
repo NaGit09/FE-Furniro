@@ -8,5 +8,4 @@ export interface ApiResponse<T> extends AType {
     data: T
 }
 
-export interface ApiError extends AType {
-}
+export type ApiError = AType

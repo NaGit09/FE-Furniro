@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useForm, Controller } from "react-hook-form";
@@ -9,7 +10,7 @@ import {
   RegisterFormData,
   registerSchema,
 } from "@/schema/request/auth/account/register.req";
-import { register } from "@/services/api/Auth/auth.service";
+import { AuthApi } from "@/services/api/Auth/auth.service";
 import { register as registerAction } from "@/stores/slices/auth.store";
 import PhoneInput from "./PhoneInput";
 
@@ -21,12 +22,11 @@ import {
   CardAction,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { navigateAfter3Seconds } from "@/lib/utils/navigateUtils";
 
 export default function RegisterForm() {
   const dispatch = useDispatch();
@@ -54,7 +54,7 @@ export default function RegisterForm() {
         });
         return;
       }
-      const res = await register(data);
+      const res = await AuthApi.register(data);
 
       if (res?.code === 200) {
         dispatch(registerAction(res.data));
@@ -71,10 +71,6 @@ export default function RegisterForm() {
     }
   };
 
-  const navitegateToLogin = () => {
-    router.push("/user/login");
-  };
-
   return (
     <div className="w-md mx-auto mt-10 p-6 border rounded-xl shadow">
       <Card className="w-full max-w-md">
@@ -86,7 +82,7 @@ export default function RegisterForm() {
           <CardAction>
             <Button
               className="text-blue-600"
-              onClick={navitegateToLogin}
+              onClick={() => navigateAfter3Seconds("/user/login")}
               variant="link"
             >
               Login

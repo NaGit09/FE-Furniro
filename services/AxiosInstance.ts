@@ -1,22 +1,21 @@
-import axios from 'axios';
-import { getCookie } from '../lib/cookieUtils';
+import axios from "axios";
+import { getCookie } from "../lib/utils/cookieUtils";
 
-const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1/furniro';
+const baseURL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1/furniro";
 
 const axiosInstance = axios.create({
   baseURL,
   timeout: 10000,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
-  // Tốt nhất nên đặt mặc định ở đây nếu Backend luôn yêu cầu Credentials
   withCredentials: true,
 });
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = getCookie('jwt');
-    console.log('Request Interceptor - JWT Token:', token);
+    const token = getCookie("jwt");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -25,32 +24,28 @@ axiosInstance.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 axiosInstance.interceptors.response.use(
   (response) => {
-    // Chỉ trả về data để ở Frontend dùng gọn hơn: response.data
     return response;
   },
   (error) => {
-    // Xử lý lỗi tập trung
     if (error.response) {
-      // Server trả về lỗi (401, 403, 500...)
-      if (error.response.status === 401) {
+      if (error.response.code === 401) {
         console.warn("Token hết hạn hoặc không hợp lệ, đang điều hướng...");
-        // Có thể thêm logic redirect về /login ở đây
       }
-      console.error('Backend Error:', error.response.data);
+      console.error("Backend Error:", error.response.data);
     } else if (error.request) {
-      // Request đã gửi nhưng không nhận được phản hồi (Lỗi CORS thường rơi vào đây)
-      console.error('CORS hoặc Network Error - Không thể kết nối tới Server');
+      console.error("CORS hoặc Network Error - Không thể kết nối tới Server");
     } else {
-      console.error('Setup Error:', error.message);
+      console.error("Setup Error:", error.message);
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default axiosInstance;
+  

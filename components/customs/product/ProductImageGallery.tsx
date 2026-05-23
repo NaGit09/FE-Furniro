@@ -11,12 +11,13 @@ interface ProductImageGalleryProps {
 export default function ProductImageGallery({
   images,
 }: ProductImageGalleryProps) {
+  
   const [selectedImage, setSelectedImage] = useState(images[0]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
       {/* Thumbnail list */}
-      <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-y-auto max-h-[500px] pr-1">
+      <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-y-auto max-h-125 pr-1">
         {images.map((img, index) => (
           <button
             key={index}

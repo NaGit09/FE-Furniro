@@ -2,7 +2,6 @@
 import { Button } from "@/components/ui/button";
 import { ProductDetail } from "@/schema/response/product/product.res";
 import { Minus, Plus, Star } from "lucide-react";
-import { ButtonGroup } from "@/components/ui/button-group";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
@@ -86,7 +85,7 @@ const ProductInformation = ({ data }: { data: ProductDetail }) => {
       </div>
       {/* {"Feature enter quantity , add to cart , compare"} */}
       <div className="flex items-start gap-3">
-        <div className="flex gap-2 items-center  border border-gray-200 rounded-lg h-[64px] w-[215px]">
+        <div className="flex gap-2 items-center  border border-gray-200 rounded-lg h-16 w-53.7">
           <Button
             className="px-3 py-1 bg-transparent text-black hover:text-white transition"
             onClick={() => setQuantity(quantity - 1)}
@@ -106,10 +105,10 @@ const ProductInformation = ({ data }: { data: ProductDetail }) => {
             <Plus />
           </Button>
         </div>
-        <Button className="h-[64px] w-[215px] px-3 py-1 border border-gray-200 bg-transparent text-black hover:bg-yellow-600 hover:text-white transition">
+        <Button className="h-16 w-53.7   px-3 py-1 border border-gray-200 bg-transparent text-black hover:bg-yellow-600 hover:text-white transition">
           Add to cart
         </Button>
-        <Button className="h-[64px] w-[215px] px-3 py-1 border border-gray-200 bg-transparent text-black hover:bg-yellow-600 hover:text-white transition">
+        <Button className="h-16 w-53.7 px-3 py-1 border border-gray-200 bg-transparent text-black hover:bg-yellow-600 hover:text-white transition">
           Compare
         </Button>
       </div>

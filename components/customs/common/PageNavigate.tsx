@@ -12,7 +12,7 @@ const PageNavigate = ({
   id: number;
 }) => {
   return (
-    <div className="h-[100px] w-full bg-amber-50 flex items-center justify-start">
+    <div className="h-25 w-full bg-amber-50 flex items-center justify-start">
       <div className="flex items-center gap-2 ml-20 justify-center">
         <Link href="/" className="text-gray-500">Home</Link>
         <ChevronRight />
