@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/customs/home/Header";
-import Footer from "@/components/customs/home/Footer";
+import Header from "@/components/customs/common/UserLayout/Header";
+import Footer from "@/components/customs/common/UserLayout/Footer";
 import StoreProvider from "./StoreProvider";
 import ScrollHandler from "@/components/customs/common/SmoothScrollProvider";
 
