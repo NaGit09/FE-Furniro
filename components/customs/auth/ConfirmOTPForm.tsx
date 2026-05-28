@@ -48,7 +48,7 @@ export default function ConfirmOTPForm() {
           "Xác nhận OTP thành công. Tài khoản của bạn đã được kích hoạt.",
         );
         form.reset();
-        navigateAfter3Seconds("/user/login");
+        navigateAfter3Seconds("/auth/login");
       } else {
         setApiError(
           res?.message || "Không thể xác nhận OTP. Vui lòng thử lại.",

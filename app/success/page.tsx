@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function SuccessPage() {
   return (
     <div className="flex flex-col min-h-[85vh] bg-zinc-50 dark:bg-black">
-      <main className="w-full flex-grow">
+      <main className="w-full grow">
         <SuccessPageContent />
       </main>
     </div>

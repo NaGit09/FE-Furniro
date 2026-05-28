@@ -8,76 +8,89 @@ import { MoveRight, Sparkles } from "lucide-react";
 const Promote = () => {
   return (
     <div className="w-full h-screen relative overflow-hidden flex items-center justify-center -top-[100px] mb-[-100px]">
-      {/* Background Image with Slow Zoom */}
-      <div className="absolute inset-0 scale-110 animate-pulse duration-10000">
+      {/* Background Image with Slow Zoom & Blur */}
+      <div className="absolute inset-0 scale-105 animate-pulse duration-10000">
         <Image
           src="/images/background.png"
-          alt="Promote"
+          alt="Premium Milanese Home Interior"
           fill
           priority
-          className="object-cover z-0"
+          className="object-cover z-0 brightness-[0.85] dark:brightness-[0.7]"
         />
       </div>
 
-      {/* Dynamic Overlay */}
-      <div className="absolute inset-0 bg-linear-to-r from-black/60 via-transparent to-transparent z-11" />
+      {/* Dynamic Overlay Gradient */}
+      <div className="absolute inset-0 bg-linear-to-tr from-stone-950/65 via-stone-900/30 to-transparent z-10" />
 
-      {/* Main Content Box */}
-      <div className="absolute top-1/2 -translate-y-1/2 right-[5%] md:right-[10%] w-full max-w-[700px] bg-white/90 backdrop-blur-xl dark:bg-black/80 text-black dark:text-white rounded-[50px] p-12 md:p-20 flex flex-col gap-10 z-10 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] border border-white/20 animate-in fade-in slide-in-from-right-20 duration-1000">
-        <div className="flex items-center gap-3 animate-bounce">
-          <Sparkles className="text-yellow-600 w-5 h-5" />
-          <h6 className="text-sm font-black tracking-[0.4em] uppercase text-zinc-600 dark:text-zinc-400">
+      {/* Floating Decorative Orbs for Liquid Glass Theme */}
+      <div className="absolute left-[8%] top-[15%] w-64 h-64 bg-yellow-600/10 rounded-full blur-3xl animate-pulse pointer-events-none z-10" />
+      <div className="absolute right-[15%] bottom-[12%] w-96 h-96 bg-stone-900/10 dark:bg-stone-50/5 rounded-full blur-3xl animate-bounce duration-10000 pointer-events-none z-10" />
+
+      {/* Main Content Box (Liquid Glass Panel) */}
+      <div className="absolute top-1/2 -translate-y-1/2 right-[5%] md:right-[8%] w-[90%] max-w-[620px] bg-white/75 dark:bg-stone-900/75 backdrop-blur-2xl text-stone-900 dark:text-stone-100 rounded-[40px] p-8 md:p-14 flex flex-col gap-8 z-20 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.4)] border border-white/30 dark:border-stone-800/40 animate-in fade-in slide-in-from-right-20 duration-1000">
+        
+        {/* Sparkle Subtitle */}
+        <div className="flex items-center gap-2.5 self-start px-4 py-1.5 rounded-full bg-yellow-600/10 dark:bg-yellow-600/15 border border-yellow-600/25">
+          <Sparkles className="text-yellow-600 w-4 h-4 animate-spin-slow" />
+          <h6 className="text-[11px] font-bold tracking-[0.25em] uppercase text-yellow-700 dark:text-yellow-500 font-sans">
             Evolution of Comfort
           </h6>
         </div>
 
-        <h1 className="text-6xl md:text-8xl font-black text-zinc-900 dark:text-zinc-100 leading-[0.9] italic tracking-tighter transform hover:skew-x-2 transition-transform duration-500">
-          Discover Our <br />
-          <span className="text-yellow-600">New Era</span>
-        </h1>
+        {/* Headings with Bodoni Moda */}
+        <div className="flex flex-col gap-2">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold font-heading text-stone-900 dark:text-stone-50 leading-[1.0] tracking-tight">
+            Discover Our <br />
+            <span className="text-yellow-600 italic font-medium">New Era</span>
+          </h1>
+          <div className="h-0.5 w-16 bg-yellow-600 rounded-full mt-3" />
+        </div>
 
-        <p className="text-xl text-zinc-500 dark:text-zinc-400 font-medium max-w-lg leading-relaxed">
-          Crafting spaces that aren't just seen, but felt. Furniture that
-          defines your lifestyle through minimalist precision and organic
-          warmth.
+        {/* Description with Jost */}
+        <p className="text-base md:text-lg text-stone-600 dark:text-stone-300 font-normal leading-relaxed font-sans max-w-md">
+          Crafting living spaces that aren't just seen, but deeply felt. Discover furniture defined by minimalist Milanese precision, organic warmth, and sustainable craft.
         </p>
 
-        <div className="flex flex-wrap gap-6 items-center">
+        {/* Call to Action & Avatars Grid */}
+        <div className="flex flex-wrap gap-6 items-center mt-2">
           <Link href="/product">
-            <Button className="group h-24 px-12 rounded-[30px] bg-yellow-600 hover:bg-zinc-900 text-white text-2xl font-black transition-all duration-300 hover:shadow-2xl shadow-yellow-600/20 flex items-center gap-4 active:scale-95">
-              Shop Now{" "}
-              <MoveRight className="w-8 h-8 group-hover:translate-x-2 transition-transform" />
+            <Button className="group h-14 px-8 rounded-full bg-yellow-600 hover:bg-stone-950 dark:hover:bg-stone-50 dark:hover:text-stone-950 text-white text-base font-semibold tracking-wide transition-all duration-300 hover:shadow-[0_15px_30px_rgba(202,138,4,0.35)] flex items-center gap-3 active:scale-95 cursor-pointer">
+              Shop The Collection
+              <MoveRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform duration-300" />
             </Button>
           </Link>
 
-          <div className="flex -space-x-4">
-            {[1, 2, 3].map((_, i) => (
-              <div
-                key={i}
-                className="w-16 h-16 rounded-full border-4 border-white dark:border-black bg-zinc-200 overflow-hidden shadow-xl hover:-translate-y-2 transition-transform cursor-pointer"
-              >
-                <Image
-                  src={`/images/avatars/designer-1.png`}
-                  width={64}
-                  height={64}
-                  alt="Review"
-                  className="object-cover"
-                />
+          <div className="flex items-center gap-3">
+            <div className="flex -space-x-3.5">
+              {[1, 2, 3].map((_, i) => (
+                <div
+                  key={i}
+                  className="w-10 h-10 rounded-full border-2 border-white dark:border-stone-900 bg-stone-200 dark:bg-stone-800 overflow-hidden shadow-md hover:-translate-y-1 hover:z-30 transition-all duration-300 cursor-pointer"
+                >
+                  <Image
+                    src={`/images/avatars/designer-1.png`}
+                    width={40}
+                    height={40}
+                    alt="Satisfied Furniro Client"
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+              ))}
+              <div className="w-10 h-10 rounded-full border-2 border-white dark:border-stone-900 bg-stone-950 text-white dark:bg-stone-100 dark:text-stone-950 flex items-center justify-center font-bold text-[10px] shadow-md">
+                +2k
               </div>
-            ))}
-            <div className="w-16 h-16 rounded-full border-4 border-white dark:border-black bg-black text-white flex items-center justify-center font-bold text-xs shadow-xl cursor-help">
-              +2k
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[11px] font-bold text-stone-700 dark:text-stone-300 leading-tight">
+                Joined the Family
+              </span>
+              <span className="text-[10px] text-yellow-600 dark:text-yellow-500 font-medium italic animate-pulse">
+                Exclusive Milan Craft
+              </span>
             </div>
           </div>
-          <span className="text-zinc-500 text-sm font-bold animate-pulse italic">
-            Already joined the family
-          </span>
         </div>
       </div>
-
-      {/* Floating Elements for Premium Feel */}
-      <div className="absolute left-[10%] top-[20%] w-32 h-32 bg-yellow-600/10 blur-3xl animate-pulse rounded-full z-2" />
-      <div className="absolute right-[20%] bottom-[15%] w-64 h-64 bg-zinc-900/5 blur-3xl animate-bounce duration-8000 rounded-full z-2" />
     </div>
   );
 };

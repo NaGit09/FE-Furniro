@@ -1,5 +1,5 @@
-
 const baseAuthURL = "/auth-service/account";
+
 export const AUTH_URL = {
     
     LOGIN: `${baseAuthURL}/login`,

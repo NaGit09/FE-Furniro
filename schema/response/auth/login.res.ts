@@ -8,6 +8,7 @@ export const loginResSchema = z.object({
   LastName: z.string(),
   Email: z.string(),
   AvatarUrl: z.string(),
+  accountID: z.number().optional().nullable(),
 });
 
 export type LoginRes = z.infer<typeof loginResSchema>;

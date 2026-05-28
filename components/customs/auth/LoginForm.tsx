@@ -68,7 +68,7 @@ export default function LoginForm() {
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     try {
-      removeCookie("jwt");
+      removeCookie("AccessToken");
       
       const res = await AuthApi.login(data);
 
@@ -445,7 +445,7 @@ export default function LoginForm() {
                 <label htmlFor="login-password" className="field-label" style={{ margin: 0 }}>
                   Password
                 </label>
-                <Link href="/user/forgot" className="link-gold" style={{ fontSize: "13px" }}>
+                <Link href="/auth/forgot" className="link-gold" style={{ fontSize: "13px" }}>
                   Forgot password?
                 </Link>
               </div>
@@ -517,7 +517,7 @@ export default function LoginForm() {
             marginBottom: 0
           }}>
             Don&apos;t have an account?{" "}
-            <Link href="/user/register" className="link-gold">
+            <Link href="/auth/register" className="link-gold">
               Create one
             </Link>
           </p>

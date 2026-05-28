@@ -38,7 +38,7 @@ import { removeCookie } from "@/lib/utils/cookieUtils";
 
 /* ─── Menu definition ─────────────────────────────────────── */
 const MENU_ITEMS = [
-  { label: "My Profile",  href: "/user",           icon: User        },
+  { label: "My Profile",  href: "/user/profile",   icon: User        },
   { label: "My Orders",   href: "/user/orders",    icon: ShoppingBag },
   { label: "Wishlist",    href: "/user/wishlist",  icon: Heart       },
   { label: "Settings",    href: "/user/settings",  icon: Settings    },
@@ -66,9 +66,11 @@ export default function UserDropdown() {
     } finally {
       removeCookie("AccessToken");
       removeCookie("RefreshToken");
+      removeCookie("UserID");
+      removeCookie("UserEmail");
       dispatch(logoutAction());
       setLoggingOut(false);
-      router.push("/user/login");
+      router.push("/auth/login");
     }
   }, [dispatch, router]);
 

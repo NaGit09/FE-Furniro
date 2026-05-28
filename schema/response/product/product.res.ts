@@ -18,7 +18,8 @@ export const ProductCardResSchema = z.object({
 export type ProductCardRes = z.infer<typeof ProductCardResSchema>;
 
 export const ProductDetailSchema = z.object({
-  productId: z.number().int().positive(),
+  productId: z.number().int().positive().optional(),
+  productID: z.number().int().positive().optional(),
   name: z.string().min(1, "Name is required"),
   description: z.string().min(10, "Description should be longer"),
   basePrice: z.number().nonnegative(),

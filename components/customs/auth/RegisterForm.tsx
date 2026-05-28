@@ -58,7 +58,7 @@ export default function RegisterForm() {
 
       if (res?.code === 200) {
         dispatch(registerAction(res.data));
-        router.push("/user/login");
+        router.push("/auth/login");
       } else {
         form.setError("root", {
           message: res?.message || "Login failed",
@@ -82,7 +82,7 @@ export default function RegisterForm() {
           <CardAction>
             <Button
               className="text-blue-600"
-              onClick={() => navigateAfter3Seconds("/user/login")}
+              onClick={() => navigateAfter3Seconds("/auth/login")}
               variant="link"
             >
               Login

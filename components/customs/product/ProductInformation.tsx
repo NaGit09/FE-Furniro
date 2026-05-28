@@ -6,12 +6,82 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { useRouter } from "next/navigation";
+import { useSelector, useDispatch } from "react-redux";
+import { toast } from "sonner";
+import { RootState } from "@/stores/store";
+import { CartApi } from "@/services/api/Order/cart.service";
+import { setCart } from "@/stores/slices/cart.store";
 const ProductInformation = ({ data }: { data: ProductDetail }) => {
   const rating = 4.5;
   const totalReview = 128;
   const [quantity, setQuantity] = useState(1);
   const [colorSelect, chooseColor] = useState(data.colors[0]);
   const [sizeSelect, chooseSize] = useState(data.sizes[0]);
+
+  const router = useRouter();
+  const dispatch = useDispatch();
+  const auth = useSelector((s: RootState) => s.authSlice);
+  const cart = useSelector((s: RootState) => s.cartSlice);
+  const [addingToCart, setAddingToCart] = useState(false);
+
+  const handleAddToCart = async () => {
+    if (!auth.isLoggedIn || !auth.UserID) {
+      toast.error("Please sign in to add items to your bag.");
+      router.push("/auth/login");
+      return;
+    }
+
+    setAddingToCart(true);
+    const toastId = toast.loading("Adding selection to your bag...");
+    try {
+      let activeCartID = cart.cartID;
+
+      // Lazy-loading fallback: if cartID is not in Redux yet, fetch it first
+      if (!activeCartID && auth.UserID) {
+        try {
+          const cartRes = await CartApi.get_cart(auth.UserID);
+          if (cartRes && cartRes.data) {
+            activeCartID = cartRes.data.cartID;
+            dispatch(setCart({
+              cartID: cartRes.data.cartID,
+              items: cartRes.data.items || [],
+            }));
+          }
+        } catch (cartErr) {
+          console.error("Lazy cart retrieval failed:", cartErr);
+        }
+      }
+
+      const res = await CartApi.add_to_cart({
+        cartID: activeCartID || 0,
+        userID: auth.UserID,
+        variantID: data.productID || data.productId || 0,
+        quantity,
+        price: data.basePrice,
+      });
+
+      if (res && (res.code === 200 || res.data === true)) {
+        toast.success("Added to cart successfully!", { id: toastId });
+        
+        // Refresh cart state globally
+        const cartRes = await CartApi.get_cart(auth.UserID);
+        if (cartRes && cartRes.data) {
+          dispatch(setCart({
+            cartID: cartRes.data.cartID,
+            items: cartRes.data.items || [],
+          }));
+        }
+      } else {
+        toast.error(res?.message || "Could not add selection.", { id: toastId });
+      }
+    } catch (err) {
+      console.error("Add to cart error:", err);
+      toast.error("Failed to add selection. Please try again.", { id: toastId });
+    } finally {
+      setAddingToCart(false);
+    }
+  };
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }).map((_, i) => {
@@ -105,8 +175,12 @@ const ProductInformation = ({ data }: { data: ProductDetail }) => {
             <Plus />
           </Button>
         </div>
-        <Button className="h-16 w-53.7   px-3 py-1 border border-gray-200 bg-transparent text-black hover:bg-yellow-600 hover:text-white transition">
-          Add to cart
+        <Button 
+          disabled={addingToCart}
+          onClick={handleAddToCart}
+          className="h-16 w-53.7 px-3 py-1 border border-gray-200 bg-transparent text-black hover:bg-yellow-600 hover:text-white transition cursor-pointer"
+        >
+          {addingToCart ? "Adding..." : "Add to cart"}
         </Button>
         <Button className="h-16 w-53.7 px-3 py-1 border border-gray-200 bg-transparent text-black hover:bg-yellow-600 hover:text-white transition">
           Compare

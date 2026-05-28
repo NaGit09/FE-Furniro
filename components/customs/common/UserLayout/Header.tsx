@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/stores/store";
 import UserDropdown from "@/components/customs/common/UserLayout/UserDropdown";
+import HeaderCartDrawer from "@/components/customs/common/UserLayout/HeaderCartDrawer";
 import "../../../../app/Header.css";
 /* ─── Types ──────────────────────────────────────────────── */
 type NavItem = { label: string; href: string };
@@ -147,7 +148,10 @@ const Header = () => {
   const pathname = usePathname();
   const router = useRouter();
   const auth = useSelector((state: RootState) => state.authSlice);
-  const cartCount: number = 0;
+  const cart = useSelector((state: RootState) => state.cartSlice);
+  const cartCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+
+  const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
 
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -273,7 +277,7 @@ const Header = () => {
               <UserDropdown />
             ) : (
               <Link
-                href="/user/login"
+                href="/auth/login"
                 id="hdr-btn-login"
                 className="hdr-icon-btn hidden sm:flex"
                 aria-label="Sign in"
@@ -287,6 +291,7 @@ const Header = () => {
             <button
               id="hdr-btn-cart"
               className="hdr-icon-btn hdr-cart-btn"
+              onClick={() => setCartDrawerOpen(true)}
               aria-label={`Shopping cart — ${cartCount} item${cartCount !== 1 ? "s" : ""}`}
             >
               <CartIcon />
@@ -436,7 +441,7 @@ const Header = () => {
                 </div>
               ) : (
                 <Link
-                  href="/user/login"
+                  href="/auth/login"
                   className="drawer-cta ghost"
                   onClick={() => setMobileOpen(false)}
                 >
@@ -444,7 +449,13 @@ const Header = () => {
                   Sign In
                 </Link>
               )}
-              <button className="drawer-cta primary">
+              <button 
+                className="drawer-cta primary"
+                onClick={() => {
+                  setMobileOpen(false);
+                  setCartDrawerOpen(true);
+                }}
+              >
                 <CartIcon />
                 View Cart
                 {cartCount > 0 && (
@@ -460,6 +471,11 @@ const Header = () => {
           </nav>
         </>
       )}
+
+      <HeaderCartDrawer 
+        isOpen={cartDrawerOpen} 
+        onClose={() => setCartDrawerOpen(false)} 
+      />
     </>
   );
 };

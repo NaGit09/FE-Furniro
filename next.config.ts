@@ -16,6 +16,10 @@ const nextConfig: NextConfig = {
           protocol: "https",
           hostname: "images.furniro.com",
         },
+        {
+          protocol: "https",
+          hostname: "res.cloudinary.com",
+        },
       ],
   },
 };

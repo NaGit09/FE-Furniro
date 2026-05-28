@@ -7,6 +7,7 @@ interface AuthState {
     UserName: string;
     Email: string;
     AvatarURL: string;
+    UserID: number | null;
 }
 
 const initAuthSlice: AuthState = {
@@ -16,6 +17,7 @@ const initAuthSlice: AuthState = {
     UserName: "Guest",
     Email: "",
     AvatarURL: "",
+    UserID: null,
 }
 
 const authSlice = createSlice({
@@ -28,7 +30,8 @@ const authSlice = createSlice({
             state.LastName = action.payload.LastName;
             state.UserName = action.payload.UserName;
             state.Email = action.payload.Email;
-            state.AvatarURL = action.payload.AvatarURL;
+            state.AvatarURL = action.payload.AvatarURL || action.payload.AvatarUrl;
+            state.UserID = action.payload.accountID || action.payload.UserID || action.payload.userID || action.payload.id || null;
         },
         register: (state, action) => {
             state.isLoggedIn = true;
@@ -36,7 +39,8 @@ const authSlice = createSlice({
             state.LastName = action.payload.LastName;
             state.UserName = action.payload.UserName;
             state.Email = action.payload.Email;
-            state.AvatarURL = action.payload.AvatarURL;
+            state.AvatarURL = action.payload.AvatarURL || action.payload.AvatarUrl;
+            state.UserID = action.payload.accountID || action.payload.UserID || action.payload.userID || action.payload.id || null;
         },
         logout: (state) => {
             state.isLoggedIn = false;
@@ -45,6 +49,7 @@ const authSlice = createSlice({
             state.UserName = "Guest";
             state.Email = "";
             state.AvatarURL = "";
+            state.UserID = null;
         }
     }
 })

@@ -48,12 +48,12 @@ export default function SendOTPForm() {
           "Mã OTP đã được gửi đến email của bạn. Vui lòng kiểm tra hòm thư.",
         );
         form.reset();
-        navigateAfter3Seconds("/auth/confirm-otp");
+        navigateAfter3Seconds("/auth/confirm");
       } else if (res?.code === 400) {
         toast.info(
           "Bạn đã có mã OTP, chúng tôi sẽ chuyển hướng bạn đến trang xác nhận OTP.",
         );
-        navigateAfter3Seconds("/user/confirm");
+        navigateAfter3Seconds("/auth/confirm");
       } else {
         setApiError(res?.message || "Không thể gửi mã OTP. Vui lòng thử lại.");
       }

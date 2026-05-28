@@ -24,7 +24,7 @@ export default function ProductDetailClient({
       <PageNavigate
         title={product.name}
         category="Product"
-        id={product.productId}
+        id={product.productID || product.productId || 0}
       />
 
       <div className="max-w-7xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-10 mt-12">
