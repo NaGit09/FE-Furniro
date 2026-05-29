@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Bodoni_Moda, Jost } from "next/font/google";
 import "./globals.css";
 import StoreProvider from "./StoreProvider";
 import ScrollHandler from "@/components/customs/common/SmoothScrollProvider";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,14 +38,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${bodoniModa.variable} ${jost.variable} antialiased`}
       >
-        <ScrollHandler />
-        <StoreProvider>
-          {children}
-        </StoreProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <ScrollHandler />
+          <StoreProvider>
+            {children}
+          </StoreProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

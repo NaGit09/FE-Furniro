@@ -67,19 +67,6 @@ export const AuthApi = {
     }
   },
 
-  refreshToken: async () => {
-    try {
-      const res = await axiosInstance.post<ApiResponse<LoginRes>>(
-        AUTH_URL.REFRESH,
-      );
-      setCookie("AccessToken", res.data.data.AccessToken, 1);
-      setCookie("RefreshToken", res.data.data.RefreshToken, 7);
-      return res.data;
-    } catch (error) {
-      console.log(error);
-    }
-  },
-
   sendOTP: async (email: string) => {
     try {
       const res = await axiosInstance.post<ApiResponse<boolean>>(

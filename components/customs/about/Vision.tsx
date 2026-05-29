@@ -2,23 +2,33 @@ import Image from "next/image";
 
 const Vision = () => {
   return (
-    <section className="container mx-auto px-4 py-24 mb-24 overflow-hidden">
-      <div className="relative h-[600px] w-full rounded-[60px] overflow-hidden group shadow-2xl transition-all duration-1000 transform hover:skew-x-1">
+    <section className="container mx-auto px-4 py-12 mb-12 overflow-hidden max-w-7xl">
+      <div className="relative h-[350px] md:h-[400px] w-full rounded-[40px] overflow-hidden group shadow-xl">
         <Image
           src="/images/about-vision.png"
           alt="Our Vision"
           fill
-          className="object-cover transition-transform duration-1000 group-hover:scale-110"
+          sizes="(max-width: 640px) 100vw, 1000px"
+          className="object-cover transition-transform duration-1000 group-hover:scale-108"
         />
-        <div className="absolute inset-0 bg-linear-to-r from-black/80 via-black/40 to-transparent flex items-center justify-start p-12 md:p-24">
-          <div className="max-w-2xl transform transition-all duration-700 group-hover:translate-x-4">
-            <h2 className="text-5xl md:text-7xl font-black text-white mb-8 drop-shadow-xl italic">
-              Future of <span className="text-yellow-600 drop-shadow-none">Living</span>
+        
+        {/* Luxury Glassmorphic dark overlay */}
+        <div className="absolute inset-0 bg-linear-to-r from-stone-950/85 via-stone-900/40 to-transparent flex items-center justify-start p-8 sm:p-12 md:p-20">
+          <div className="max-w-2xl transform transition-transform duration-700 group-hover:translate-x-3.5 flex flex-col items-start gap-4">
+            
+            {/* Title */}
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold font-heading text-white tracking-tight leading-none mb-2">
+              Future of <span className="text-yellow-600 italic font-medium font-heading">Living</span>
             </h2>
-            <p className="text-xl md:text-2xl text-zinc-100 font-medium drop-shadow-lg max-w-lg leading-relaxed mb-8">
+            <div className="h-0.5 w-16 bg-yellow-600 rounded-full mb-2" />
+
+            {/* Description */}
+            <p className="text-sm sm:text-base md:text-lg text-stone-200 font-medium font-sans leading-relaxed max-w-md mb-4 drop-shadow-md">
               We envision a world where luxury is sustainable and your home reflects your truest self.
             </p>
-            <button className="bg-white text-black px-12 py-5 rounded-full font-bold text-xl transition-all duration-300 hover:bg-yellow-600 hover:text-white transform hover:scale-110 active:scale-95 shadow-xl">
+
+            {/* Premium Button */}
+            <button className="px-8 py-3.5 bg-white hover:bg-yellow-600 text-stone-950 hover:text-white rounded-full font-bold text-sm tracking-wide transition-all active:scale-95 shadow-lg transform hover:scale-105 cursor-pointer duration-300">
               Explore Our Collection
             </button>
           </div>

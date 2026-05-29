@@ -2,9 +2,9 @@ import Image from "next/image";
 
 const Inspiration = () => {
   return (
-    <section className="container mx-auto px-4 py-28 w-full max-w-7xl">
+    <section className="container mx-auto px-4 py-16 w-full max-w-7xl">
       {/* Header */}
-      <div className="text-center mb-16 animate-in fade-in slide-in-from-bottom-5 duration-800 flex flex-col gap-2.5 items-center">
+      <div className="text-center mb-10 animate-in fade-in slide-in-from-bottom-5 duration-800 flex flex-col gap-2.5 items-center">
         <h6 className="text-xs font-bold text-yellow-600 dark:text-yellow-500 uppercase tracking-[0.25em]">
           Lifestyle Stories
         </h6>
@@ -15,7 +15,7 @@ const Inspiration = () => {
       </div>
 
       {/* Modern Collage Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 h-[720px] overflow-hidden">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 h-[500px] md:h-[580px] overflow-hidden">
         {/* Column 1 */}
         <div className="flex flex-col gap-6">
           <div className="relative h-1/2 w-full rounded-[25px] overflow-hidden group shadow-md hover:shadow-xl transition-all duration-500">

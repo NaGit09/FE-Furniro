@@ -15,7 +15,7 @@ export default function AboutPage() {
       {/* Scroll indicator or other global elements can be here */}
       <main className="w-full flex flex-col gap-0">
         <AboutHero />
-        <div className="w-full flex flex-col gap-32 sm:gap-40 md:gap-48 overflow-hidden pt-24 sm:pt-32">
+        <div className="w-full flex flex-col gap-16 sm:gap-20 md:gap-24 overflow-hidden pt-12 sm:pt-16">
           <OurStory />
           <Values />
           <Vision />

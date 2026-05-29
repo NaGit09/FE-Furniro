@@ -17,7 +17,7 @@ export const AddressApi = {
 
   updateAddress: async (addressReq: Address) => {
     try {
-      const res = await axiosInstance.put<ApiResponse<Address[]>>(
+      const res = await axiosInstance.put<ApiResponse<Address>>(
         `${ADDRESS_URL.UPDATE_ADDRESS}`,
         addressReq,
       );

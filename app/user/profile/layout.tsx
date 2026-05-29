@@ -10,7 +10,7 @@ export default function ProfileLayout({
   return (
     <>
       <Header />
-      <div className="flex flex-col min-h-screen gap-40">{children}</div>
+      <div className="flex flex-col min-h-screen">{children}</div>
       <Footer />
       <Toaster richColors closeButton />
     </>

@@ -374,22 +374,33 @@ export default function HeaderCartDrawer({ isOpen, onClose }: HeaderCartDrawerPr
               </p>
 
               {/* Action Buttons */}
-              <div className="grid grid-cols-2 gap-3.5 mt-2">
-                <button
-                  onClick={() => {
-                    onClose();
-                    router.push("/user/cart");
-                  }}
-                  className="h-12 border border-stone-200 dark:border-stone-800 hover:border-amber-600/30 hover:bg-stone-50 dark:hover:bg-stone-900 text-stone-800 dark:text-stone-200 rounded-full text-xs font-bold tracking-widest uppercase transition-all active:scale-98 cursor-pointer"
-                >
-                  View Cart
-                </button>
+              <div className="flex flex-col gap-2.5 mt-2">
+                <div className="grid grid-cols-2 gap-3.5">
+                  <button
+                    onClick={() => {
+                      onClose();
+                      router.push("/user/cart");
+                    }}
+                    className="h-11 border border-stone-200 dark:border-stone-800 hover:border-yellow-650/30 hover:bg-stone-50 dark:hover:bg-stone-900 text-stone-800 dark:text-stone-200 rounded-full text-[10px] font-bold tracking-widest uppercase transition-all active:scale-98 cursor-pointer"
+                  >
+                    View Cart
+                  </button>
+                  <button
+                    onClick={() => {
+                      onClose();
+                      router.push("/compare");
+                    }}
+                    className="h-11 border border-stone-200 dark:border-stone-800 hover:border-yellow-650/30 hover:bg-stone-50 dark:hover:bg-stone-900 text-stone-800 dark:text-stone-200 rounded-full text-[10px] font-bold tracking-widest uppercase transition-all active:scale-98 cursor-pointer"
+                  >
+                    Compare
+                  </button>
+                </div>
                 <button
                   onClick={() => {
                     onClose();
                     router.push("/user/cart"); // Let checkout trigger from cart
                   }}
-                  className="group h-12 bg-linear-to-r from-amber-700 to-yellow-600 hover:from-amber-600 hover:to-yellow-500 text-white rounded-full text-xs font-bold tracking-widest uppercase hover:shadow-[0_12px_24px_rgba(217,119,6,0.25)] transition-all active:scale-98 flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
+                  className="group h-12 w-full bg-linear-to-r from-amber-700 to-yellow-600 hover:from-amber-600 hover:to-yellow-500 text-white rounded-full text-xs font-bold tracking-widest uppercase hover:shadow-[0_12px_24px_rgba(217,119,6,0.25)] transition-all active:scale-98 flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
                 >
                   Checkout
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform duration-200" />

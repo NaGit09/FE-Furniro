@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "sonner";
@@ -16,8 +15,8 @@ import {
   ShieldCheck,
   Tag,
   Truck,
-  Sparkles,
-  ArrowLeft
+  ArrowLeft,
+  Sparkles
 } from "lucide-react";
 
 import { RootState } from "@/stores/store";
@@ -33,7 +32,9 @@ interface ProductCache {
 }
 
 export default function CartPage() {
+
   const router = useRouter();
+
   const dispatch = useDispatch();
 
   const auth = useSelector((s: RootState) => s.authSlice);
@@ -67,7 +68,7 @@ export default function CartPage() {
     if (auth.isLoggedIn && auth.UserID) {
       loadCartData();
     }
-  }, [auth.isLoggedIn, auth.UserID]);
+  }, []);
 
   // 2. Fetch Product/Variant Details dynamically by variantID
   useEffect(() => {
@@ -169,8 +170,11 @@ export default function CartPage() {
 
   // 5. Total Calculations
   const subtotal = cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
   const shipping = subtotal > 5000000 ? 0 : subtotal === 0 ? 0 : 150000;
+
   const tax = Math.round(subtotal * 0.08); // 8% VAT
+  
   const total = subtotal + shipping + tax;
 
   const handleApplyCoupon = (e: React.FormEvent) => {
@@ -250,14 +254,23 @@ export default function CartPage() {
       <div className="cart-root w-full min-h-screen py-16 px-4 md:px-8 mt-24">
         <div className="max-w-7xl mx-auto animate-fade">
 
-          {/* Navigation Trigger */}
-          <button 
-            onClick={() => router.push("/product")}
-            className="btn-muted inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold mb-8 cursor-pointer"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Continue Shopping
-          </button>
+          {/* Navigation Triggers */}
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+            <button 
+              onClick={() => router.push("/product")}
+              className="btn-muted inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Continue Shopping
+            </button>
+            <button 
+              onClick={() => router.push("/compare")}
+              className="border border-amber-600/30 text-amber-700 dark:text-amber-500 hover:bg-amber-500/5 hover:border-amber-600 dark:hover:bg-amber-500/10 inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold cursor-pointer transition-all active:scale-98"
+            >
+              <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-500" />
+              Compare Products
+            </button>
+          </div>
 
           {/* Page Banner Title */}
           <div className="flex flex-col gap-2 mb-10 text-center md:text-left">
@@ -307,12 +320,21 @@ export default function CartPage() {
                   You haven&apos;t reserved any sustainable timber furniture or custom designer accents yet. Embark on a design journey to explore our curated collections.
                 </p>
               </div>
-              <button
-                onClick={() => router.push("/product")}
-                className="btn-gold px-8 h-13 rounded-xl font-bold uppercase text-xs tracking-wider cursor-pointer"
-              >
-                Browse Masterpieces
-              </button>
+              <div className="flex flex-col sm:flex-row gap-3.5 w-full justify-center">
+                <button
+                  onClick={() => router.push("/product")}
+                  className="btn-gold px-8 h-13 rounded-xl font-bold uppercase text-xs tracking-wider cursor-pointer"
+                >
+                  Browse Masterpieces
+                </button>
+                <button
+                  onClick={() => router.push("/compare")}
+                  className="px-8 h-13 border border-stone-200 dark:border-stone-800 hover:border-amber-600/30 hover:bg-amber-500/5 text-stone-700 dark:text-stone-300 rounded-xl font-bold uppercase text-xs tracking-wider cursor-pointer transition-all active:scale-98 flex items-center justify-center gap-2"
+                >
+                  <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-500" />
+                  Compare Products
+                </button>
+              </div>
             </div>
           ) : (
             /* 3. Standard Cart Grid View */
@@ -572,16 +594,27 @@ export default function CartPage() {
                     </button>
                   </form>
 
-                  {/* Proceed to checkout CTA */}
-                  <button
-                    onClick={() => {
-                      router.push("/user/order");
-                    }}
-                    className="group btn-gold w-full h-13.5 rounded-xl font-bold uppercase text-xs tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-lg mt-2"
-                  >
-                    Proceed To Checkout
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform duration-200" />
-                  </button>
+                  {/* Action Buttons */}
+                  <div className="flex flex-col gap-2.5 mt-2">
+                    <button
+                      onClick={() => {
+                        router.push("/user/order");
+                      }}
+                      className="group btn-gold w-full h-13.5 rounded-xl font-bold uppercase text-xs tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-lg"
+                    >
+                      Proceed To Checkout
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform duration-200" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        router.push("/compare");
+                      }}
+                      className="w-full h-11 border border-stone-200 dark:border-stone-850 hover:border-amber-600/30 hover:bg-stone-50 dark:hover:bg-stone-900/50 text-stone-700 dark:text-stone-300 rounded-xl text-xs font-bold tracking-widest uppercase transition-all active:scale-98 flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-amber-600 dark:text-amber-500" />
+                      Compare Products
+                    </button>
+                  </div>
                 </div>
 
                 {/* 2. Sustainable luxury badge */}

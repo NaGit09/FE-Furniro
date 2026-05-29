@@ -7,7 +7,7 @@ import { MoveRight, Sparkles } from "lucide-react";
 
 const Promote = () => {
   return (
-    <div className="w-full h-screen relative overflow-hidden flex items-center justify-center -top-[100px] mb-[-100px]">
+    <div className="w-full h-screen relative overflow-hidden flex items-center justify-center -top25 mb-25">
       {/* Background Image with Slow Zoom & Blur */}
       <div className="absolute inset-0 scale-105 animate-pulse duration-10000">
         <Image
@@ -27,7 +27,7 @@ const Promote = () => {
       <div className="absolute right-[15%] bottom-[12%] w-96 h-96 bg-stone-900/10 dark:bg-stone-50/5 rounded-full blur-3xl animate-bounce duration-10000 pointer-events-none z-10" />
 
       {/* Main Content Box (Liquid Glass Panel) */}
-      <div className="absolute top-1/2 -translate-y-1/2 right-[5%] md:right-[8%] w-[90%] max-w-[620px] bg-white/75 dark:bg-stone-900/75 backdrop-blur-2xl text-stone-900 dark:text-stone-100 rounded-[40px] p-8 md:p-14 flex flex-col gap-8 z-20 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.4)] border border-white/30 dark:border-stone-800/40 animate-in fade-in slide-in-from-right-20 duration-1000">
+      <div className="absolute top-1/2 -translate-y-1/2 right-[5%] md:right-[8%] w-[90%] max-w-155 bg-white/75 dark:bg-stone-900/75 backdrop-blur-2xl text-stone-900 dark:text-stone-100 rounded-[40px] p-6 md:p-10 flex flex-col gap-5 z-20 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.4)] border border-white/30 dark:border-stone-800/40 animate-in fade-in slide-in-from-right-20 duration-1000">
         
         {/* Sparkle Subtitle */}
         <div className="flex items-center gap-2.5 self-start px-4 py-1.5 rounded-full bg-yellow-600/10 dark:bg-yellow-600/15 border border-yellow-600/25">
@@ -39,7 +39,7 @@ const Promote = () => {
 
         {/* Headings with Bodoni Moda */}
         <div className="flex flex-col gap-2">
-          <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold font-heading text-stone-900 dark:text-stone-50 leading-[1.0] tracking-tight">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold font-heading text-stone-900 dark:text-stone-50 leading-none tracking-tight">
             Discover Our <br />
             <span className="text-yellow-600 italic font-medium">New Era</span>
           </h1>
@@ -48,13 +48,13 @@ const Promote = () => {
 
         {/* Description with Jost */}
         <p className="text-base md:text-lg text-stone-600 dark:text-stone-300 font-normal leading-relaxed font-sans max-w-md">
-          Crafting living spaces that aren't just seen, but deeply felt. Discover furniture defined by minimalist Milanese precision, organic warmth, and sustainable craft.
+          Crafting living spaces that aren&apos;t just seen, but deeply felt. Discover furniture defined by minimalist Milanese precision, organic warmth, and sustainable craft.
         </p>
 
         {/* Call to Action & Avatars Grid */}
         <div className="flex flex-wrap gap-6 items-center mt-2">
           <Link href="/product">
-            <Button className="group h-14 px-8 rounded-full bg-yellow-600 hover:bg-stone-950 dark:hover:bg-stone-50 dark:hover:text-stone-950 text-white text-base font-semibold tracking-wide transition-all duration-300 hover:shadow-[0_15px_30px_rgba(202,138,4,0.35)] flex items-center gap-3 active:scale-95 cursor-pointer">
+            <Button className="group h-12 px-6 rounded-full bg-yellow-600 hover:bg-stone-950 dark:hover:bg-stone-50 dark:hover:text-stone-950 text-white text-base font-semibold tracking-wide transition-all duration-300 hover:shadow-[0_15px_30px_rgba(202,138,4,0.35)] flex items-center gap-3 active:scale-95 cursor-pointer">
               Shop The Collection
               <MoveRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform duration-300" />
             </Button>

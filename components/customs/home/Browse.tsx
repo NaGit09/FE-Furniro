@@ -25,7 +25,7 @@ const categories = [
 
 const Browse = () => {
   return (
-    <div className="flex flex-col gap-14 items-center justify-center w-full bg-transparent">
+    <div className="flex flex-col gap-8 items-center justify-center w-full bg-transparent">
       {/* Category Header */}
       <div className="flex flex-col gap-3 items-center text-center px-4 animate-in fade-in slide-in-from-bottom-5 duration-800">
         <h6 className="text-xs font-bold tracking-[0.25em] text-yellow-600 dark:text-yellow-500 uppercase">
@@ -38,14 +38,14 @@ const Browse = () => {
       </div>
 
       {/* Grid Layout */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10 w-full max-w-7xl px-4 justify-center">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 w-full max-w-7xl px-4 justify-center">
         {categories.map((category) => (
           <div
             key={category.id}
             className="group flex flex-col gap-4 bg-white/50 dark:bg-stone-900/30 backdrop-blur-md border border-stone-200/40 dark:border-stone-800/40 rounded-[35px] p-4.5 shadow-md hover:shadow-[0_20px_50px_rgba(0,0,0,0.12)] hover:-translate-y-1.5 transition-all duration-500 cursor-pointer"
           >
             {/* Image Container */}
-            <div className="relative aspect-[3/4] w-full overflow-hidden rounded-[25px]">
+            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[25px]">
               <Image
                 src={category.src}
                 alt={category.title}

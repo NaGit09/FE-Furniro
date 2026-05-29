@@ -1,5 +1,5 @@
 import {
-    CategoryRes,
+  CategoryRes,
   ProductCardRes,
   ProductCompareRes,
   ProductDetail,
@@ -35,11 +35,7 @@ export const ProductApi = {
   compare_product: async (productIds: number[]) => {
     const res = await axiosInstance.post<ApiResponse<ProductCompareRes[]>>(
       `${baseProductApi}/compare`,
-      {
-        params: {
-          productIds,
-        },
-      },
+      productIds,
     );
     return res.data;
   },
@@ -63,5 +59,4 @@ export const ProductApi = {
     );
     return res.data;
   },
-
 };

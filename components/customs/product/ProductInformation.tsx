@@ -1,20 +1,28 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import { ProductDetail } from "@/schema/response/product/product.res";
-import { Minus, Plus, Star } from "lucide-react";
-import { Input } from "@/components/ui/input";
+
 import { useState } from "react";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
+import { Minus, Plus, Star, ShoppingCart, Repeat, Sparkles } from "lucide-react";
 import { toast } from "sonner";
-import { RootState } from "@/stores/store";
+
+import { Button } from "@/components/ui/button";
+import { ProductDetail } from "@/schema/response/product/product.res";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { CartApi } from "@/services/api/Order/cart.service";
 import { setCart } from "@/stores/slices/cart.store";
-const ProductInformation = ({ data }: { data: ProductDetail }) => {
-  const rating = 4.5;
-  const totalReview = 128;
+import { RootState } from "@/stores/store";
+
+interface ProductInformationProps {
+  data: ProductDetail;
+}
+
+const ProductInformation = ({ data }: ProductInformationProps) => {
+  const rating = 4.8;
+  const totalReview = 164;
+  
   const [quantity, setQuantity] = useState(1);
   const [colorSelect, chooseColor] = useState(data.colors[0]);
   const [sizeSelect, chooseSize] = useState(data.sizes[0]);
@@ -27,17 +35,17 @@ const ProductInformation = ({ data }: { data: ProductDetail }) => {
 
   const handleAddToCart = async () => {
     if (!auth.isLoggedIn || !auth.UserID) {
-      toast.error("Please sign in to add items to your bag.");
+      toast.error("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.");
       router.push("/auth/login");
       return;
     }
 
     setAddingToCart(true);
-    const toastId = toast.loading("Adding selection to your bag...");
+    const toastId = toast.loading("Đang thêm vào giỏ hàng...");
     try {
       let activeCartID = cart.cartID;
 
-      // Lazy-loading fallback: if cartID is not in Redux yet, fetch it first
+      // Lazy-loading fallback for CartID
       if (!activeCartID && auth.UserID) {
         try {
           const cartRes = await CartApi.get_cart(auth.UserID);
@@ -49,7 +57,7 @@ const ProductInformation = ({ data }: { data: ProductDetail }) => {
             }));
           }
         } catch (cartErr) {
-          console.error("Lazy cart retrieval failed:", cartErr);
+          console.error("Lazy cart retrieval failed in Detail:", cartErr);
         }
       }
 
@@ -62,7 +70,7 @@ const ProductInformation = ({ data }: { data: ProductDetail }) => {
       });
 
       if (res && (res.code === 200 || res.data === true)) {
-        toast.success("Added to cart successfully!", { id: toastId });
+        toast.success("Thêm vào giỏ hàng thành công!", { id: toastId });
         
         // Refresh cart state globally
         const cartRes = await CartApi.get_cart(auth.UserID);
@@ -73,13 +81,43 @@ const ProductInformation = ({ data }: { data: ProductDetail }) => {
           }));
         }
       } else {
-        toast.error(res?.message || "Could not add selection.", { id: toastId });
+        toast.error(res?.message || "Không thể thêm sản phẩm.", { id: toastId });
       }
     } catch (err) {
       console.error("Add to cart error:", err);
-      toast.error("Failed to add selection. Please try again.", { id: toastId });
+      toast.error("Thêm vào giỏ hàng thất bại. Vui lòng thử lại.", { id: toastId });
     } finally {
       setAddingToCart(false);
+    }
+  };
+
+  const handleCompare = () => {
+    const activeId = data.productID || data.productId || 0;
+    if (!activeId) return;
+
+    try {
+      const compareRaw = localStorage.getItem("furniro_compare");
+      let compareList: number[] = compareRaw ? JSON.parse(compareRaw) : [];
+
+      if (compareList.includes(activeId)) {
+        toast.info("Sản phẩm đã có trong danh sách so sánh.");
+        router.push("/compare");
+        return;
+      }
+
+      if (compareList.length >= 3) {
+        toast.warning("Bạn chỉ có thể so sánh tối đa 3 sản phẩm. Vui lòng xóa bớt sản phẩm.");
+        router.push("/compare");
+        return;
+      }
+
+      compareList.push(activeId);
+      localStorage.setItem("furniro_compare", JSON.stringify(compareList));
+      toast.success("Đã thêm vào danh sách so sánh!");
+      router.push("/compare");
+    } catch (err) {
+      console.error("Compare error:", err);
+      toast.error("Lỗi khi thêm vào so sánh. Vui lòng thử lại.");
     }
   };
 
@@ -87,50 +125,69 @@ const ProductInformation = ({ data }: { data: ProductDetail }) => {
     return Array.from({ length: 5 }).map((_, i) => {
       if (i + 1 <= Math.floor(rating)) {
         return (
-          <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+          <Star key={i} className="w-4 h-4 fill-yellow-500 text-yellow-500 shrink-0" />
         );
       }
-
       if (i < rating) {
-        return <Star key={i} className="w-4 h-4 text-yellow-400 opacity-50" />;
+        return <Star key={i} className="w-4 h-4 fill-yellow-500 text-yellow-500 opacity-50 shrink-0" />;
       }
-
-      return <Star key={i} className="w-4 h-4 text-gray-300" />;
+      return <Star key={i} className="w-4 h-4 text-stone-300 dark:text-stone-700 shrink-0" />;
     });
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* Name */}
-      <h1 className="text-2xl font-semibold leading-tight">{data.name}</h1>
-      {/* Price */}
-      <div className="text-3xl font-bold text-gray-400">
-        {data.basePrice.toLocaleString()}₫
+    <div className="flex flex-col gap-5.5 text-stone-900 dark:text-stone-100">
+      {/* Brand & Collection Tags */}
+      <div className="flex items-center gap-2.5 flex-wrap">
+        <span className="bg-yellow-600/10 dark:bg-yellow-600/15 border border-yellow-600/20 text-yellow-700 dark:text-yellow-500 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full flex items-center gap-1">
+          <Sparkles className="w-3 h-3 animate-pulse" /> {data.brand || "Furniro"}
+        </span>
+        <span className="bg-stone-100 dark:bg-stone-900/60 border border-stone-200/40 dark:border-stone-800/40 text-stone-500 dark:text-stone-400 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">
+          Collection 2026
+        </span>
       </div>
 
-      {/* Rating */}
-      <div className="flex items-center gap-3 text-sm">
-        <span className="text-yellow-500 font-semibold">
-          {rating.toFixed(1)}
-        </span>
+      {/* Name */}
+      <h1 className="text-3xl sm:text-4xl font-bold font-heading text-stone-900 dark:text-stone-50 tracking-tight leading-tight">
+        {data.name}
+      </h1>
 
-        <div className="flex items-center gap-1">{renderStars(rating)}</div>
-
-        <span className="text-gray-500">({totalReview} đánh giá)</span>
+      {/* Price & Rating Deck */}
+      <div className="flex items-center gap-6 flex-wrap">
+        <div className="text-3xl font-bold text-yellow-600 dark:text-yellow-500 font-sans tracking-tight">
+          {data.basePrice.toLocaleString("vi-VN")} ₫
+        </div>
+        
+        <div className="flex items-center gap-2.5 bg-stone-100/50 dark:bg-stone-900/40 border border-stone-200/30 dark:border-stone-800/30 rounded-full px-3.5 py-1 text-xs sm:text-sm font-semibold shadow-inner">
+          <div className="flex items-center gap-0.5">{renderStars(rating)}</div>
+          <Separator orientation="vertical" className="h-3 bg-stone-300 dark:bg-stone-700" />
+          <span className="text-stone-500 dark:text-stone-400 font-sans">
+            {totalReview} đánh giá
+          </span>
+        </div>
       </div>
 
       {/* Description */}
-      <p className="text-gray-600 leading-relaxed">{data.description}</p>
+      <p className="text-base text-stone-600 dark:text-stone-400 leading-relaxed font-sans max-w-xl">
+        {data.description}
+      </p>
 
-      {/* Size */}
-      <div className="flex items-start gap-3 flex-col">
-        <Label className="font-medium">Size:</Label>
-        <div className="flex gap-2">
+      {/* Size Selector */}
+      <div className="flex flex-col gap-2.5 items-start">
+        <Label className="text-sm font-bold text-stone-700 dark:text-stone-300 uppercase tracking-widest font-sans">
+          Size
+        </Label>
+        <div className="flex gap-2.5 flex-wrap">
           {data.sizes.map((size) => (
             <Button
-              onClick={() => chooseSize(size)}
               key={size}
-              className={` rounded-lg  border-2 transition-all ${size === sizeSelect ? "border-primary bg-yellow-700 text-white" : "border-gray-200 hover:bg-amber-300 hover:text-white"}`}
+              onClick={() => chooseSize(size)}
+              className={`rounded-full h-10 px-5 text-xs font-bold font-sans transition-all duration-300 cursor-pointer border
+                ${
+                  size === sizeSelect
+                    ? "bg-yellow-600 border-yellow-600 text-white shadow-md shadow-yellow-600/25"
+                    : "bg-white dark:bg-stone-900 border-stone-200/60 dark:border-stone-850/60 text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-850 hover:border-yellow-600/30"
+                }`}
             >
               {size}
             </Button>
@@ -138,60 +195,106 @@ const ProductInformation = ({ data }: { data: ProductDetail }) => {
         </div>
       </div>
 
-      {/* Color */}
-      <div className="flex items-start gap-3 flex-col">
-        <Label className="font-medium">Color:</Label>
-        <div className="flex gap-2">
+      {/* Color Selector */}
+      <div className="flex flex-col gap-2.5 items-start">
+        <Label className="text-sm font-bold text-stone-700 dark:text-stone-300 uppercase tracking-widest font-sans">
+          Color
+        </Label>
+        <div className="flex gap-3">
           {data.colors.map((color) => (
-            <Button
-              onClick={() => chooseColor(color)}
+            <button
               key={color}
-              variant={"ghost"}
+              onClick={() => chooseColor(color)}
               style={{ backgroundColor: color }}
-              className={`w-8 h-8 rounded-full border-2 transition-all ${color === colorSelect ? "border-primary" : "border-gray-200"}`}
-            ></Button>
+              className={`w-8 h-8 rounded-full transition-all duration-300 cursor-pointer relative flex items-center justify-center border border-black/10 dark:border-white/10
+                ${
+                  color === colorSelect
+                    ? "scale-110 shadow-lg ring-2 ring-yellow-600 ring-offset-2 dark:ring-offset-stone-950"
+                    : "opacity-80 hover:opacity-100 hover:scale-105"
+                }`}
+              aria-label={`Color ${color}`}
+            >
+              {color === colorSelect && (
+                <div className="w-1.5 h-1.5 rounded-full bg-white mix-blend-difference" />
+              )}
+            </button>
           ))}
         </div>
       </div>
-      {/* {"Feature enter quantity , add to cart , compare"} */}
-      <div className="flex items-start gap-3">
-        <div className="flex gap-2 items-center  border border-gray-200 rounded-lg h-16 w-53.7">
+
+      <Separator className="bg-stone-200 dark:bg-stone-850 my-1" />
+
+      {/* Interaction: Quantity Stepper & Buttons */}
+      <div className="flex flex-wrap gap-4 items-center">
+        {/* Quantity Stepper */}
+        <div className="flex items-center border border-stone-200/60 dark:border-stone-850/60 bg-white dark:bg-stone-900 rounded-full h-13 px-2 shadow-inner">
           <Button
-            className="px-3 py-1 bg-transparent text-black hover:text-white transition"
+            variant="ghost"
+            size="icon"
             onClick={() => setQuantity(quantity - 1)}
             disabled={quantity === 1}
+            className="rounded-full w-9 h-9 text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 shrink-0 cursor-pointer"
           >
-            <Minus />
+            <Minus size={16} />
           </Button>
+          
           <Input
             value={quantity}
-            onChange={(e) => setQuantity(Number(e.target.value))}
-            className="w-12 border-none text-center"
+            readOnly
+            className="w-12 border-none text-center bg-transparent focus-visible:ring-0 p-0 text-sm font-bold font-sans"
           />
+          
           <Button
-            className="px-3 py-1 bg-transparent text-black hover:text-white transition"
+            variant="ghost"
+            size="icon"
             onClick={() => setQuantity(quantity + 1)}
+            className="rounded-full w-9 h-9 text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 shrink-0 cursor-pointer"
           >
-            <Plus />
+            <Plus size={16} />
           </Button>
         </div>
-        <Button 
+
+        {/* Add To Cart */}
+        <Button
           disabled={addingToCart}
           onClick={handleAddToCart}
-          className="h-16 w-53.7 px-3 py-1 border border-gray-200 bg-transparent text-black hover:bg-yellow-600 hover:text-white transition cursor-pointer"
+          className="h-13 px-8 bg-yellow-600 hover:bg-yellow-750 text-white rounded-full font-bold shadow-lg hover:shadow-yellow-600/20 hover:scale-102 active:scale-98 transition-all duration-300 cursor-pointer flex items-center gap-2"
         >
+          <ShoppingCart size={18} />
           {addingToCart ? "Adding..." : "Add to cart"}
         </Button>
-        <Button className="h-16 w-53.7 px-3 py-1 border border-gray-200 bg-transparent text-black hover:bg-yellow-600 hover:text-white transition">
+
+        {/* Compare */}
+        <Button
+          variant="outline"
+          onClick={handleCompare}
+          className="h-13 px-6 rounded-full border-stone-200/60 dark:border-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-850 font-bold font-sans transition-all duration-300 flex items-center gap-2 cursor-pointer"
+        >
+          <Repeat size={18} />
           Compare
         </Button>
       </div>
-      {/* Meta */}
-      <Separator />
-      <div className="text-sm text-gray-500 flex flex-col gap-1">
-        <span>Brand: {data.brand}</span>
-        <span>Category: {data.categoryName}</span>
-        <span>SKU: {data.skus.join(", ")}</span>
+
+      <Separator className="bg-stone-200 dark:bg-stone-850 my-1" />
+
+      {/* Metadata Specification Details */}
+      <div className="grid grid-cols-2 gap-y-2 text-xs md:text-sm text-stone-500 dark:text-stone-400 font-sans font-medium">
+        <div className="flex gap-2">
+          <span className="text-stone-400 dark:text-stone-500">Brand:</span>
+          <span className="text-stone-800 dark:text-stone-200 font-semibold">{data.brand || "Furniro"}</span>
+        </div>
+        <div className="flex gap-2">
+          <span className="text-stone-400 dark:text-stone-500">SKU:</span>
+          <span className="text-stone-800 dark:text-stone-200 font-semibold">{data.skus[0] || "FN-MILAN-001"}</span>
+        </div>
+        <div className="flex gap-2">
+          <span className="text-stone-400 dark:text-stone-500">Category:</span>
+          <span className="text-stone-800 dark:text-stone-200 font-semibold">{data.categoryName}</span>
+        </div>
+        <div className="flex gap-2">
+          <span className="text-stone-400 dark:text-stone-500">Material:</span>
+          <span className="text-stone-800 dark:text-stone-200 font-semibold">{data.material || "Organic Oak Wood"}</span>
+        </div>
       </div>
     </div>
   );

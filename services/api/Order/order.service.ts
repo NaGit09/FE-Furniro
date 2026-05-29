@@ -20,7 +20,7 @@ export const OrderApi = {
 
   get_history_orders: async (userId : number) => {
     const res = await axiosInstance.get<ApiResponse<Page<OrderCard>>>(
-      `${baseOrderApi}/history?userId=${userId}`,
+      `${baseOrderApi}/history?userID=${userId}`,
     );
     return res.data;
   },

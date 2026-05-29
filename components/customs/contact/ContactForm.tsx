@@ -25,151 +25,191 @@ const ContactForm = () => {
     console.log("Form Data:", data);
     await new Promise((resolve) => setTimeout(resolve, 1500));
     setIsSuccess(true);
-    toast.success("Message sent successfully and you're now registered for news!");
+    toast.success("Tin nhắn của bạn đã được gửi thành công!");
     reset();
     setTimeout(() => setIsSuccess(false), 5000);
   };
 
   return (
-    <section className="container mx-auto px-4 py-24">
-      <div className="text-center mb-20 animate-in fade-in slide-in-from-bottom-5 duration-700">
-        <h2 className="text-4xl md:text-6xl font-black text-zinc-900 dark:text-zinc-100 mb-6 italic">
-          Get In <span className="text-yellow-600">Touch</span>
+    <section className="container mx-auto px-4 py-12 max-w-7xl">
+      {/* Header section */}
+      <div className="text-center mb-10 animate-in fade-in slide-in-from-bottom-5 duration-700 flex flex-col gap-2 items-center">
+        <h6 className="text-xs font-bold tracking-[0.25em] text-yellow-600 dark:text-yellow-500 uppercase">
+          Contact Boutique
+        </h6>
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold font-heading text-stone-900 dark:text-stone-50 tracking-tight">
+          Get In <span className="text-yellow-600 italic font-medium font-heading">Touch</span>
         </h2>
-        <p className="text-xl text-zinc-500 dark:text-zinc-400 max-w-2xl mx-auto font-medium">
+        <div className="h-0.5 w-16 bg-yellow-600 rounded-full mt-2" />
+        <p className="text-sm sm:text-base text-stone-500 dark:text-stone-400 max-w-xl mx-auto font-medium font-sans mt-2">
           Have a project in mind or just want to say hello? We'd love to hear from you.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-start">
-        {/* Contact Info */}
-        <div className="space-y-12 animate-in fade-in slide-in-from-left-10 duration-1000">
-          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-            <div className="flex gap-6 p-8 bg-zinc-50 dark:bg-zinc-900 rounded-3xl border border-transparent hover:border-yellow-200 transition-all duration-300 shadow-sm hover:shadow-xl group">
-              <div className="w-14 h-14 bg-white dark:bg-black rounded-2xl flex items-center justify-center shadow-lg transform group-hover:-translate-y-2 transition-transform">
-                <MapPin className="text-yellow-600 w-7 h-7" />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-14 items-start">
+        {/* Contact Info Decks */}
+        <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-left-10 duration-1000">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+            
+            {/* Boutique Address */}
+            <div className="flex gap-4 p-5 bg-white/70 dark:bg-stone-900/60 backdrop-blur-md border border-stone-200/40 dark:border-stone-850/40 rounded-3xl shadow-sm hover:shadow-[0_15px_40px_rgba(0,0,0,0.06)] hover:border-yellow-600/30 transition-all duration-350 group cursor-default">
+              <div className="w-12 h-12 bg-yellow-600/10 dark:bg-yellow-600/15 border border-yellow-600/10 rounded-xl flex items-center justify-center shadow-sm transform group-hover:-translate-y-1.5 transition-transform duration-300">
+                <MapPin className="text-yellow-600 w-6 h-6" />
               </div>
-              <div>
-                <h4 className="text-xl font-bold mb-2">Our Boutique</h4>
-                <p className="text-zinc-500 font-medium">123 Design Avenue, <br />Milan, Italy 20121</p>
-              </div>
-            </div>
-
-            <div className="flex gap-6 p-8 bg-zinc-50 dark:bg-zinc-900 rounded-3xl border border-transparent hover:border-yellow-200 transition-all duration-300 shadow-sm hover:shadow-xl group">
-              <div className="w-14 h-14 bg-white dark:bg-black rounded-2xl flex items-center justify-center shadow-lg transform group-hover:-translate-y-2 transition-transform">
-                <Phone className="text-yellow-600 w-7 h-7" />
-              </div>
-              <div>
-                <h4 className="text-xl font-bold mb-2">Phone</h4>
-                <p className="text-zinc-500 font-medium">+39 (0) 555-1234 <br />Mon-Fri 9:00 - 18:00</p>
+              <div className="flex flex-col gap-0.5">
+                <h4 className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-50">Our Boutique</h4>
+                <p className="text-stone-500 dark:text-stone-400 font-sans text-xs sm:text-sm font-medium">
+                  123 Design Avenue, <br />Milan, Italy 20121
+                </p>
               </div>
             </div>
 
-            <div className="flex gap-6 p-8 bg-zinc-50 dark:bg-zinc-900 rounded-3xl border border-transparent hover:border-yellow-200 transition-all duration-300 shadow-sm hover:shadow-xl group">
-              <div className="w-14 h-14 bg-white dark:bg-black rounded-2xl flex items-center justify-center shadow-lg transform group-hover:-translate-y-2 transition-transform">
-                <Mail className="text-yellow-600 w-7 h-7" />
+            {/* Phone Info */}
+            <div className="flex gap-4 p-5 bg-white/70 dark:bg-stone-900/60 backdrop-blur-md border border-stone-200/40 dark:border-stone-850/40 rounded-3xl shadow-sm hover:shadow-[0_15px_40px_rgba(0,0,0,0.06)] hover:border-yellow-600/30 transition-all duration-350 group cursor-default">
+              <div className="w-12 h-12 bg-yellow-600/10 dark:bg-yellow-600/15 border border-yellow-600/10 rounded-xl flex items-center justify-center shadow-sm transform group-hover:-translate-y-1.5 transition-transform duration-300">
+                <Phone className="text-yellow-600 w-6 h-6" />
               </div>
-              <div>
-                <h4 className="text-xl font-bold mb-2">Email</h4>
-                <p className="text-zinc-500 font-medium">hello@furniro.com <br />support@furniro.com</p>
+              <div className="flex flex-col gap-0.5">
+                <h4 className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-50">Phone Support</h4>
+                <p className="text-stone-500 dark:text-stone-400 font-sans text-xs sm:text-sm font-medium">
+                  +39 (0) 555-1234 <br />Mon-Fri 9:00 - 18:00
+                </p>
               </div>
             </div>
 
-            <div className="flex gap-6 p-8 bg-zinc-50 dark:bg-zinc-900 rounded-3xl border border-transparent hover:border-yellow-200 transition-all duration-300 shadow-sm hover:shadow-xl group">
-              <div className="w-14 h-14 bg-white dark:bg-black rounded-2xl flex items-center justify-center shadow-lg transform group-hover:-translate-y-2 transition-transform">
-                <Clock className="text-yellow-600 w-7 h-7" />
+            {/* Email Support */}
+            <div className="flex gap-4 p-5 bg-white/70 dark:bg-stone-900/60 backdrop-blur-md border border-stone-200/40 dark:border-stone-850/40 rounded-3xl shadow-sm hover:shadow-[0_15px_40px_rgba(0,0,0,0.06)] hover:border-yellow-600/30 transition-all duration-350 group cursor-default">
+              <div className="w-12 h-12 bg-yellow-600/10 dark:bg-yellow-600/15 border border-yellow-600/10 rounded-xl flex items-center justify-center shadow-sm transform group-hover:-translate-y-1.5 transition-transform duration-300">
+                <Mail className="text-yellow-600 w-6 h-6" />
               </div>
-              <div>
-                <h4 className="text-xl font-bold mb-2">Working Hours</h4>
-                <p className="text-zinc-500 font-medium">Mon-Sat: 9am - 10pm <br />Sun: 10am - 8pm</p>
+              <div className="flex flex-col gap-0.5">
+                <h4 className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-50">Email Care</h4>
+                <p className="text-stone-500 dark:text-stone-400 font-sans text-xs sm:text-sm font-medium">
+                  hello@furniro.com <br />support@furniro.com
+                </p>
               </div>
             </div>
+
+            {/* Working Hours */}
+            <div className="flex gap-4 p-5 bg-white/70 dark:bg-stone-900/60 backdrop-blur-md border border-stone-200/40 dark:border-stone-850/40 rounded-3xl shadow-sm hover:shadow-[0_15px_40px_rgba(0,0,0,0.06)] hover:border-yellow-600/30 transition-all duration-350 group cursor-default">
+              <div className="w-12 h-12 bg-yellow-600/10 dark:bg-yellow-600/15 border border-yellow-600/10 rounded-xl flex items-center justify-center shadow-sm transform group-hover:-translate-y-1.5 transition-transform duration-300">
+                <Clock className="text-yellow-600 w-6 h-6" />
+              </div>
+              <div className="flex flex-col gap-0.5">
+                <h4 className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-50">Working Hours</h4>
+                <p className="text-stone-500 dark:text-stone-400 font-sans text-xs sm:text-sm font-medium">
+                  Mon-Sat: 9am - 10pm <br />Sun: 10am - 8pm
+                </p>
+              </div>
+            </div>
+
           </div>
           
-          <div className="p-10 bg-yellow-600 rounded-[40px] text-white relative overflow-hidden group shadow-2xl">
-            <div className="relative z-10">
-               <h3 className="text-2xl font-black mb-4 italic">Join our exclusive circle</h3>
-               <p className="text-yellow-50 mb-6 font-medium">Receive weekly inspiration, early access to new collections, and furniture care tips directly to your inbox.</p>
-               <div className="flex items-center gap-2 font-black text-sm uppercase tracking-widest">
-                 <Sparkles className="w-5 h-5" /> Design better lives
+          {/* Organic Gold Gradient Exclusive Badge */}
+          <div className="p-6 md:p-8 bg-linear-to-r from-yellow-600 to-amber-700 rounded-[30px] text-white relative overflow-hidden group shadow-lg">
+            <div className="relative z-10 flex flex-col gap-3">
+               <h3 className="text-xl sm:text-2xl font-bold font-heading italic">Join our exclusive circle</h3>
+               <p className="text-yellow-50 text-xs sm:text-sm leading-relaxed font-sans font-medium max-w-sm">
+                 Receive weekly inspiration, early access to new collections, and furniture care tips directly to your inbox.
+               </p>
+               <div className="flex items-center gap-2 font-black text-[11px] sm:text-xs uppercase tracking-widest mt-1">
+                 <Sparkles className="w-4 h-4 animate-pulse" /> Design better lives
                </div>
             </div>
-            <div className="absolute right-[-5%] bottom-[-10%] opacity-10 transform scale-150 rotate-[-15deg]">
-              <Mail size={300} strokeWidth={1} />
+            <div className="absolute right-[-5%] bottom-[-10%] opacity-10 transform scale-150 rotate-[-15deg] pointer-events-none select-none">
+              <Mail size={240} strokeWidth={1} />
             </div>
           </div>
         </div>
 
-        {/* Form */}
-        <div className="bg-white dark:bg-zinc-900 p-10 md:p-14 rounded-[50px] shadow-2xl border border-zinc-100 dark:border-zinc-800 animate-in fade-in slide-in-from-right-10 duration-1000">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="space-y-3">
-                <Label htmlFor="name" className="text-lg font-bold">Your Name</Label>
+        {/* Premium Form Box */}
+        <div className="bg-white/70 dark:bg-stone-900/60 backdrop-blur-md border border-stone-200/40 dark:border-stone-850/40 p-6 md:p-8 rounded-[30px] shadow-sm animate-in fade-in slide-in-from-right-10 duration-1000">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              
+              {/* Name */}
+              <div className="space-y-1.5">
+                <Label htmlFor="name" className="text-xs sm:text-sm font-bold text-stone-700 dark:text-stone-300 font-sans">
+                  Your Name
+                </Label>
                 <Input 
                   id="name" 
                   autoComplete="off"
                   {...register("name", { required: "Name is required" })}
-                  className="h-16 rounded-2xl bg-zinc-50 border-none focus-visible:ring-2 focus-visible:ring-yellow-600 px-6 text-lg font-medium" 
+                  className="h-11 rounded-lg bg-stone-100/50 dark:bg-stone-950/40 border border-stone-200/50 dark:border-stone-850/50 focus-visible:ring-2 focus-visible:ring-yellow-600 px-4 text-xs sm:text-sm font-medium transition-all placeholder:text-stone-400 dark:placeholder:text-stone-600"
                   placeholder="John Doe" 
                 />
-                {errors.name && <p className="text-red-500 text-sm font-bold">{errors.name.message}</p>}
+                {errors.name && <p className="text-red-500 text-xs font-bold font-sans">{errors.name.message}</p>}
               </div>
-              <div className="space-y-3">
-                <Label htmlFor="email" className="text-lg font-bold">Email Address</Label>
+
+              {/* Email */}
+              <div className="space-y-1.5">
+                <Label htmlFor="email" className="text-xs sm:text-sm font-bold text-stone-700 dark:text-stone-300 font-sans">
+                  Email Address
+                </Label>
                 <Input 
                   id="email" 
                   type="email" 
                   autoComplete="off"
                   {...register("email", { required: "Email is required", pattern: { value: /^\S+@\S+$/i, message: "Invalid email" } })}
-                  className="h-16 rounded-2xl bg-zinc-50 border-none focus-visible:ring-2 focus-visible:ring-yellow-600 px-6 text-lg font-medium" 
+                  className="h-11 rounded-lg bg-stone-100/50 dark:bg-stone-950/40 border border-stone-200/50 dark:border-stone-850/50 focus-visible:ring-2 focus-visible:ring-yellow-600 px-4 text-xs sm:text-sm font-medium transition-all placeholder:text-stone-400 dark:placeholder:text-stone-600"
                   placeholder="john@example.com" 
                 />
-                {errors.email && <p className="text-red-500 text-sm font-bold">{errors.email.message}</p>}
+                {errors.email && <p className="text-red-500 text-xs font-bold font-sans">{errors.email.message}</p>}
               </div>
             </div>
 
-            <div className="space-y-3">
-              <Label htmlFor="subject" className="text-lg font-bold">Subject</Label>
+            {/* Subject */}
+            <div className="space-y-1.5">
+              <Label htmlFor="subject" className="text-xs sm:text-sm font-bold text-stone-700 dark:text-stone-300 font-sans">
+                Subject
+              </Label>
               <Input 
                 id="subject" 
                 autoComplete="off"
                 {...register("subject")}
-                className="h-16 rounded-2xl bg-zinc-50 border-none focus-visible:ring-2 focus-visible:ring-yellow-600 px-6 text-lg font-medium" 
+                className="h-11 rounded-lg bg-stone-100/50 dark:bg-stone-950/40 border border-stone-200/50 dark:border-stone-850/50 focus-visible:ring-2 focus-visible:ring-yellow-600 px-4 text-xs sm:text-sm font-medium transition-all placeholder:text-stone-400 dark:placeholder:text-stone-600"
                 placeholder="How can we help?" 
               />
             </div>
 
-            <div className="space-y-3">
-              <Label htmlFor="message" className="text-lg font-bold">Message</Label>
+            {/* Message */}
+            <div className="space-y-1.5">
+              <Label htmlFor="message" className="text-xs sm:text-sm font-bold text-stone-700 dark:text-stone-300 font-sans">
+                Message
+              </Label>
               <textarea 
                 id="message" 
                 rows={5}
                 {...register("message", { required: "Please enter your message" })}
-                className="w-full rounded-3xl bg-zinc-50 border-none focus-visible:ring-2 focus-visible:ring-yellow-600 p-6 text-lg font-medium outline-none transition-all duration-200 focus-visible:ring-offset-0 ring-offset-background disabled:cursor-not-allowed disabled:opacity-50" 
+                className="w-full rounded-lg bg-stone-100/50 dark:bg-stone-950/40 border border-stone-200/50 dark:border-stone-850/50 p-4 text-xs sm:text-sm font-medium focus-visible:ring-2 focus-visible:ring-yellow-600 transition-all outline-none placeholder:text-stone-400 dark:placeholder:text-stone-600 resize-none"
                 placeholder="Tell us everything..." 
               />
-              {errors.message && <p className="text-red-500 text-sm font-bold">{errors.message.message}</p>}
+              {errors.message && <p className="text-red-500 text-xs font-bold font-sans">{errors.message.message}</p>}
             </div>
 
-            <div className="flex items-center space-x-4 p-4 bg-zinc-50 dark:bg-zinc-800 rounded-2xl border-2 border-transparent hover:border-yellow-200 transition-all cursor-pointer">
+            {/* Newsletter Checkbox Glass Card */}
+            <div className="flex items-center space-x-3 p-3 bg-stone-100/50 dark:bg-stone-950/30 border border-stone-200/20 dark:border-stone-850/20 rounded-xl hover:border-yellow-600/25 transition-all cursor-pointer">
               <input 
                 type="checkbox" 
                 id="registerNews" 
                 {...register("registerNews")}
-                className="w-6 h-6 accent-yellow-600 rounded cursor-pointer" 
+                className="w-5 h-5 accent-yellow-600 rounded cursor-pointer" 
               />
-              <Label htmlFor="registerNews" className="text-lg font-bold cursor-pointer select-none">Subscribe to our newsletter & latest arrivals</Label>
+              <Label htmlFor="registerNews" className="text-[11px] sm:text-xs font-bold text-stone-700 dark:text-stone-300 cursor-pointer select-none">
+                Subscribe to our newsletter & latest arrivals
+              </Label>
             </div>
 
+            {/* CTA Submit Button */}
             <Button 
               type="submit" 
               disabled={isSubmitting}
-              className="w-full h-20 rounded-3xl bg-black hover:bg-zinc-800 text-white text-xl font-bold flex items-center justify-center gap-4 transition-all active:scale-95 shadow-xl"
+              className="w-full h-12 rounded-full bg-yellow-600 hover:bg-yellow-750 text-white text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md hover:shadow-yellow-600/10 cursor-pointer duration-300"
             >
               {isSubmitting ? "Sending..." : (
                 <>
-                  <Send className="w-6 h-6" /> Send Message
+                  <Send className="w-4 h-4" /> Send Message
                 </>
               )}
             </Button>

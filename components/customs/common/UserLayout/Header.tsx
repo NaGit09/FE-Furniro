@@ -35,20 +35,7 @@ const SearchIcon = () => (
     <path d="m21 21-4.35-4.35" />
   </svg>
 );
-const HeartIcon = () => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={2}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="w-5 h-5"
-    aria-hidden="true"
-  >
-    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-  </svg>
-);
+
 const CartIcon = () => (
   <svg
     viewBox="0 0 24 24"
@@ -236,7 +223,7 @@ const Header = () => {
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hdr-nav hidden md:flex" aria-label="Main navigation">
+          <nav className="hdr-nav hidden xl:flex" aria-label="Main navigation">
             {NAV_ITEMS.map(({ label, href }) => (
               <Link
                 key={label}
@@ -261,14 +248,7 @@ const Header = () => {
               <SearchIcon />
             </button>
 
-            {/* Wishlist */}
-            <button
-              id="hdr-btn-wishlist"
-              className="hdr-icon-btn hidden sm:flex"
-              aria-label="Wishlist"
-            >
-              <HeartIcon />
-            </button>
+
 
             <div className="hdr-divider hidden sm:block" aria-hidden="true" />
 
@@ -305,7 +285,7 @@ const Header = () => {
             {/* Mobile hamburger */}
             <button
               id="hdr-btn-menu"
-              className="hdr-icon-btn md:hidden"
+              className="hdr-icon-btn xl:hidden"
               onClick={() => setMobileOpen(true)}
               aria-label="Open menu"
               aria-expanded={mobileOpen}

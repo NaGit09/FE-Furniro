@@ -14,13 +14,13 @@ export default function ContactPage() {
       <main className="w-full flex flex-col gap-0 overflow-hidden pt-0 mt-[-55px] sm:mt-[-64px]">
         {/* Adjusted margin to overlap with header slightly for more premium look if header is transparent */}
         <ContactHero />
-        <div className="w-full pb-32">
+        <div className="w-full pb-16">
            <ContactForm />
         </div>
       </main>
       
       {/* Visual touch to emphasize the "News Register" aspect */}
-      <section className="bg-yellow-600 py-24 text-center px-4 relative overflow-hidden">
+      <section className="bg-yellow-600 py-16 text-center px-4 relative overflow-hidden">
         <div className="container mx-auto max-w-4xl relative z-10">
           <h2 className="text-4xl md:text-6xl font-black text-white italic mb-10 drop-shadow-xl animate-in zoom-in duration-1000">
             Never Miss <span className="text-zinc-900 drop-shadow-none">A Story</span>

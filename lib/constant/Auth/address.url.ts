@@ -1,4 +1,4 @@
-const baseAddressURL = "/auth-service/adress";
+const baseAddressURL = "/auth-service/address";
 
 export const ADDRESS_URL = {
     GET_ADDRESSES: `${baseAddressURL}/user`,

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -5,17 +6,25 @@ import NextImage from "next/image";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
-import { 
-  User, 
-  Mail, 
-  Calendar, 
-  UserCheck, 
-  MapPin, 
-  Edit3, 
-  Save, 
-  X, 
-  ArrowLeft, 
-  Image as ImageIcon
+import {
+  User,
+  Mail,
+  Calendar,
+  UserCheck,
+  MapPin,
+  Edit3,
+  Save,
+  X,
+  ArrowLeft,
+  Image as ImageIcon,
+  Phone,
+  Home as HomeIcon,
+  Briefcase,
+  Plus,
+  Check,
+  Edit2,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
 
 import { UserApi } from "@/services/api/Auth/user.service";
@@ -24,6 +33,9 @@ import { UserRes, UserReq } from "@/schema/response/auth/User.res";
 import { getCookie } from "@/lib/utils/cookieUtils";
 import { login as loginAction } from "@/stores/slices/auth.store";
 import type { RootState } from "@/stores/store";
+import { AddressApi } from "@/services/api/Auth/address.service";
+import { ProvinceApi } from "@/services/api/Other/Province.service";
+import { Address } from "@/schema/response/auth/address.res";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -41,6 +53,38 @@ export default function ProfilePage() {
   const [email, setEmail] = useState<string>("");
   const [avatarError, setAvatarError] = useState(false);
 
+  // Address & Province States
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [addressLoading, setAddressLoading] = useState(true);
+  const [editingAddress, setEditingAddress] = useState<Address | null>(null);
+  const [isAddingAddress, setIsAddingAddress] = useState(false);
+  const [provinces, setProvinces] = useState<{ name: string; code: number }[]>(
+    [],
+  );
+  const [districts, setDistricts] = useState<{ name: string; code: number }[]>(
+    [],
+  );
+  const [wards, setWards] = useState<{ name: string; code: number }[]>([]);
+  const [selectedProvinceCode, setSelectedProvinceCode] = useState<
+    number | null
+  >(null);
+  const [selectedDistrictCode, setSelectedDistrictCode] = useState<
+    number | null
+  >(null);
+
+  // Address form fields states
+  const [recName, setRecName] = useState("");
+  const [recPhone, setRecPhone] = useState("");
+  const [street, setStreet] = useState("");
+  const [provName, setProvName] = useState("");
+  const [distName, setDistName] = useState("");
+  const [wName, setWName] = useState("");
+  const [isDefaultAddress, setIsDefaultAddress] = useState(false);
+  const [activeAddressType, setActiveAddressType] = useState<"HOME" | "OFFICE">(
+    "HOME",
+  );
+  const [savingAddress, setSavingAddress] = useState(false);
+
   // Form states
   const [formData, setFormData] = useState({
     firstName: "",
@@ -56,6 +100,31 @@ export default function ProfilePage() {
     lastName: "",
   });
 
+  // Load Addresses
+  const loadAddresses = async (id: number) => {
+    setAddressLoading(true);
+    try {
+      const res = await AddressApi.getAddress(id);
+      if (res && res.data) {
+        setAddresses(res.data || []);
+      }
+    } catch (err) {
+      console.error("Addresses load error:", err);
+    } finally {
+      setAddressLoading(false);
+    }
+  };
+
+  // Load Provinces
+  const loadProvinces = async () => {
+    try {
+      const data = await ProvinceApi.getProvinces();
+      setProvinces(data || []);
+    } catch (err) {
+      console.error("Provinces API error:", err);
+    }
+  };
+
   // Fetch profile details
   useEffect(() => {
     const token = getCookie("AccessToken") || getCookie("jwt");
@@ -67,7 +136,8 @@ export default function ProfilePage() {
 
     // Get UserID from Redux or Cookie fallback
     const storedUserId = getCookie("UserID");
-    const activeUserId = auth.UserID || (storedUserId ? Number(storedUserId) : null);
+    const activeUserId =
+      auth.UserID || (storedUserId ? Number(storedUserId) : null);
 
     if (!activeUserId) {
       toast.error("User session not found. Please sign in again.");
@@ -87,7 +157,7 @@ export default function ProfilePage() {
           const u = response.data;
           setProfile(u);
           setAvatarError(false);
-          
+
           // Parse date of birth to string (YYYY-MM-DD)
           let dobString = "";
           if (u.dateOfBirth) {
@@ -105,6 +175,10 @@ export default function ProfilePage() {
             avatar: u.avatar || "",
             avatarID: u.avatarID || 1,
           });
+
+          // Concurrently fetch addresses and provinces
+          loadAddresses(activeUserId);
+          loadProvinces();
         } else {
           toast.error("Failed to load user profile details.");
         }
@@ -121,11 +195,11 @@ export default function ProfilePage() {
 
   // Handle Form Inputs
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    
+
     // Clear validation error on type
     if (name === "firstName" || name === "lastName") {
       setFormErrors((prev) => ({ ...prev, [name]: "" }));
@@ -164,13 +238,16 @@ export default function ProfilePage() {
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
         avatarID: formData.avatarID,
-        avatar: formData.avatar || "https://images.furniro.com/avatars/avatar-1.png",
+        avatar:
+          formData.avatar || "https://images.furniro.com/avatars/avatar-1.png",
         gender: formData.gender,
-        dateOfBirth: formData.dateOfBirth ? new Date(formData.dateOfBirth) : new Date(),
+        dateOfBirth: formData.dateOfBirth
+          ? new Date(formData.dateOfBirth)
+          : new Date(),
       };
 
       const res = await UserApi.updateUser(payload);
-      
+
       if (res && res.data) {
         const updated = res.data;
         setProfile(updated);
@@ -178,21 +255,174 @@ export default function ProfilePage() {
         toast.success("Profile updated successfully!");
 
         // ── Real-time Header Synchronization ──
-        dispatch(loginAction({
-          FirstName: updated.firstName,
-          LastName: updated.lastName,
-          UserName: username || updated.firstName,
-          Email: email,
-          AvatarURL: updated.avatar,
-        }));
+        dispatch(
+          loginAction({
+            FirstName: updated.firstName,
+            LastName: updated.lastName,
+            UserName: username || updated.firstName,
+            Email: email,
+            AvatarURL: updated.avatar,
+          }),
+        );
       } else {
         toast.error("Failed to update profile. Please try again.");
       }
     } catch (err) {
       console.error("Error updating profile:", err);
-      toast.error(err instanceof Error ? err.message : "An unexpected error occurred.");
+      toast.error(
+        err instanceof Error ? err.message : "An unexpected error occurred.",
+      );
     } finally {
       setUpdating(false);
+    }
+  };
+
+  // Fetch districts when selectedProvinceCode changes
+  useEffect(() => {
+    if (selectedProvinceCode !== null) {
+      const fetchDistricts = async () => {
+        try {
+          const list = await ProvinceApi.getDistricts(selectedProvinceCode);
+          setDistricts(list || []);
+          setWards([]);
+          setSelectedDistrictCode(null);
+          setDistName("");
+          setWName("");
+        } catch (err) {
+          console.error("Districts fetch error:", err);
+        }
+      };
+      fetchDistricts();
+    } else {
+      setDistricts([]);
+      setWards([]);
+      setDistName("");
+      setWName("");
+    }
+  }, [selectedProvinceCode]);
+
+  // Fetch wards when selectedDistrictCode changes
+  useEffect(() => {
+    if (selectedDistrictCode !== null) {
+      const fetchWards = async () => {
+        try {
+          const list = await ProvinceApi.getWards(selectedDistrictCode);
+          setWards(list || []);
+          setWName("");
+        } catch (err) {
+          console.error("Wards fetch error:", err);
+        }
+      };
+      fetchWards();
+    } else {
+      setWards([]);
+      setWName("");
+    }
+  }, [selectedDistrictCode]);
+
+  // Open Create Form
+  const handleOpenCreateAddress = () => {
+    setEditingAddress(null);
+    setRecName("");
+    setRecPhone("");
+    setStreet("");
+    setProvName("");
+    setDistName("");
+    setWName("");
+    setIsDefaultAddress(false);
+    setActiveAddressType("HOME");
+    setSelectedProvinceCode(null);
+    setSelectedDistrictCode(null);
+    setIsAddingAddress(true);
+  };
+
+  // Open Edit Form
+  const handleOpenEditAddress = async (addr: Address) => {
+    setIsAddingAddress(true);
+    setEditingAddress(addr);
+    setRecName(addr.receiverName);
+    setRecPhone(addr.receiverPhone);
+    setStreet(addr.street);
+    setProvName(addr.province);
+    setDistName(addr.district);
+    setWName(addr.ward);
+    setIsDefaultAddress(addr.isDefault);
+    setActiveAddressType(addr.addressType || "HOME");
+
+    // Prepopulate cascading selectors
+    const matchedProvince = provinces.find((p) => p.name === addr.province);
+    if (matchedProvince) {
+      setSelectedProvinceCode(matchedProvince.code);
+      try {
+        const districtList = await ProvinceApi.getDistricts(
+          matchedProvince.code,
+        );
+        setDistricts(districtList || []);
+        const matchedDistrict = districtList.find(
+          (d: any) => d.name === addr.district,
+        );
+        if (matchedDistrict) {
+          setSelectedDistrictCode(matchedDistrict.code);
+          const wardList = await ProvinceApi.getWards(matchedDistrict.code);
+          setWards(wardList || []);
+        }
+      } catch (err) {
+        console.error("Cascade prefill loading error:", err);
+      }
+    }
+  };
+
+  // Submit/Save Address
+  const handleAddressSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!userId) return;
+
+    if (
+      !recName.trim() ||
+      !recPhone.trim() ||
+      !provName ||
+      !distName ||
+      !wName ||
+      !street.trim()
+    ) {
+      toast.error("Please fill in all address specifications.");
+      return;
+    }
+
+    setSavingAddress(true);
+    const toastId = toast.loading("Syncing delivery address changes...");
+    try {
+      const payload: Address = {
+        addressID: editingAddress?.addressID,
+        receiverName: recName.trim(),
+        receiverPhone: recPhone.trim(),
+        province: provName,
+        district: distName,
+        ward: wName,
+        street: street.trim(),
+        isDefault: isDefaultAddress,
+        addressType: activeAddressType,
+        userID: userId,
+      };
+
+      const res = await AddressApi.updateAddress(payload);
+      if (res && res.data) {
+        toast.success("Delivery address updated successfully!", {
+          id: toastId,
+        });
+        await loadAddresses(userId);
+        setIsAddingAddress(false);
+        setEditingAddress(null);
+      } else {
+        toast.error("Failed to update delivery address.", { id: toastId });
+      }
+    } catch (err) {
+      console.error("Save address error:", err);
+      toast.error("An unexpected error occurred while syncing addresses.", {
+        id: toastId,
+      });
+    } finally {
+      setSavingAddress(false);
     }
   };
 
@@ -311,9 +541,8 @@ export default function ProfilePage() {
 
       <div className="profile-root w-full min-h-screen py-8 px-4 md:px-4 mt-16">
         <div className="max-w-4xl mx-auto animate-fade">
-          
           {/* Header Action */}
-          <button 
+          <button
             onClick={() => router.push("/")}
             className="btn-muted inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold mb-8 cursor-pointer"
           >
@@ -323,10 +552,9 @@ export default function ProfilePage() {
 
           {/* Profile Card */}
           <div className="glass-profile-card rounded-3xl overflow-hidden shadow-2xl relative">
-            
             {/* Visual Glassmorphic Accent Border */}
             <div className="absolute top-0 inset-x-0 h-1.5 bg-linear-to-r from-amber-800 via-amber-500 to-yellow-300" />
-            
+
             {/* Upper Banner Accent */}
             <div className="h-44 bg-linear-to-r from-amber-900/40 to-stone-900/60 relative overflow-hidden">
               <div className="absolute inset-0 bg-stone-900/20 backdrop-blur-[2px]" />
@@ -340,9 +568,9 @@ export default function ProfilePage() {
             <div className="px-8 md:px-12 pb-8 relative z-10 flex flex-col md:flex-row items-center md:items-end gap-6 -mt-16">
               <div className="avatar-ring w-32 h-32 md:w-36 md:h-36 shrink-0 bg-stone-100 dark:bg-stone-800 overflow-hidden flex items-center justify-center">
                 {formData.avatar && !avatarError ? (
-                  <NextImage 
-                    src={formData.avatar} 
-                    alt={`${formData.firstName} ${formData.lastName}`} 
+                  <NextImage
+                    src={formData.avatar}
+                    alt={`${formData.firstName} ${formData.lastName}`}
                     fill
                     priority
                     sizes="(max-width: 768px) 128px, 144px"
@@ -359,13 +587,18 @@ export default function ProfilePage() {
               <div className="text-center md:text-left grow pb-2 flex flex-col items-center md:items-start gap-1">
                 <div className="flex items-center gap-2">
                   <h1 className="profile-heading text-3xl md:text-4xl font-bold tracking-tight text-stone-900 dark:text-stone-50">
-                    {profile ? `${profile.firstName} ${profile.lastName}` : "Exclusive Member"}
+                    {profile
+                      ? `${profile.firstName} ${profile.lastName}`
+                      : "Exclusive Member"}
                   </h1>
-                  <span className="inline-flex items-center justify-center p-1 rounded-full bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-500" title="Verified Customer">
+                  <span
+                    className="inline-flex items-center justify-center p-1 rounded-full bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-500"
+                    title="Verified Customer"
+                  >
                     <UserCheck className="w-4 h-4" />
                   </span>
                 </div>
-                
+
                 <p className="text-sm font-medium text-stone-500 dark:text-stone-400">
                   @{username || "guest"} • Account #{accountId || "N/A"}
                 </p>
@@ -377,7 +610,7 @@ export default function ProfilePage() {
 
               <div className="shrink-0 pb-2">
                 {!isEditing ? (
-                  <button 
+                  <button
                     onClick={() => setIsEditing(true)}
                     className="btn-gold flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-bold tracking-wide cursor-pointer"
                   >
@@ -385,7 +618,7 @@ export default function ProfilePage() {
                     Edit Profile
                   </button>
                 ) : (
-                  <button 
+                  <button
                     onClick={() => {
                       setIsEditing(false);
                       // Reset form to actual data
@@ -394,7 +627,11 @@ export default function ProfilePage() {
                           firstName: profile.firstName || "",
                           lastName: profile.lastName || "",
                           gender: profile.gender || "OTHER",
-                          dateOfBirth: profile.dateOfBirth ? new Date(profile.dateOfBirth).toISOString().split("T")[0] : "",
+                          dateOfBirth: profile.dateOfBirth
+                            ? new Date(profile.dateOfBirth)
+                                .toISOString()
+                                .split("T")[0]
+                            : "",
                           avatar: profile.avatar || "",
                           avatarID: profile.avatarID || 1,
                         });
@@ -420,7 +657,7 @@ export default function ProfilePage() {
                     <h3 className="profile-heading text-xl font-bold tracking-wide text-stone-900 dark:text-stone-50 border-b border-stone-200/50 dark:border-stone-800/50 pb-2.5">
                       Personal Details
                     </h3>
-                    
+
                     {/* First Name */}
                     <div className="flex flex-col gap-1">
                       <span className="text-xs font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wider">
@@ -483,14 +720,16 @@ export default function ProfilePage() {
                           Date of Birth
                         </span>
                         <span className="text-base font-semibold text-stone-800 dark:text-stone-100">
-                          {profile?.dateOfBirth 
-                            ? new Date(profile.dateOfBirth).toLocaleDateString("en-US", {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric'
-                              })
-                            : "Not configured"
-                          }
+                          {profile?.dateOfBirth
+                            ? new Date(profile.dateOfBirth).toLocaleDateString(
+                                "en-US",
+                                {
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric",
+                                },
+                              )
+                            : "Not configured"}
                         </span>
                       </div>
                     </div>
@@ -521,45 +760,58 @@ export default function ProfilePage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* First name */}
                     <div className="flex flex-col gap-2">
-                      <label htmlFor="firstName" className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                      <label
+                        htmlFor="firstName"
+                        className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider"
+                      >
                         First Name
                       </label>
-                      <input 
+                      <input
                         id="firstName"
                         type="text"
                         name="firstName"
                         value={formData.firstName}
                         onChange={handleInputChange}
-                        className={`luxury-input${formErrors.firstName ? ' border-red-500 focus:border-red-500' : ''}`}
+                        className={`luxury-input${formErrors.firstName ? " border-red-500 focus:border-red-500" : ""}`}
                         placeholder="John"
                       />
                       {formErrors.firstName && (
-                        <p className="text-xs text-red-500 font-semibold mt-1">{formErrors.firstName}</p>
+                        <p className="text-xs text-red-500 font-semibold mt-1">
+                          {formErrors.firstName}
+                        </p>
                       )}
                     </div>
 
                     {/* Last name */}
                     <div className="flex flex-col gap-2">
-                      <label htmlFor="lastName" className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                      <label
+                        htmlFor="lastName"
+                        className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider"
+                      >
                         Last Name
                       </label>
-                      <input 
+                      <input
                         id="lastName"
                         type="text"
                         name="lastName"
                         value={formData.lastName}
                         onChange={handleInputChange}
-                        className={`luxury-input${formErrors.lastName ? ' border-red-500 focus:border-red-500' : ''}`}
+                        className={`luxury-input${formErrors.lastName ? " border-red-500 focus:border-red-500" : ""}`}
                         placeholder="Doe"
                       />
                       {formErrors.lastName && (
-                        <p className="text-xs text-red-500 font-semibold mt-1">{formErrors.lastName}</p>
+                        <p className="text-xs text-red-500 font-semibold mt-1">
+                          {formErrors.lastName}
+                        </p>
                       )}
                     </div>
 
                     {/* Gender */}
                     <div className="flex flex-col gap-2">
-                      <label htmlFor="gender" className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                      <label
+                        htmlFor="gender"
+                        className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider"
+                      >
                         Gender
                       </label>
                       <select
@@ -577,10 +829,13 @@ export default function ProfilePage() {
 
                     {/* Date of Birth */}
                     <div className="flex flex-col gap-2">
-                      <label htmlFor="dateOfBirth" className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                      <label
+                        htmlFor="dateOfBirth"
+                        className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider"
+                      >
                         Date of Birth
                       </label>
-                      <input 
+                      <input
                         id="dateOfBirth"
                         type="date"
                         name="dateOfBirth"
@@ -631,7 +886,380 @@ export default function ProfilePage() {
                 </form>
               )}
             </div>
+          </div>
 
+          {/* ══════════════════════ DELIVERY ADDRESSES ══════════════════════ */}
+          <div className="glass-profile-card rounded-3xl overflow-hidden shadow-2xl relative mt-8">
+            <div className="absolute top-0 inset-x-0 h-1.5 bg-linear-to-r from-amber-800 via-amber-500 to-yellow-300" />
+
+            <div className="px-8 md:px-12 py-6 border-b border-stone-200/50 dark:border-stone-800/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-700 dark:bg-amber-500/20 dark:text-amber-500">
+                  <MapPin className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="profile-heading text-2xl font-bold text-stone-900 dark:text-stone-50">
+                    Delivery Addresses
+                  </h2>
+                  <p className="text-xs font-semibold text-stone-400 mt-0.5 dark:text-stone-500 font-sans">
+                    Configure your physical delivery destinations for custom
+                    timber commissions
+                  </p>
+                </div>
+              </div>
+
+              {!isAddingAddress && (
+                <button
+                  onClick={handleOpenCreateAddress}
+                  className="btn-gold shrink-0 flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs font-bold tracking-wider uppercase cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Address
+                </button>
+              )}
+            </div>
+
+            <div className="p-8 md:p-12 flex flex-col gap-8">
+              {/* ── ADDRESS LISTING ── */}
+              {!isAddingAddress &&
+                (addressLoading ? (
+                  <div className="flex flex-col items-center justify-center py-8 gap-2">
+                    <Loader2 className="w-8 h-8 text-amber-600 animate-spin" />
+                    <p className="text-xs font-bold text-stone-400 uppercase tracking-widest animate-pulse">
+                      Syncing addresses...
+                    </p>
+                  </div>
+                ) : addresses.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-10 text-center gap-4 bg-stone-50/50 dark:bg-stone-955 p-6 rounded-2xl border border-stone-150 dark:border-stone-800/40">
+                    <MapPin className="w-10 h-10 text-stone-300 dark:text-stone-650" />
+                    <div className="flex flex-col gap-1">
+                      <h4 className="text-sm font-bold text-stone-850 dark:text-stone-100">
+                        No destinations saved
+                      </h4>
+                      <p className="text-xs font-medium text-stone-500 dark:text-stone-400 max-w-xs leading-relaxed">
+                        Add a shipping address to speed up your bespoke checkout
+                        flows.
+                      </p>
+                    </div>
+                    <button
+                      onClick={handleOpenCreateAddress}
+                      className="h-10 border border-amber-600/30 text-amber-700 dark:text-amber-500 hover:bg-amber-500/5 rounded-xl text-xs font-bold tracking-wider uppercase px-5 transition-all cursor-pointer"
+                    >
+                      Create First Address
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {addresses.map((addr) => (
+                      <div
+                        key={addr.addressID}
+                        className={`p-5 rounded-2xl border transition-all flex flex-col gap-4 relative group ${
+                          addr.isDefault
+                            ? "bg-amber-500/5 border-amber-600/30 dark:border-amber-500/30"
+                            : "bg-white/40 dark:bg-stone-950/20 border-stone-200/40 dark:border-stone-800/40"
+                        }`}
+                      >
+                        {/* Header Details: Badge type and Default indicator */}
+                        <div className="flex justify-between items-center gap-2">
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
+                              addr.addressType === "HOME"
+                                ? "bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                                : "bg-blue-500/10 text-blue-700 dark:text-blue-400"
+                            }`}
+                          >
+                            {addr.addressType === "HOME" ? (
+                              <HomeIcon className="w-3 h-3" />
+                            ) : (
+                              <Briefcase className="w-3 h-3" />
+                            )}
+                            {addr.addressType}
+                          </span>
+
+                          {addr.isDefault && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-600 text-white text-[10px] font-bold">
+                              <Check className="w-3 h-3 stroke-[2.5]" />
+                              Default Destination
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Receiver Details */}
+                        <div className="flex flex-col gap-1.5 text-xs text-stone-600 dark:text-stone-400 font-medium">
+                          <div className="flex items-center gap-2.5 text-stone-900 dark:text-stone-100 font-bold text-sm">
+                            <User className="w-4 h-4 text-amber-600 shrink-0" />
+                            <span>{addr.receiverName}</span>
+                          </div>
+                          <div className="flex items-center gap-2.5">
+                            <Phone className="w-4 h-4 text-amber-600 shrink-0" />
+                            <span>{addr.receiverPhone}</span>
+                          </div>
+                          <div className="flex items-start gap-2.5 mt-1">
+                            <MapPin className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                            <p className="leading-relaxed min-w-0 break-words text-stone-800 dark:text-stone-250">
+                              {addr.street}, {addr.ward}, {addr.district},{" "}
+                              {addr.province}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Edit Button */}
+                        <button
+                          onClick={() => handleOpenEditAddress(addr)}
+                          className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-lg border border-stone-200/50 hover:border-amber-600/30 hover:bg-stone-50 dark:border-stone-800 dark:hover:bg-stone-900/50 text-stone-500 dark:text-stone-400 cursor-pointer"
+                          title="Modify Address"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+
+              {/* ── ADDRESS EDITOR/CREATOR FORM ── */}
+              {isAddingAddress && (
+                <form
+                  onSubmit={handleAddressSubmit}
+                  className="flex flex-col gap-6.5 animate-fade"
+                >
+                  <h3 className="profile-heading text-xl font-bold tracking-wide text-stone-900 dark:text-stone-50 border-b border-stone-200/40 dark:border-stone-800/40 pb-2">
+                    {editingAddress
+                      ? "Modify Delivery Destination"
+                      : "Create New Delivery Destination"}
+                  </h3>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Receiver Name */}
+                    <div className="flex flex-col gap-2">
+                      <label
+                        htmlFor="recName"
+                        className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider"
+                      >
+                        Receiver Name
+                      </label>
+                      <input
+                        id="recName"
+                        type="text"
+                        value={recName}
+                        onChange={(e) => setRecName(e.target.value)}
+                        className="luxury-input"
+                        placeholder="John Doe"
+                        required
+                      />
+                    </div>
+
+                    {/* Receiver Phone */}
+                    <div className="flex flex-col gap-2">
+                      <label
+                        htmlFor="recPhone"
+                        className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider"
+                      >
+                        Receiver Phone Number
+                      </label>
+                      <input
+                        id="recPhone"
+                        type="tel"
+                        value={recPhone}
+                        onChange={(e) => setRecPhone(e.target.value)}
+                        className="luxury-input"
+                        placeholder="0987654321"
+                        required
+                      />
+                    </div>
+
+                    {/* Province Cascading Dropdown */}
+                    <div className="flex flex-col gap-2">
+                      <label
+                        htmlFor="province"
+                        className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider"
+                      >
+                        Province / City
+                      </label>
+                      <select
+                        id="province"
+                        value={
+                          provinces.find((p) => p.name === provName)?.code || ""
+                        }
+                        onChange={(e) => {
+                          const code = Number(e.target.value);
+                          const name =
+                            provinces.find((p) => p.code === code)?.name || "";
+                          setProvName(name);
+                          setSelectedProvinceCode(code);
+                        }}
+                        className="luxury-input cursor-pointer"
+                        required
+                      >
+                        <option value="">-- Select Province/City --</option>
+                        {provinces.map((prov) => (
+                          <option key={prov.code} value={prov.code}>
+                            {prov.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* District Cascading Dropdown */}
+                    <div className="flex flex-col gap-2">
+                      <label
+                        htmlFor="district"
+                        className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider"
+                      >
+                        District
+                      </label>
+                      <select
+                        id="district"
+                        value={
+                          districts.find((d) => d.name === distName)?.code || ""
+                        }
+                        onChange={(e) => {
+                          const code = Number(e.target.value);
+                          const name =
+                            districts.find((d) => d.code === code)?.name || "";
+                          setDistName(name);
+                          setSelectedDistrictCode(code);
+                        }}
+                        className="luxury-input cursor-pointer"
+                        disabled={selectedProvinceCode === null}
+                        required
+                      >
+                        <option value="">-- Select District --</option>
+                        {districts.map((dist) => (
+                          <option key={dist.code} value={dist.code}>
+                            {dist.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Ward Cascading Dropdown */}
+                    <div className="flex flex-col gap-2">
+                      <label
+                        htmlFor="ward"
+                        className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider"
+                      >
+                        Ward
+                      </label>
+                      <select
+                        id="ward"
+                        value={wName}
+                        onChange={(e) => setWName(e.target.value)}
+                        className="luxury-input cursor-pointer"
+                        disabled={selectedDistrictCode === null}
+                        required
+                      >
+                        <option value="">-- Select Ward --</option>
+                        {wards.map((w) => (
+                          <option key={w.code} value={w.name}>
+                            {w.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Street Address */}
+                    <div className="flex flex-col gap-2 md:col-span-2">
+                      <label
+                        htmlFor="street"
+                        className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider"
+                      >
+                        Street Address / Specific Location
+                      </label>
+                      <input
+                        id="street"
+                        type="text"
+                        value={street}
+                        onChange={(e) => setStreet(e.target.value)}
+                        className="luxury-input"
+                        placeholder="123 Le Loi Street, Building B, Room 405"
+                        required
+                      />
+                    </div>
+
+                    {/* Address Type Toggle */}
+                    <div className="flex flex-col gap-2">
+                      <span className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                        Address Category
+                      </span>
+                      <div className="flex gap-4">
+                        <button
+                          type="button"
+                          onClick={() => setActiveAddressType("HOME")}
+                          className={`flex-1 h-11 flex items-center justify-center gap-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                            activeAddressType === "HOME"
+                              ? "bg-amber-600 text-white border border-amber-600 shadow-sm"
+                              : "border border-stone-200 dark:border-stone-850 text-stone-700 dark:text-stone-300"
+                          }`}
+                        >
+                          <HomeIcon className="w-4 h-4 shrink-0" />
+                          HOME
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setActiveAddressType("OFFICE")}
+                          className={`flex-1 h-11 flex items-center justify-center gap-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                            activeAddressType === "OFFICE"
+                              ? "bg-amber-600 text-white border border-amber-600 shadow-sm"
+                              : "border border-stone-200 dark:border-stone-850 text-stone-700 dark:text-stone-300"
+                          }`}
+                        >
+                          <Briefcase className="w-4 h-4 shrink-0" />
+                          OFFICE
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Default Address Checkbox */}
+                    <div className="flex items-center gap-3.5 mt-6 px-1">
+                      <input
+                        id="isDefault"
+                        type="checkbox"
+                        checked={isDefaultAddress}
+                        onChange={(e) => setIsDefaultAddress(e.target.checked)}
+                        className="w-5 h-5 rounded accent-amber-600 cursor-pointer border-stone-300"
+                      />
+                      <label
+                        htmlFor="isDefault"
+                        className="text-sm font-semibold text-stone-700 dark:text-stone-300 cursor-pointer select-none"
+                      >
+                        Set as Default Destination
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Form Submission Actions */}
+                  <div className="flex justify-end gap-4 mt-4 border-t border-stone-200/40 dark:border-stone-800/40 pt-6">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsAddingAddress(false);
+                        setEditingAddress(null);
+                      }}
+                      className="btn-muted px-6 py-3 rounded-xl text-xs font-bold tracking-wider uppercase cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={savingAddress}
+                      className="btn-gold flex items-center justify-center gap-2 px-8 py-3 rounded-xl text-xs font-bold tracking-wider uppercase cursor-pointer min-w-36"
+                    >
+                      {savingAddress ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="w-3.5 h-3.5" />
+                          Save Destination
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
           </div>
         </div>
       </div>

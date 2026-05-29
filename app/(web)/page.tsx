@@ -25,16 +25,16 @@ export default function Home() {
         </div>
 
         {/* Categories Section */}
-        <section className="w-full py-28 px-4 flex justify-center bg-transparent">
+        <section className="w-full py-8 px-4 flex justify-center bg-transparent">
           <div className="container mx-auto">
              <Browse />
           </div>
         </section>
 
         {/* Featured Products */}
-        <section className="w-full px-4 py-28 bg-stone-100/50 dark:bg-stone-900/30 border-y border-stone-200/30 dark:border-stone-900/40 overflow-hidden" id="product">
+        <section className="w-full px-4 py-8 bg-stone-100/50 dark:bg-stone-900/30 border-y border-stone-200/30 dark:border-stone-900/40 overflow-hidden" id="product">
            <div className="container mx-auto">
-              <div className="text-center mb-16 flex flex-col items-center gap-2.5 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+              <div className="text-center mb-10 flex flex-col items-center gap-2.5 animate-in fade-in slide-in-from-bottom-10 duration-1000">
                  <h6 className="text-xs font-bold tracking-[0.25em] text-yellow-600 dark:text-yellow-500 uppercase">
                    Premium Showcase
                  </h6>
@@ -46,7 +46,7 @@ export default function Home() {
                  </p>
                  <div className="h-0.5 w-16 bg-yellow-600 rounded-full mt-2" />
               </div>
-              <ProductListCard />
+              <ProductListCard limit={8} autoFetch={true} />
            </div>
         </section>
 
@@ -54,7 +54,7 @@ export default function Home() {
         <Inspiration />
 
         {/* Newsletter / CTA Section */}
-        <section className="w-full bg-stone-950 dark:bg-stone-950 py-28 text-center text-white relative overflow-hidden group border-t border-stone-900">
+        <section className="w-full bg-stone-950 dark:bg-stone-950 py-16 text-center text-white relative overflow-hidden group border-t border-stone-900">
            <div className="container mx-auto max-w-3xl relative z-10 px-4 flex flex-col items-center gap-6">
               <h6 className="text-xs font-bold tracking-[0.25em] text-yellow-600 dark:text-yellow-500 uppercase">
                 Newsletter
@@ -83,6 +83,7 @@ export default function Home() {
            <div className="absolute top-[10%] left-[5%] text-[14vw] font-bold italic text-white/2 opacity-25 pointer-events-none select-none tracking-tighter font-heading">FURNIRO</div>
            <div className="absolute bottom-[10%] right-[5%] text-[14vw] font-bold italic text-white/2 opacity-25 pointer-events-none select-none tracking-tighter font-heading">MILAN</div>
         </section>
+
       </main>
     </div>
   );

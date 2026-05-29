@@ -1,5 +1,12 @@
-import axios from "axios";
-import { getCookie } from "../lib/utils/cookieUtils";
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
+import { getCookie, removeCookie, setCookie } from "../lib/utils/cookieUtils";
+import { AUTH_URL } from "../lib/constant/Auth/auth.url";
+import { ApiResponse } from "../schema/common/AType";
+
+interface FailedQueueItem {
+  resolve: (token: string) => void;
+  reject: (error: AxiosError) => void;
+}
 
 const baseURL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1/furniro";
@@ -7,105 +14,119 @@ const baseURL =
 const axiosInstance = axios.create({
   baseURL,
   timeout: 10000,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  headers: { "Content-Type": "application/json" },
   withCredentials: true,
 });
 
-axiosInstance.interceptors.request.use(
-  (config) => {
-    const token = getCookie("AccessToken") || getCookie("jwt");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  },
-);
-
+// State management for queueing requests during refresh
 let isRefreshing = false;
-let failedQueue: any[] = [];
+let failedQueue: FailedQueueItem[] = [];
 
-const processQueue = (error: any, token: string | null = null) => {
+const processQueue = (
+  error: AxiosError | null,
+  token: string | null = null,
+) => {
   failedQueue.forEach((prom) => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve(token);
-    }
+    if (error) prom.reject(error);
+    else if (token) prom.resolve(token);
   });
   failedQueue = [];
 };
 
-axiosInstance.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  async (error) => {
-    const originalRequest = error.config;
-    const isUnauthorized = error.response && (error.response.status === 401 || error.response.data?.code === 401);
+// Request Interceptor: Attach standard AccessToken or RefreshToken depending on request type
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const isRefreshRequest = config.url?.includes(
+      "/auth-service/account/refresh",
+    );
+    const token = isRefreshRequest
+      ? getCookie("RefreshToken")
+      : getCookie("AccessToken") || getCookie("jwt");
 
-    if (isUnauthorized && !originalRequest._retry) {
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error),
+);
+
+// Response Interceptor: Handle automatic token refreshing on 401 errors
+axiosInstance.interceptors.response.use(
+  (response: AxiosResponse) => response,
+  async (error: AxiosError) => {
+    const originalRequest = error.config as AxiosRequestConfig & {
+      _retry?: boolean;
+    };
+
+    const isUnauthorized = error.response?.status === 401;
+    const isRefreshRequest = originalRequest?.url?.includes(
+      "/auth-service/account/refresh",
+    );
+
+    // If it's a 401 error, and it's NOT the refresh token request itself, and we haven't retried yet
+    if (isUnauthorized && !isRefreshRequest && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
           .then((token) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
+            if (originalRequest.headers)
+              originalRequest.headers.Authorization = `Bearer ${token}`;
             return axiosInstance(originalRequest);
           })
-          .catch((err) => {
-            return Promise.reject(err);
-          });
+          .catch((err) => Promise.reject(err));
       }
 
       originalRequest._retry = true;
       isRefreshing = true;
 
       try {
-        const { AuthApi } = await import("@/services/api/Auth/auth.service");
-        const res = await AuthApi.refreshToken();
-        
-        if (res && res.data && res.data.AccessToken) {
-          const newToken = res.data.AccessToken;
+        // Use the centralized axiosInstance to call the refresh endpoint
+        const res = await axiosInstance.post<ApiResponse<string>>(
+          AUTH_URL.REFRESH,
+        );
+
+        if (res?.data?.data) {
+          const newToken = res.data.data;
+
+          // Store new AccessToken in cookies
+          setCookie("AccessToken", newToken, 1);
+
           isRefreshing = false;
           processQueue(null, newToken);
-          
-          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+
+          if (originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          }
+          // Retry original request
           return axiosInstance(originalRequest);
+        } else {
+          throw new Error("Invalid refresh token response");
         }
       } catch (refreshError) {
         isRefreshing = false;
-        processQueue(refreshError, null);
-        
-        if (typeof window !== "undefined") {
-          const { removeCookie } = await import("@/lib/utils/cookieUtils");
-          removeCookie("AccessToken");
-          removeCookie("RefreshToken");
-          removeCookie("UserID");
-          removeCookie("UserEmail");
-          
-          console.warn("Session expired. Redirecting to login...");
-          window.location.href = "/auth/login";
-        }
+        processQueue(refreshError as AxiosError, null);
+        handleLogout();
         return Promise.reject(refreshError);
       }
-    }
-
-    if (error.response) {
-      console.error("Backend Error:", error.response.data);
-    } else if (error.request) {
-      console.error("CORS hoặc Network Error - Không thể kết nối tới Server");
-    } else {
-      console.error("Setup Error:", error.message);
     }
 
     return Promise.reject(error);
   },
 );
+
+const handleLogout = () => {
+  if (typeof window !== "undefined") {
+    removeCookie("AccessToken");
+    removeCookie("RefreshToken");
+    removeCookie("UserID");
+    removeCookie("UserEmail");
+
+    if (window.location.pathname !== "/auth/login") {
+      window.location.href = "/auth/login";
+    }
+  }
+};
 
 export default axiosInstance;

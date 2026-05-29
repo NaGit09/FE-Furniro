@@ -168,10 +168,17 @@ function SuccessContent() {
 
         {/* Buttons / Navigation actions */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link href="/" className="btn-gold flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-medium w-full sm:w-auto text-sm transition-all duration-300 cursor-pointer">
-            <Home className="w-4 h-4" />
-            Go to Home
-          </Link>
+          {type === "order" || title.toLowerCase().includes("order") ? (
+            <Link href="/user/orders" className="btn-gold flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-medium w-full sm:w-auto text-sm transition-all duration-300 cursor-pointer">
+              <ShoppingBag className="w-4 h-4 animate-pulse" />
+              View Your Orders
+            </Link>
+          ) : (
+            <Link href="/" className="btn-gold flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-medium w-full sm:w-auto text-sm transition-all duration-300 cursor-pointer">
+              <Home className="w-4 h-4" />
+              Go to Home
+            </Link>
+          )}
           <Link href="/product" className="btn-outline-gold flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-medium w-full sm:w-auto text-sm transition-all duration-300 cursor-pointer">
             <ShoppingBag className="w-4 h-4" />
             Continue Shopping

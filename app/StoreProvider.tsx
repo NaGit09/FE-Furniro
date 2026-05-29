@@ -7,7 +7,7 @@ import { login as loginAction } from "../stores/slices/auth.store";
 import { UserApi } from "../services/api/Auth/user.service";
 import { CartApi } from "../services/api/Order/cart.service";
 import { setCart } from "../stores/slices/cart.store";
-import "../app/Header.css";
+import "./Header.css";
 
 function AuthInitializer({ children }: { children: React.ReactNode }) {
   const dispatch = useDispatch();
@@ -18,6 +18,8 @@ function AuthInitializer({ children }: { children: React.ReactNode }) {
 
     if (token && storedUserId) {
       const userId = Number(storedUserId);
+      if (isNaN(userId) || userId <= 0) return;
+      
       const restoreSession = async () => {
         try {
           const res = await UserApi.getUser(userId);
@@ -61,7 +63,7 @@ export default function StoreProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const storeRef = useRef<AppStore>(null);
+  const storeRef = useRef<AppStore | null>(null);
   if (!storeRef.current) {
     storeRef.current = makeStore();
   }
