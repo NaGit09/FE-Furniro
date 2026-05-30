@@ -16,13 +16,24 @@ import {
   Tag,
   Truck,
   ArrowLeft,
-  Sparkles
+  Sparkles,
+  MapPin,
+  CreditCard,
+  X,
+  AlertCircle,
+  User,
+  FileText,
+  CheckCircle2,
+  Clock
 } from "lucide-react";
 
 import { RootState } from "@/stores/store";
 import { setCart, setLoading, setError } from "@/stores/slices/cart.store";
 import { CartApi } from "@/services/api/Order/cart.service";
 import { ProductApi } from "@/services/api/Product/product.service";
+import { OrderApi } from "@/services/api/Order/order.service";
+import { AddressApi } from "@/services/api/Auth/address.service";
+import { Address } from "@/schema/response/auth/address.res";
 
 interface ProductCache {
   name: string;
@@ -43,6 +54,18 @@ export default function CartPage() {
   const [detailsCache, setDetailsCache] = useState<Record<number, ProductCache>>({});
   const [updatingItemId, setUpdatingItemId] = useState<number | null>(null);
   const [couponCode, setCouponCode] = useState("");
+  
+  // Checkout & Promo state variables
+  const [appliedPromo, setAppliedPromo] = useState<{ code: string; discountType: "PERCENTAGE" | "FLAT"; discountValue: number; } | null>(null);
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
+  const [customAddress, setCustomAddress] = useState("");
+  const [orderNote, setOrderNote] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<"COD" | "PAYPAL">("COD");
+  const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
 
   // 1. Fetch Cart from Backend
   const loadCartData = async () => {
@@ -175,13 +198,161 @@ export default function CartPage() {
 
   const tax = Math.round(subtotal * 0.08); // 8% VAT
   
-  const total = subtotal + shipping + tax;
+  const total = Math.max(0, subtotal + shipping + tax - discountAmount);
 
-  const handleApplyCoupon = (e: React.FormEvent) => {
+  // Automatically revalidate coupon when subtotal changes
+  useEffect(() => {
+    const revalidateCoupon = async () => {
+      if (!appliedPromo || subtotal === 0) {
+        setAppliedPromo(null);
+        setDiscountAmount(0);
+        return;
+      }
+      try {
+        const res = await OrderApi.validate_promo_code(appliedPromo.code, subtotal);
+        if (res && res.data) {
+          setDiscountAmount(res.data.discountAmount);
+        }
+      } catch (err) {
+        console.error("Failed to revalidate coupon after cart update:", err);
+        setAppliedPromo(null);
+        setDiscountAmount(0);
+        toast.error("Applied coupon has been removed due to cart changes.");
+      }
+    };
+    
+    revalidateCoupon();
+  }, [subtotal]);
+
+  const handleApplyCoupon = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!couponCode.trim()) return;
-    toast.success("Coupon code applied successfully! (Simulated)");
-    setCouponCode("");
+    if (!couponCode.trim() || !auth.UserID) return;
+    
+    setIsValidatingCoupon(true);
+    const toastId = toast.loading("Validating coupon code...");
+    
+    try {
+      const res = await OrderApi.validate_promo_code(couponCode, subtotal);
+      if (res && res.data) {
+        setAppliedPromo({
+          code: res.data.code,
+          discountType: res.data.discountType as "PERCENTAGE" | "FLAT",
+          discountValue: res.data.discountValue,
+        });
+        setDiscountAmount(res.data.discountAmount);
+        toast.success(`Coupon code ${res.data.code} applied successfully!`, { id: toastId });
+      } else {
+        toast.error("Invalid coupon code.", { id: toastId });
+      }
+    } catch (err: any) {
+      console.error("Coupon validation error:", err);
+      const errMsg = err?.response?.data?.message || "Failed to validate coupon code.";
+      toast.error(errMsg, { id: toastId });
+      setAppliedPromo(null);
+      setDiscountAmount(0);
+    } finally {
+      setIsValidatingCoupon(false);
+      setCouponCode("");
+    }
+  };
+
+  // Load saved addresses and open checkout drawer
+  const handleStartCheckout = async () => {
+    if (!auth.UserID) {
+      toast.error("Please sign in to complete purchase.");
+      router.push("/auth/login");
+      return;
+    }
+    
+    setIsCheckingOut(true);
+    const toastId = toast.loading("Loading shipping addresses...");
+    try {
+      const res = await AddressApi.getAddress(auth.UserID);
+      if (res && res.data) {
+        setAddresses(res.data);
+        const defaultAddr = res.data.find(addr => addr.isDefault);
+        if (defaultAddr && defaultAddr.addressID) {
+          setSelectedAddressId(defaultAddr.addressID);
+        } else if (res.data.length > 0 && res.data[0].addressID) {
+          setSelectedAddressId(res.data[0].addressID);
+        }
+      }
+      toast.dismiss(toastId);
+    } catch (err) {
+      console.error("Address fetch error:", err);
+      toast.error("Could not load your address registry.", { id: toastId });
+    }
+  };
+
+  // Submit Secure Checkout
+  const handlePlaceOrder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!auth.UserID || !cart.cartID) return;
+
+    // Resolve final shipping address string
+    let finalAddressString = "";
+    if (selectedAddressId !== null && addresses.length > 0) {
+      const addr = addresses.find(a => a.addressID === selectedAddressId);
+      if (addr) {
+        finalAddressString = `${addr.street}, ${addr.ward}, ${addr.district}, ${addr.province} (Receiver: ${addr.receiverName}, Tel: ${addr.receiverPhone})`;
+      }
+    } else {
+      finalAddressString = customAddress.trim();
+    }
+
+    if (!finalAddressString) {
+      toast.error("Please provide or select a shipping destination.");
+      return;
+    }
+
+    setIsSubmittingOrder(true);
+    const toastId = toast.loading("Staging order records...");
+
+    try {
+      const itemsPayload = cart.items.map(item => ({
+        variantID: item.variantID,
+        quantity: item.quantity,
+        price: item.price,
+      }));
+
+      const payload = {
+        userID: auth.UserID,
+        note: orderNote || "Online Checkout",
+        address: finalAddressString,
+        shippingFee: shipping,
+        paymentMethod,
+        paymentStatus: "PENDING" as const,
+        currency: "VND",
+        orderItems: itemsPayload,
+        promoCode: appliedPromo ? appliedPromo.code : undefined,
+      };
+
+      const res = await OrderApi.create_order(payload);
+
+      if (res && res.data) {
+        toast.success("Order logged successfully!", { id: toastId });
+        
+        // Clear Redux Cart Store
+        dispatch(setCart({ cartID: cart.cartID, items: [] }));
+
+        if (paymentMethod === "PAYPAL" && res.data.approvalUrl) {
+          toast.info("Navigating to PayPal settlement portal...");
+          window.location.href = res.data.approvalUrl;
+        } else {
+          toast.success("Bespoke order placed! Check status in order logs.");
+          setIsCheckingOut(false);
+          router.push("/user/orders");
+        }
+      } else {
+        toast.error("Order staging disrupted. Please check inventory values.", { id: toastId });
+      }
+    } catch (err: any) {
+      console.error("Order submission failed:", err);
+      const errMsg = err?.response?.data?.message || "Order staging failed.";
+      toast.error(errMsg, { id: toastId });
+    } finally {
+      setIsSubmittingOrder(false);
+    }
   };
 
   return (
@@ -566,8 +737,16 @@ export default function CartPage() {
 
                   <hr className="border-stone-200/50 dark:border-stone-800/50" />
 
+                  {/* Discount breakdown if active */}
+                  {discountAmount > 0 && (
+                    <div className="flex justify-between items-center text-sm text-emerald-600 dark:text-emerald-400 font-semibold animate-fade">
+                      <span>Promo Discount ({appliedPromo?.code})</span>
+                      <span>-{discountAmount.toLocaleString("vi-VN")}₫</span>
+                    </div>
+                  )}
+
                   {/* Grand Total */}
-                  <div className="flex justify-between items-baseline">
+                  <div className="flex justify-between items-baseline border-t border-dashed border-stone-200/20 dark:border-stone-800/20 pt-2.5">
                     <span className="text-base font-bold text-stone-900 dark:text-stone-50">Total Reservation</span>
                     <span className="text-2xl font-bold text-amber-700 dark:text-amber-500 font-serif tracking-tight">
                       {total.toLocaleString("vi-VN")}₫
@@ -575,31 +754,52 @@ export default function CartPage() {
                   </div>
 
                   {/* Promo Coupon Form */}
-                  <form onSubmit={handleApplyCoupon} className="flex gap-2 mt-2">
-                    <div className="relative flex-1">
-                      <Tag className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
-                      <input 
-                        type="text" 
-                        value={couponCode}
-                        onChange={(e) => setCouponCode(e.target.value)}
-                        placeholder="MILANACCENT"
-                        className="w-full h-11 pl-10 pr-3 border border-stone-200/50 dark:border-stone-800/60 rounded-xl bg-white/40 dark:bg-stone-950/20 text-xs font-semibold outline-none focus:border-amber-600/30 transition-all placeholder:text-stone-400"
-                      />
+                  {appliedPromo ? (
+                    <div className="flex items-center justify-between p-3 bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-500/20 rounded-2xl text-xs font-bold text-emerald-800 dark:text-emerald-400 animate-fade">
+                      <div className="flex items-center gap-2">
+                        <Tag className="w-4 h-4 animate-bounce" />
+                        <span>Code: {appliedPromo.code} ({appliedPromo.discountType === "PERCENTAGE" ? `${appliedPromo.discountValue}%` : `${appliedPromo.discountValue.toLocaleString("vi-VN")}₫`} Off)</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAppliedPromo(null);
+                          setDiscountAmount(0);
+                          toast.info("Promo code removed.");
+                        }}
+                        className="text-stone-400 hover:text-red-500 cursor-pointer p-1 rounded-full hover:bg-stone-200/25 transition-all"
+                        title="Remove coupon"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
                     </div>
-                    <button 
-                      type="submit"
-                      className="px-4 h-11 border border-amber-600/30 text-amber-700 dark:text-amber-500 hover:bg-amber-500/5 rounded-xl text-xs font-bold tracking-wide uppercase transition-all cursor-pointer"
-                    >
-                      Apply
-                    </button>
-                  </form>
+                  ) : (
+                    <form onSubmit={handleApplyCoupon} className="flex gap-2 mt-2">
+                      <div className="relative flex-1">
+                        <Tag className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+                        <input 
+                          type="text" 
+                          value={couponCode}
+                          onChange={(e) => setCouponCode(e.target.value)}
+                          placeholder="WELCOME10 / FURNIRO50"
+                          disabled={isValidatingCoupon}
+                          className="w-full h-11 pl-10 pr-3 border border-stone-200/50 dark:border-stone-800/60 rounded-xl bg-white/40 dark:bg-stone-950/20 text-xs font-semibold outline-none focus:border-amber-600/30 transition-all placeholder:text-stone-400"
+                        />
+                      </div>
+                      <button 
+                        type="submit"
+                        disabled={isValidatingCoupon}
+                        className="px-4 h-11 border border-amber-600/30 text-amber-700 dark:text-amber-500 hover:bg-amber-500/5 rounded-xl text-xs font-bold tracking-wide uppercase transition-all cursor-pointer disabled:opacity-50"
+                      >
+                        {isValidatingCoupon ? <Loader2 className="w-4 h-4 animate-spin" /> : "Apply"}
+                      </button>
+                    </form>
+                  )}
 
                   {/* Action Buttons */}
                   <div className="flex flex-col gap-2.5 mt-2">
                     <button
-                      onClick={() => {
-                        router.push("/user/order");
-                      }}
+                      onClick={handleStartCheckout}
                       className="group btn-gold w-full h-13.5 rounded-xl font-bold uppercase text-xs tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-lg"
                     >
                       Proceed To Checkout
@@ -639,6 +839,227 @@ export default function CartPage() {
 
         </div>
       </div>
+
+      {/* ══════════════════════ bespeak checkout drawer ══════════════════════ */}
+      {isCheckingOut && (
+        <div className="fixed inset-0 z-50 overflow-hidden font-sans">
+          {/* Backdrop */}
+          <div 
+            onClick={() => setIsCheckingOut(false)}
+            className="absolute inset-0 bg-stone-950/45 dark:bg-stone-950/70 backdrop-blur-[6px] transition-opacity duration-300 animate-in fade-in"
+          />
+
+          <div className="absolute inset-y-0 right-0 max-w-full flex">
+            <div className="w-screen sm:w-[500px] bg-white/95 dark:bg-stone-900/95 backdrop-blur-2xl border-l border-amber-500/10 dark:border-stone-800/40 shadow-2xl flex flex-col animate-in slide-in-from-right duration-300 relative overflow-hidden">
+              
+              {/* Premium Glow Top Bar */}
+              <div className="absolute top-0 inset-x-0 h-1 bg-linear-to-r from-amber-800 via-amber-500 to-yellow-300" />
+
+              {/* Drawer Header */}
+              <div className="px-6 py-5 border-b border-stone-100 dark:border-stone-800/50 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-amber-500/10 text-amber-700 dark:bg-amber-500/20 dark:text-amber-500">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold tracking-tight text-stone-900 dark:text-stone-50 font-serif italic">
+                      Secure Checkout
+                    </h3>
+                    <p className="text-xs text-stone-400 dark:text-stone-500 mt-0.5">
+                      Confirm your custom logistics details
+                    </p>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={() => setIsCheckingOut(false)}
+                  className="p-2 rounded-full border border-stone-200/50 hover:border-amber-600/30 hover:bg-stone-50 dark:border-stone-800 dark:hover:bg-stone-800/80 text-stone-500 dark:text-stone-400 cursor-pointer transition-all"
+                >
+                  <X className="w-4.5 h-4.5" />
+                </button>
+              </div>
+
+              {/* Drawer Body */}
+              <div className="flex-1 overflow-y-auto px-6 py-6 flex flex-col gap-6">
+                
+                {/* Section 1: Shipping Destination */}
+                <div className="flex flex-col gap-2.5">
+                  <h4 className="text-xs font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest border-b border-stone-100 dark:border-stone-800/50 pb-1.5">
+                    Delivery Destination
+                  </h4>
+                  
+                  {addresses.length > 0 ? (
+                    <div className="flex flex-col gap-3">
+                      {addresses.map((addr) => (
+                        <div 
+                          key={addr.addressID}
+                          onClick={() => setSelectedAddressId(addr.addressID || null)}
+                          className={`p-4 rounded-2xl border text-left cursor-pointer transition-all flex items-start gap-3.5 relative overflow-hidden ${
+                            selectedAddressId === addr.addressID
+                              ? "border-amber-600 bg-amber-500/5 dark:bg-amber-500/10 shadow-xs"
+                              : "border-stone-200/50 dark:border-stone-800/60 bg-white/40 dark:bg-stone-950/20 hover:border-stone-300 dark:hover:border-stone-700"
+                          }`}
+                        >
+                          <input 
+                            type="radio" 
+                            checked={selectedAddressId === addr.addressID}
+                            onChange={() => setSelectedAddressId(addr.addressID || null)}
+                            className="mt-1 accent-amber-600 shrink-0"
+                          />
+                          <div className="flex flex-col gap-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-bold text-stone-800 dark:text-stone-200">
+                                {addr.receiverName}
+                              </span>
+                              {addr.isDefault && (
+                                <span className="px-1.5 py-0.5 rounded-sm bg-amber-600/10 text-[9px] font-bold text-amber-700 dark:text-amber-500">
+                                  Default
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-xs font-semibold text-stone-500 dark:text-stone-450 leading-none">
+                              Tel: {addr.receiverPhone}
+                            </span>
+                            <p className="text-xs font-medium text-stone-600 dark:text-stone-400 leading-relaxed mt-1 break-words">
+                              {addr.street}, {addr.ward}, {addr.district}, {addr.province}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                      
+                      <button
+                        type="button"
+                        onClick={() => setSelectedAddressId(null)}
+                        className={`text-xs font-bold py-2.5 px-4 rounded-xl border text-center transition-all cursor-pointer ${
+                          selectedAddressId === null
+                            ? "border-amber-600 bg-amber-500/5 text-amber-800 dark:text-amber-500"
+                            : "border-dashed border-stone-200/50 dark:border-stone-800/50 text-stone-500 hover:text-amber-600"
+                        }`}
+                      >
+                        {selectedAddressId === null ? "Using Custom Address" : "+ Use Custom Delivery Address"}
+                      </button>
+                    </div>
+                  ) : null}
+
+                  {/* Custom Address Input (Visible if no saved addresses, or explicitly clicked "Use Custom Address") */}
+                  {selectedAddressId === null && (
+                    <div className="flex flex-col gap-3.5 bg-stone-50/50 dark:bg-stone-950/20 p-5 rounded-2xl border border-stone-200/40 dark:border-stone-800/40 animate-fade">
+                      <div className="flex items-start gap-2.5">
+                        <MapPin className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+                        <span className="text-xs font-bold text-stone-700 dark:text-stone-300">Custom Shipping Address</span>
+                      </div>
+                      
+                      <textarea
+                        value={customAddress}
+                        onChange={(e) => setCustomAddress(e.target.value)}
+                        placeholder="Type receiver name, phone number, and full shipping address details here..."
+                        className="w-full h-24 p-3 border border-stone-200/50 dark:border-stone-800/60 rounded-xl bg-white/60 dark:bg-stone-900/60 text-xs font-semibold outline-none focus:border-amber-600/30 transition-all resize-none placeholder:text-stone-400 leading-relaxed"
+                        required={selectedAddressId === null}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Section 2: Order Custom Note */}
+                <div className="flex flex-col gap-2.5">
+                  <h4 className="text-xs font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest border-b border-stone-100 dark:border-stone-800/50 pb-1.5">
+                    Delivery Instructions
+                  </h4>
+                  <div className="relative">
+                    <FileText className="absolute left-3.5 top-3.5 w-4 h-4 text-stone-400" />
+                    <textarea
+                      value={orderNote}
+                      onChange={(e) => setOrderNote(e.target.value)}
+                      placeholder="Special note for delivery (optional)..."
+                      className="w-full h-16 pl-10 pr-3 py-3 border border-stone-200/50 dark:border-stone-800/60 rounded-xl bg-white/40 dark:bg-stone-950/20 text-xs font-semibold outline-none focus:border-amber-600/30 transition-all resize-none placeholder:text-stone-400"
+                    />
+                  </div>
+                </div>
+
+                {/* Section 3: Payment Method */}
+                <div className="flex flex-col gap-2.5">
+                  <h4 className="text-xs font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest border-b border-stone-100 dark:border-stone-800/50 pb-1.5">
+                    Payment Instrument
+                  </h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    {/* COD Option */}
+                    <div
+                      onClick={() => setPaymentMethod("COD")}
+                      className={`p-4.5 rounded-2xl border text-center cursor-pointer transition-all flex flex-col items-center gap-2 ${
+                        paymentMethod === "COD"
+                          ? "border-amber-600 bg-amber-500/5 dark:bg-amber-500/10 shadow-xs"
+                          : "border-stone-200/50 dark:border-stone-800/60 bg-white/40 dark:bg-stone-950/20 hover:border-stone-300 dark:hover:border-stone-700"
+                      }`}
+                    >
+                      <CreditCard className="w-5 h-5 text-amber-600" />
+                      <span className="text-xs font-bold text-stone-800 dark:text-stone-250">Cash On Delivery</span>
+                    </div>
+
+                    {/* PayPal Option */}
+                    <div
+                      onClick={() => setPaymentMethod("PAYPAL")}
+                      className={`p-4.5 rounded-2xl border text-center cursor-pointer transition-all flex flex-col items-center gap-2 ${
+                        paymentMethod === "PAYPAL"
+                          ? "border-amber-600 bg-amber-500/5 dark:bg-amber-500/10 shadow-xs"
+                          : "border-stone-200/50 dark:border-stone-800/60 bg-white/40 dark:bg-stone-950/20 hover:border-stone-300 dark:hover:border-stone-700"
+                      }`}
+                    >
+                      <ShoppingBag className="w-5 h-5 text-amber-600" />
+                      <span className="text-xs font-bold text-stone-800 dark:text-stone-250">PayPal Gateway</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Drawer Footer / Financial Recap */}
+              <div className="px-6 py-5 bg-stone-50/50 dark:bg-stone-900/40 border-t border-stone-100 dark:border-stone-800/80 flex flex-col gap-4">
+                <div className="flex flex-col gap-2">
+                  <div className="flex justify-between text-xs font-semibold text-stone-500">
+                    <span>Subtotal</span>
+                    <span>{subtotal.toLocaleString("vi-VN")}₫</span>
+                  </div>
+                  {discountAmount > 0 && (
+                    <div className="flex justify-between text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                      <span>Discount ({appliedPromo?.code})</span>
+                      <span>-{discountAmount.toLocaleString("vi-VN")}₫</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-xs font-semibold text-stone-500">
+                    <span>Delivery</span>
+                    <span>{shipping === 0 ? "FREE" : `${shipping.toLocaleString("vi-VN")}₫`}</span>
+                  </div>
+                  <div className="flex justify-between text-sm font-bold text-stone-850 dark:text-stone-100 mt-1 pb-2 border-b border-stone-200/20">
+                    <span>Grand Total</span>
+                    <span className="text-amber-700 dark:text-amber-500 font-serif text-base font-bold">
+                      {total.toLocaleString("vi-VN")}₫
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  disabled={isSubmittingOrder}
+                  onClick={handlePlaceOrder}
+                  className="btn-gold w-full h-12.5 rounded-xl font-bold uppercase text-xs tracking-wider flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 cursor-pointer"
+                >
+                  {isSubmittingOrder ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Staging Order...
+                    </>
+                  ) : paymentMethod === "PAYPAL" ? (
+                    "Proceed to PayPal"
+                  ) : (
+                    "Place Bespoke Order (COD)"
+                  )}
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

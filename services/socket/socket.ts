@@ -4,29 +4,26 @@ import { Client, IMessage } from "@stomp/stompjs";
 import { useCallback, useEffect, useRef, useState } from "react";
 import SockJS from "sockjs-client";
 
-const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1/furniro';
+const baseURL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1/furniro";
 
 const WEBSOCKET_URL = `${baseURL}/message-service/ws`;
 
 export const useWebSocket = (
-
   conversationId: number | null,
 
   onMessageReceived: (msg: MessageRes) => void,
 ) => {
-
   const [isConnected, setIsConnected] = useState<boolean>(false);
 
   const stompClientRef = useRef<Client | null>(null);
 
   useEffect(() => {
-
     if (!conversationId) return;
 
     // 1. Initialize STOMP Client with SockJS fallback
 
     const client = new Client({
-
       webSocketFactory: () => new SockJS(WEBSOCKET_URL),
 
       debug: (str) => {
@@ -39,7 +36,6 @@ export const useWebSocket = (
     });
 
     client.onConnect = () => {
-      
       setIsConnected(true);
 
       const topic = `/topic/conversation/${conversationId}`;
@@ -50,7 +46,6 @@ export const useWebSocket = (
           onMessageReceived(parsedMessage);
         }
       });
-
     };
 
     client.onDisconnect = () => {
@@ -77,15 +72,11 @@ export const useWebSocket = (
   // 4. Send Message via Socket
   // Maps to backend: "/app/chat.sendMessage"
   const sendMessage = useCallback((payload: MessageReq) => {
-
     if (stompClientRef.current && stompClientRef.current.connected) {
-
       stompClientRef.current.publish({
-
         destination: "/app/chat.sendMessage",
 
         body: JSON.stringify(payload),
-        
       });
     } else {
       console.warn("STOMP client is not connected.");

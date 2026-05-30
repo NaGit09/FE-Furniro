@@ -9,6 +9,8 @@ export const OrderDetailSchema = z.object({
   totalAmount: z.number(),
   shippingFee: z.number(),
   orderNote: z.string().nullable(),
+  promoCode: z.string().nullable().optional(),
+  discountAmount: z.number().nullable().optional(),
   orderedAt: z.string(),
   completedAt: z.string().nullable(),
   items: z.array(

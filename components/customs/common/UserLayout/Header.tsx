@@ -16,7 +16,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Home", href: "/" },
   { label: "Product", href: "/product" },
   { label: "About", href: "/about" },
-  { label: "Contact", href: "/contact" },
+  { label: "Subscribe", href: "/subscribe" },
 ];
 
 /* ─── SVG Icons ───────────────────────────────────────────── */

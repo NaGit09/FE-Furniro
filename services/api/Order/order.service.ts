@@ -18,6 +18,20 @@ export const OrderApi = {
     return res.data;
   },
 
+  validate_promo_code: async (code: string, subtotal: number) => {
+    const res = await axiosInstance.get<ApiResponse<{
+      code: string;
+      discountType: "PERCENTAGE" | "FLAT";
+      discountValue: number;
+      subtotal: number;
+      discountAmount: number;
+      finalAmount: number;
+    }>>(
+      `${baseOrderApi}/promos/validate?code=${code}&subtotal=${subtotal}`,
+    );
+    return res.data;
+  },
+
   get_history_orders: async (userId : number) => {
     const res = await axiosInstance.get<ApiResponse<Page<OrderCard>>>(
       `${baseOrderApi}/history?userID=${userId}`,
@@ -35,6 +49,35 @@ export const OrderApi = {
   capture_paypal_payment: async (orderId: string) => {
     const res = await axiosInstance.post<ApiResponse<boolean>>(
       `${baseOrderApi}/capture-paypal?orderID=${orderId}`,
+    );
+    return res.data;
+  },
+
+  get_all_orders_admin: async (page = 0, size = 10, status?: string, userID?: number) => {
+    const res = await axiosInstance.get<ApiResponse<Page<OrderDetail>>>(
+      `${baseOrderApi}/admin?page=${page}&size=${size}${status ? `&status=${status}` : ""}${userID ? `&userID=${userID}` : ""}`,
+    );
+    return res.data;
+  },
+
+  get_order_detail_admin: async (orderId: number) => {
+    const res = await axiosInstance.get<ApiResponse<OrderDetail>>(
+      `${baseOrderApi}/admin/${orderId}`,
+    );
+    return res.data;
+  },
+
+  change_order_status_admin: async (orderId: number, status: string) => {
+    const res = await axiosInstance.patch<ApiResponse<boolean>>(
+      `${baseOrderApi}/admin/status`,
+      { orderID: orderId, status }
+    );
+    return res.data;
+  },
+
+  get_total_orders: async () => {
+    const res = await axiosInstance.get<ApiResponse<number>>(
+      `${baseOrderApi}/total`,
     );
     return res.data;
   },

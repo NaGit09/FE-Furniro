@@ -24,11 +24,12 @@ import {
   Store,
   CircleDot,
   Loader2,
+  Percent,
 } from "lucide-react";
 
 import { RootState } from "@/stores/store";
 import { logout as logoutAction } from "@/stores/slices/auth.store";
-import { removeCookie } from "@/lib/utils/cookieUtils";
+import { removeCookie, getCookie } from "@/lib/utils/cookieUtils";
 import { AuthApi } from "@/services/api/Auth/auth.service";
 
 /* ─── Menu configurations ───────────────────────────────────── */
@@ -39,6 +40,7 @@ const ADMIN_MENU_ITEMS = [
   { labelKey: "inventory", href: "/admin/inventory", icon: Boxes },
   { labelKey: "products", href: "/admin/product", icon: Package },
   { labelKey: "subscriptions", href: "/admin/subcription", icon: Mail },
+  { labelKey: "promotions", href: "/admin/promotion", icon: Percent },
 ] as const;
 
 export default function AdminLayout({
@@ -72,15 +74,35 @@ export default function AdminLayout({
   // Authentication guard
   useEffect(() => {
     if (mounted) {
-      if (!auth.isLoggedIn || !auth.UserID) {
+      const token = getCookie("AccessToken") || getCookie("jwt");
+      const storedUserId = getCookie("UserID");
+
+      if (token && storedUserId) {
+        // If we have active cookies, wait for the AuthInitializer to restore session
+        if (auth.isLoggedIn && auth.UserID) {
+          setAuthorized(true);
+        } else {
+          // Keep displaying the loader, wait up to 1200ms
+          const timer = setTimeout(() => {
+            if (!auth.isLoggedIn) {
+              toast.error(
+                lang === "VI"
+                  ? "Phiên làm việc hết hạn. Vui lòng đăng nhập lại."
+                  : "Session expired. Please sign in again.",
+              );
+              router.push("/auth/login");
+            }
+          }, 1200);
+          return () => clearTimeout(timer);
+        }
+      } else {
+        // No cookies present, reject access immediately
         toast.error(
           lang === "VI"
             ? "Từ chối truy cập: Vui lòng đăng nhập quyền quản trị."
             : "Access Denied: Please sign in as an administrator.",
         );
         router.push("/auth/login");
-      } else {
-        setAuthorized(true);
       }
     }
   }, [mounted, auth.isLoggedIn, auth.UserID, router, lang]);
@@ -122,6 +144,7 @@ export default function AdminLayout({
     inventory: lang === "VI" ? "Quản lý kho" : "Inventory Control",
     products: lang === "VI" ? "Danh mục sản phẩm" : "Product Catalog",
     subscriptions: lang === "VI" ? "Đăng ký nhận tin" : "Subscription List",
+    promotions: lang === "VI" ? "Quản lý khuyến mãi" : "Manage Promotions",
     logout: lang === "VI" ? "Đăng xuất" : "Sign Out",
     backStore: lang === "VI" ? "Về cửa hàng" : "Back to Store",
     adminBadge: lang === "VI" ? "QUẢN TRỊ VIÊN" : "SYSTEM ADMIN",

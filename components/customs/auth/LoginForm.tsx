@@ -74,7 +74,28 @@ export default function LoginForm() {
 
       if (res?.code === 200) {
         dispatch(loginAction(res.data));
-        router.push("/");
+        
+        // Extract role by decoding the AccessToken JWT
+        const accessToken = res.data?.AccessToken;
+        let role: string | undefined = undefined;
+        
+        if (accessToken) {
+          try {
+            const { parseJwt } = await import("@/lib/utils/jwt");
+            const decoded = parseJwt(accessToken);
+            if (decoded) {
+              role = decoded.role || decoded.Role;
+            }
+          } catch (e) {
+            console.error("Failed to decode token for role:", e);
+          }
+        }
+
+        if (role && String(role).toUpperCase() === "ADMIN") {
+          router.push("/admin");
+        } else {
+          router.push("/");
+        }
       } else {
         form.setError("root", {
           message: res?.message || "Invalid email or password. Please try again.",

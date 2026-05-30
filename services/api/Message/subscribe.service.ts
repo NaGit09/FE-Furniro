@@ -6,7 +6,7 @@ import { Page } from "@/schema/common/pagination";
 
 const Base_url = "message-service/subscribe";
 
-export const SubscriptionApi = {
+export const SubscribeApi = {
     // For user
     subscribe: async (subscribeData: Subscribe) => {
         return await axiosInstance.post<ApiResponse<boolean>>(

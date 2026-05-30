@@ -7,6 +7,7 @@ import { login as loginAction } from "../stores/slices/auth.store";
 import { UserApi } from "../services/api/Auth/user.service";
 import { CartApi } from "../services/api/Order/cart.service";
 import { setCart } from "../stores/slices/cart.store";
+import { parseJwt } from "../lib/utils/jwt";
 import "./Header.css";
 
 function AuthInitializer({ children }: { children: React.ReactNode }) {
@@ -37,15 +38,22 @@ function AuthInitializer({ children }: { children: React.ReactNode }) {
             );
           }
 
-          // Proactively retrieve user's cart session
-          const cartRes = await CartApi.get_cart(userId);
-          if (cartRes && cartRes.data) {
-            dispatch(
-              setCart({
-                cartID: cartRes.data.cartID,
-                items: cartRes.data.items || [],
-              })
-            );
+          // Decode token and check if the user is an admin
+          const decoded = parseJwt(token);
+          const role = decoded?.role || decoded?.Role;
+          const isAdmin = role && String(role).toUpperCase() === "ADMIN";
+
+          if (!isAdmin) {
+            // Proactively retrieve user's cart session
+            const cartRes = await CartApi.get_cart(userId);
+            if (cartRes && cartRes.data) {
+              dispatch(
+                setCart({
+                  cartID: cartRes.data.cartID,
+                  items: cartRes.data.items || [],
+                })
+              );
+            }
           }
         } catch (err) {
           console.error("Failed to restore session details:", err);

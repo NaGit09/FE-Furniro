@@ -55,7 +55,7 @@ export const ProductApi = {
 
   get_all_categories: async () => {
     const res = await axiosInstance.get<ApiResponse<CategoryRes[]>>(
-      `${baseProductApi}/categories`,
+      `product-service/categories`,
     );
     return res.data;
   },

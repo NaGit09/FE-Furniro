@@ -15,6 +15,7 @@ export const createOrderSchema = z.object({
       price: z.number(),
     }),
   ),
+  promoCode: z.string().optional(),
 });
 
 export type CreateOrderRequest = z.infer<typeof createOrderSchema>;

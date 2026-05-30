@@ -7,7 +7,7 @@ export const StockDetailSchema = z.object({
   sku: z.string(),
   totalQuantity: z.number(),
   lowStockThreshold: z.number(),
-  warehouse: z.object(WarehouseSchema),
+  warehouse: WarehouseSchema,
   reservedQuantity: z.number(),
   availableQuantity: z.number(),
   updatedAt: z.date(),

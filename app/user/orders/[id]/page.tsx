@@ -599,6 +599,14 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                       </span>
                     </div>
 
+                    {/* Promo Discount */}
+                    {orderDetail.discountAmount && orderDetail.discountAmount > 0 && (
+                      <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-bold animate-fade">
+                        <span>Promo Discount ({orderDetail.promoCode})</span>
+                        <span>-{formatPrice(orderDetail.discountAmount)}</span>
+                      </div>
+                    )}
+
                     {/* Grand Total */}
                     <div className="flex justify-between items-baseline mt-2.5 pb-2.5 border-b border-dashed border-stone-200/40 dark:border-stone-800/40">
                       <span className="text-sm font-bold text-stone-900 dark:text-stone-50">{t.total}</span>

@@ -6,9 +6,9 @@
 
 ---
 
-**Project:** Furniro
-**Generated:** 2026-05-30 13:04:58
-**Category:** Analytics Dashboard
+**Project:** Furniro Admin
+**Generated:** 2026-05-29 23:31:09
+**Category:** E-commerce Luxury
 
 ---
 
@@ -18,13 +18,13 @@
 
 | Role | Hex | CSS Variable |
 |------|-----|--------------|
-| Primary | `#059669` | `--color-primary` |
-| Secondary | `#10B981` | `--color-secondary` |
-| CTA/Accent | `#F97316` | `--color-cta` |
-| Background | `#ECFDF5` | `--color-background` |
-| Text | `#064E3B` | `--color-text` |
+| Primary | `#DB2777` | `--color-primary` |
+| Secondary | `#F472B6` | `--color-secondary` |
+| CTA/Accent | `#CA8A04` | `--color-cta` |
+| Background | `#FDF2F8` | `--color-background` |
+| Text | `#831843` | `--color-text` |
 
-**Color Notes:** Success green + urgency orange
+**Color Notes:** Romantic pink + elegant gold
 
 ### Typography
 
@@ -68,7 +68,7 @@
 ```css
 /* Primary Button */
 .btn-primary {
-  background: #F97316;
+  background: #CA8A04;
   color: white;
   padding: 12px 24px;
   border-radius: 8px;
@@ -85,8 +85,8 @@
 /* Secondary Button */
 .btn-secondary {
   background: transparent;
-  color: #059669;
-  border: 2px solid #059669;
+  color: #DB2777;
+  border: 2px solid #DB2777;
   padding: 12px 24px;
   border-radius: 8px;
   font-weight: 600;
@@ -99,7 +99,7 @@
 
 ```css
 .card {
-  background: #ECFDF5;
+  background: #FDF2F8;
   border-radius: 12px;
   padding: 24px;
   box-shadow: var(--shadow-md);
@@ -125,9 +125,9 @@
 }
 
 .input:focus {
-  border-color: #059669;
+  border-color: #DB2777;
   outline: none;
-  box-shadow: 0 0 0 3px #05966920;
+  box-shadow: 0 0 0 3px #DB277720;
 }
 ```
 
@@ -153,17 +153,17 @@
 
 ## Style Guidelines
 
-**Style:** Data-Dense Dashboard
+**Style:** Liquid Glass
 
-**Keywords:** Multiple charts/widgets, data tables, KPI cards, minimal padding, grid layout, space-efficient, maximum data visibility
+**Keywords:** Flowing glass, morphing, smooth transitions, fluid effects, translucent, animated blur, iridescent, chromatic aberration
 
-**Best For:** Business intelligence dashboards, financial analytics, enterprise reporting, operational dashboards, data warehousing
+**Best For:** Premium SaaS, high-end e-commerce, creative platforms, branding experiences, luxury portfolios
 
-**Key Effects:** Hover tooltips, chart zoom on click, row highlighting on hover, smooth filter animations, data loading spinners
+**Key Effects:** Morphing elements (SVG/CSS), fluid animations (400-600ms curves), dynamic blur (backdrop-filter), color transitions
 
 ### Page Pattern
 
-**Pattern Name:** Data-Dense + Drill-Down
+**Pattern Name:** Feature-Rich Showcase
 
 - **CTA Placement:** Above fold
 - **Section Order:** Hero > Features > CTA
@@ -172,8 +172,8 @@
 
 ## Anti-Patterns (Do NOT Use)
 
-- ❌ Ornate design
-- ❌ No filtering
+- ❌ Vibrant & Block-based
+- ❌ Playful colors
 
 ### Additional Forbidden Patterns
 
