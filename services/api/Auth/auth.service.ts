@@ -7,6 +7,7 @@ import { RegisterFormData } from "@/schema/request/auth/account/register.req";
 import { AUTH_URL } from "@/lib/constant/Auth/auth.url";
 import { ConfirmOTPFormData } from "@/schema/request/auth/account/confirm.req";
 import { ChangePasswordFormData } from "@/schema/request/auth/account/change.req";
+import { ConfirmOTP } from "@/schema/response/auth/confirm.res";
 
 export const AuthApi = {
   
@@ -94,7 +95,7 @@ export const AuthApi = {
 
   confirmOTP: async (req: ConfirmOTPFormData) => {
     try {
-      const res = await axiosInstance.post<ApiResponse<boolean>>(
+      const res = await axiosInstance.post<ApiResponse<ConfirmOTP>>(
         AUTH_URL.CONFIRM_OTP,
         req,
       );

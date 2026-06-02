@@ -5,9 +5,10 @@ export const UserResSchema = z.object({
   userID: z.number(),
   firstName: z.string(),
   lastName: z.string(),
-  avatarID: z.number(),
+  username: z.string(),
+  avatarID: z.number().optional().nullable(),
   gender: z.enum(["MALE", "FEMALE", "OTHER"]),
-  avatar: z.string(),
+  avatar: z.string().optional().nullable(),
   dateOfBirth: z.date(),
   addresses: z.object(AddressSchema),
 });
@@ -19,9 +20,9 @@ export const UserReqSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
   username : z.string(),
-  avatarID: z.number(),
+  avatarID: z.number().optional().nullable(),
   gender: z.enum(["MALE", "FEMALE", "OTHER"]),
-  avatar: z.string(),
+  avatar: z.string().optional().nullable(),
   dateOfBirth: z.date(),
   accountID : z.number()
 });

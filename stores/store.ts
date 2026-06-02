@@ -2,10 +2,11 @@ import { configureStore } from "@reduxjs/toolkit";
 import authSlice from "@/stores/slices/auth.store";
 import productSlice from "@/stores/slices/product.store";
 import cartSlice from "@/stores/slices/cart.store";
+import uploadSlice from "@/stores/slices/upload.store";
 
 export const makeStore = () => {
   return configureStore({
-    reducer: { authSlice, productSlice, cartSlice },
+    reducer: { authSlice, productSlice, cartSlice, uploadSlice },
   });
 };
 

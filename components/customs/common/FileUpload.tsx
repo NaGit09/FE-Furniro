@@ -4,8 +4,10 @@
 import React, { useRef, useState } from "react";
 import { toast } from "sonner";
 import { UploadCloud, Loader2 } from "lucide-react";
+import { useDispatch } from "react-redux";
 
 import { UploadApi } from "@/services/api/Upload/upload.service";
+import { uploadStart, uploadSuccess, uploadFailure } from "@/stores/slices/upload.store";
 
 interface FileUploadProps {
   uploadedBy: string;
@@ -27,14 +29,21 @@ export default function FileUpload({
   onUploadError,
   currentFileId,
   label = "Upload File",
-  allowedTypes = ["image/jpeg", "image/png", "image/webp"],
+  allowedTypes = [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/webp",
+    "image/gif",
+    "image/svg+xml",
+  ],
   maxSizeMB = 5,
   accept = "image/*",
   className = "",
 }: FileUploadProps) {
-
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+  const dispatch = useDispatch();
+
   const [uploading, setUploading] = useState(false);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,6 +75,7 @@ export default function FileUpload({
     // Call start callback
     if (onUploadStart) onUploadStart();
     setUploading(true);
+    dispatch(uploadStart());
 
     const toastId = toast.loading("Uploading asset to Cloudinary...");
 
@@ -79,16 +89,21 @@ export default function FileUpload({
       }
 
       if (res && res.data) {
+        console.log("File Upload API Response res.data:", res.data);
         toast.success("File uploaded successfully!", { id: toastId });
+        dispatch(uploadSuccess({ fileId: res.data.fileId, fileUrl: res.data.fileUrl }));
         onUploadSuccess(res.data.fileId, res.data.fileUrl);
       } else {
         const errMsg = "Failed to upload file.";
         toast.error(errMsg, { id: toastId });
+        dispatch(uploadFailure(errMsg));
         if (onUploadError) onUploadError(new Error(errMsg));
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("File upload component error:", err);
-      toast.error("Could not upload file. Please try again.", { id: toastId });
+      const errMsg = err?.message || "Could not upload file. Please try again.";
+      toast.error(errMsg, { id: toastId });
+      dispatch(uploadFailure(errMsg));
       if (onUploadError) onUploadError(err);
     } finally {
       setUploading(false);

@@ -2,7 +2,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import NextImage from "next/image";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
@@ -16,7 +15,6 @@ import {
   Save,
   X,
   ArrowLeft,
-  Image as ImageIcon,
   Phone,
   Home as HomeIcon,
   Briefcase,
@@ -24,7 +22,6 @@ import {
   Check,
   Edit2,
   Loader2,
-  AlertCircle,
 } from "lucide-react";
 
 import { UserApi } from "@/services/api/Auth/user.service";
@@ -32,6 +29,7 @@ import FileUpload from "@/components/customs/common/FileUpload";
 import { UserRes, UserReq } from "@/schema/response/auth/User.res";
 import { getCookie } from "@/lib/utils/cookieUtils";
 import { login as loginAction } from "@/stores/slices/auth.store";
+import { resetUpload } from "@/stores/slices/upload.store";
 import type { RootState } from "@/stores/store";
 import { AddressApi } from "@/services/api/Auth/address.service";
 import { ProvinceApi } from "@/services/api/Other/Province.service";
@@ -41,6 +39,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const dispatch = useDispatch();
   const auth = useSelector((state: RootState) => state.authSlice);
+  const uploadState = useSelector((state: RootState) => state.uploadSlice);
 
   // States
   const [profile, setProfile] = useState<UserRes | null>(null);
@@ -127,6 +126,7 @@ export default function ProfilePage() {
 
   // Fetch profile details
   useEffect(() => {
+    dispatch(resetUpload());
     const token = getCookie("AccessToken") || getCookie("jwt");
     if (!token) {
       toast.error("Please sign in to view your profile.");
@@ -154,9 +154,14 @@ export default function ProfilePage() {
       try {
         const response = await UserApi.getUser(activeUserId);
         if (response && response.data) {
+          console.log("Fetched User Profile response.data:", response.data);
           const u = response.data;
           setProfile(u);
           setAvatarError(false);
+
+          if (u.username) {
+            setUsername(u.username);
+          }
 
           // Parse date of birth to string (YYYY-MM-DD)
           let dobString = "";
@@ -172,8 +177,8 @@ export default function ProfilePage() {
             lastName: u.lastName || "",
             gender: u.gender || "OTHER",
             dateOfBirth: dobString,
-            avatar: u.avatar || "",
-            avatarID: u.avatarID || 1,
+            avatar: u.avatar || (u as any).avatarUrl || (u as any).AvatarUrl || "",
+            avatarID: u.avatarID || (u as any).avatarId || (u as any).AvatarId || 1,
           });
 
           // Concurrently fetch addresses and provinces
@@ -192,6 +197,18 @@ export default function ProfilePage() {
 
     loadProfile();
   }, [router, auth.Email, auth.UserID, auth.UserName]);
+
+  // Listen to global upload state changes to update avatar and avatarID in formData
+  useEffect(() => {
+    if (uploadState.fileId && uploadState.fileUrl) {
+      setAvatarError(false);
+      setFormData((prev) => ({
+        ...prev,
+        avatarID: uploadState.fileId || 1,
+        avatar: uploadState.fileUrl || "",
+      }));
+    }
+  }, [uploadState.fileId, uploadState.fileUrl]);
 
   // Handle Form Inputs
   const handleInputChange = (
@@ -244,14 +261,46 @@ export default function ProfilePage() {
         dateOfBirth: formData.dateOfBirth
           ? new Date(formData.dateOfBirth)
           : new Date(),
-      };
+      } as any;
+      
+      // Add dynamic fallbacks to payload for backend casing mismatch compatibility
+      (payload as any).avatarId = formData.avatarID;
+      (payload as any).AvatarId = formData.avatarID;
+      (payload as any).avatarUrl = formData.avatar;
+      (payload as any).AvatarUrl = formData.avatar;
+      
+      console.log("updateUser Outgoing Payload:", payload);
 
       const res = await UserApi.updateUser(payload);
 
       if (res && res.data) {
+        console.log("updateUser Response res.data:", res.data);
         const updated = res.data;
         setProfile(updated);
+
+        if (updated.username) {
+          setUsername(updated.username);
+        }
+
+        let dobString = "";
+        if (updated.dateOfBirth) {
+          const dateObj = new Date(updated.dateOfBirth);
+          if (!isNaN(dateObj.getTime())) {
+            dobString = dateObj.toISOString().split("T")[0];
+          }
+        }
+
+        setFormData({
+          firstName: updated.firstName || "",
+          lastName: updated.lastName || "",
+          gender: updated.gender || "OTHER",
+          dateOfBirth: dobString,
+          avatar: updated.avatar || (updated as any).avatarUrl || (updated as any).AvatarUrl || "",
+          avatarID: updated.avatarID || (updated as any).avatarId || (updated as any).AvatarId || 1,
+        });
+
         setIsEditing(false);
+        dispatch(resetUpload());
         toast.success("Profile updated successfully!");
 
         // ── Real-time Header Synchronization ──
@@ -259,9 +308,10 @@ export default function ProfilePage() {
           loginAction({
             FirstName: updated.firstName,
             LastName: updated.lastName,
-            UserName: username || updated.firstName,
+            UserName: updated.username || username || updated.firstName,
             Email: email,
-            AvatarURL: updated.avatar,
+            AvatarURL: updated.avatar || (updated as any).avatarUrl || (updated as any).AvatarUrl,
+            UserID: userId,
           }),
         );
       } else {
@@ -568,13 +618,11 @@ export default function ProfilePage() {
             <div className="px-8 md:px-12 pb-8 relative z-10 flex flex-col md:flex-row items-center md:items-end gap-6 -mt-16">
               <div className="avatar-ring w-32 h-32 md:w-36 md:h-36 shrink-0 bg-stone-100 dark:bg-stone-800 overflow-hidden flex items-center justify-center">
                 {formData.avatar && !avatarError ? (
-                  <NextImage
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
                     src={formData.avatar}
                     alt={`${formData.firstName} ${formData.lastName}`}
-                    fill
-                    priority
-                    sizes="(max-width: 768px) 128px, 144px"
-                    className="object-cover rounded-full p-1"
+                    className="w-full h-full object-cover rounded-full p-1"
                     onError={() => setAvatarError(true)}
                   />
                 ) : (
@@ -621,6 +669,7 @@ export default function ProfilePage() {
                   <button
                     onClick={() => {
                       setIsEditing(false);
+                      dispatch(resetUpload());
                       // Reset form to actual data
                       if (profile) {
                         setFormData({
@@ -632,8 +681,8 @@ export default function ProfilePage() {
                                 .toISOString()
                                 .split("T")[0]
                             : "",
-                          avatar: profile.avatar || "",
-                          avatarID: profile.avatarID || 1,
+                          avatar: profile.avatar || (profile as any).avatarUrl || (profile as any).AvatarUrl || "",
+                          avatarID: profile.avatarID || (profile as any).avatarId || (profile as any).AvatarId || 1,
                         });
                       }
                       setFormErrors({ firstName: "", lastName: "" });
@@ -806,6 +855,26 @@ export default function ProfilePage() {
                       )}
                     </div>
 
+                    {/* Username */}
+                    <div className="flex flex-col gap-2">
+                      <label
+                        htmlFor="username"
+                        className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider"
+                      >
+                        Username
+                      </label>
+                      <input
+                        id="username"
+                        type="text"
+                        name="username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        className="luxury-input"
+                        placeholder="username"
+                        required
+                      />
+                    </div>
+
                     {/* Gender */}
                     <div className="flex flex-col gap-2">
                       <label
@@ -847,21 +916,23 @@ export default function ProfilePage() {
                   </div>
 
                   {/* Reusable File Upload Component */}
-                  <FileUpload
-                    uploadedBy={String(userId)}
-                    currentFileId={formData.avatarID}
-                    label="Avatar Image"
-                    accept="image/*"
-                    className="md:col-span-2 mt-2"
-                    onUploadSuccess={(fileId, fileUrl) => {
-                      setAvatarError(false);
-                      setFormData((prev) => ({
-                        ...prev,
-                        avatarID: fileId,
-                        avatar: fileUrl,
-                      }));
-                    }}
-                  />
+                  {userId && (
+                    <FileUpload
+                      uploadedBy={String(userId)}
+                      currentFileId={formData.avatarID}
+                      label="Avatar Image"
+                      accept="image/*"
+                      className="md:col-span-2 mt-2"
+                      onUploadSuccess={(fileId, fileUrl) => {
+                        setAvatarError(false);
+                        setFormData((prev) => ({
+                          ...prev,
+                          avatarID: fileId,
+                          avatar: fileUrl,
+                        }));
+                      }}
+                    />
+                  )}
 
                   {/* Submit Button */}
                   <div className="flex justify-end gap-4 mt-4 border-t border-stone-200/50 dark:border-stone-800/50 pt-6">
