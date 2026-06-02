@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
+import Image from "next/image";
 import {
   User,
   Mail,
@@ -12,7 +13,6 @@ import {
   UserCheck,
   MapPin,
   Edit3,
-  Save,
   X,
   ArrowLeft,
   Phone,
@@ -25,26 +25,27 @@ import {
 } from "lucide-react";
 
 import { UserApi } from "@/services/api/Auth/user.service";
-import FileUpload from "@/components/customs/common/FileUpload";
-import { UserRes, UserReq } from "@/schema/response/auth/User.res";
+import { UserRes } from "@/schema/response/auth/User.res";
 import { getCookie } from "@/lib/utils/cookieUtils";
-import { login as loginAction } from "@/stores/slices/auth.store";
-import { resetUpload } from "@/stores/slices/upload.store";
 import type { RootState } from "@/stores/store";
 import { AddressApi } from "@/services/api/Auth/address.service";
 import { ProvinceApi } from "@/services/api/Other/Province.service";
 import { Address } from "@/schema/response/auth/address.res";
 
+import ProfileForm from "@/components/customs/profile/ProfileForm";
+import AddressForm from "@/components/customs/profile/AddressForm";
+
+import "@/style/profile.css";
+
 export default function ProfilePage() {
   const router = useRouter();
   const dispatch = useDispatch();
   const auth = useSelector((state: RootState) => state.authSlice);
-  const uploadState = useSelector((state: RootState) => state.uploadSlice);
 
   // States
   const [profile, setProfile] = useState<UserRes | null>(null);
+  const [tempAvatarUrl, setTempAvatarUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [updating, setUpdating] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [userId, setUserId] = useState<number | null>(null);
   const [accountId, setAccountId] = useState<number | null>(null);
@@ -60,44 +61,6 @@ export default function ProfilePage() {
   const [provinces, setProvinces] = useState<{ name: string; code: number }[]>(
     [],
   );
-  const [districts, setDistricts] = useState<{ name: string; code: number }[]>(
-    [],
-  );
-  const [wards, setWards] = useState<{ name: string; code: number }[]>([]);
-  const [selectedProvinceCode, setSelectedProvinceCode] = useState<
-    number | null
-  >(null);
-  const [selectedDistrictCode, setSelectedDistrictCode] = useState<
-    number | null
-  >(null);
-
-  // Address form fields states
-  const [recName, setRecName] = useState("");
-  const [recPhone, setRecPhone] = useState("");
-  const [street, setStreet] = useState("");
-  const [provName, setProvName] = useState("");
-  const [distName, setDistName] = useState("");
-  const [wName, setWName] = useState("");
-  const [isDefaultAddress, setIsDefaultAddress] = useState(false);
-  const [activeAddressType, setActiveAddressType] = useState<"HOME" | "OFFICE">(
-    "HOME",
-  );
-  const [savingAddress, setSavingAddress] = useState(false);
-
-  // Form states
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    gender: "OTHER" as "MALE" | "FEMALE" | "OTHER",
-    dateOfBirth: "",
-    avatar: "",
-    avatarID: 1,
-  });
-
-  const [formErrors, setFormErrors] = useState({
-    firstName: "",
-    lastName: "",
-  });
 
   // Load Addresses
   const loadAddresses = async (id: number) => {
@@ -124,9 +87,8 @@ export default function ProfilePage() {
     }
   };
 
-  // Fetch profile details
+  // Fetch profile details on mount
   useEffect(() => {
-    dispatch(resetUpload());
     const token = getCookie("AccessToken") || getCookie("jwt");
     if (!token) {
       toast.error("Please sign in to view your profile.");
@@ -163,24 +125,6 @@ export default function ProfilePage() {
             setUsername(u.username);
           }
 
-          // Parse date of birth to string (YYYY-MM-DD)
-          let dobString = "";
-          if (u.dateOfBirth) {
-            const dateObj = new Date(u.dateOfBirth);
-            if (!isNaN(dateObj.getTime())) {
-              dobString = dateObj.toISOString().split("T")[0];
-            }
-          }
-
-          setFormData({
-            firstName: u.firstName || "",
-            lastName: u.lastName || "",
-            gender: u.gender || "OTHER",
-            dateOfBirth: dobString,
-            avatar: u.avatar || (u as any).avatarUrl || (u as any).AvatarUrl || "",
-            avatarID: u.avatarID || (u as any).avatarId || (u as any).AvatarId || 1,
-          });
-
           // Concurrently fetch addresses and provinces
           loadAddresses(activeUserId);
           loadProvinces();
@@ -198,282 +142,16 @@ export default function ProfilePage() {
     loadProfile();
   }, [router, auth.Email, auth.UserID, auth.UserName]);
 
-  // Listen to global upload state changes to update avatar and avatarID in formData
-  useEffect(() => {
-    if (uploadState.fileId && uploadState.fileUrl) {
-      setAvatarError(false);
-      setFormData((prev) => ({
-        ...prev,
-        avatarID: uploadState.fileId || 1,
-        avatar: uploadState.fileUrl || "",
-      }));
-    }
-  }, [uploadState.fileId, uploadState.fileUrl]);
-
-  // Handle Form Inputs
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-
-    // Clear validation error on type
-    if (name === "firstName" || name === "lastName") {
-      setFormErrors((prev) => ({ ...prev, [name]: "" }));
-    }
-  };
-
-  // Validate form
-  const validateForm = () => {
-    let valid = true;
-    const errors = { firstName: "", lastName: "" };
-
-    if (!formData.firstName.trim()) {
-      errors.firstName = "First name is required";
-      valid = false;
-    }
-    if (!formData.lastName.trim()) {
-      errors.lastName = "Last name is required";
-      valid = false;
-    }
-
-    setFormErrors(errors);
-    return valid;
-  };
-
-  // Submit Profile Changes
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateForm() || !userId) return;
-
-    setUpdating(true);
-    try {
-      const payload: UserReq = {
-        userID: userId,
-        accountID: accountId || userId,
-        username: username || profile?.firstName || "user",
-        firstName: formData.firstName.trim(),
-        lastName: formData.lastName.trim(),
-        avatarID: formData.avatarID,
-        avatar:
-          formData.avatar || "https://images.furniro.com/avatars/avatar-1.png",
-        gender: formData.gender,
-        dateOfBirth: formData.dateOfBirth
-          ? new Date(formData.dateOfBirth)
-          : new Date(),
-      } as any;
-      
-      // Add dynamic fallbacks to payload for backend casing mismatch compatibility
-      (payload as any).avatarId = formData.avatarID;
-      (payload as any).AvatarId = formData.avatarID;
-      (payload as any).avatarUrl = formData.avatar;
-      (payload as any).AvatarUrl = formData.avatar;
-      
-      console.log("updateUser Outgoing Payload:", payload);
-
-      const res = await UserApi.updateUser(payload);
-
-      if (res && res.data) {
-        console.log("updateUser Response res.data:", res.data);
-        const updated = res.data;
-        setProfile(updated);
-
-        if (updated.username) {
-          setUsername(updated.username);
-        }
-
-        let dobString = "";
-        if (updated.dateOfBirth) {
-          const dateObj = new Date(updated.dateOfBirth);
-          if (!isNaN(dateObj.getTime())) {
-            dobString = dateObj.toISOString().split("T")[0];
-          }
-        }
-
-        setFormData({
-          firstName: updated.firstName || "",
-          lastName: updated.lastName || "",
-          gender: updated.gender || "OTHER",
-          dateOfBirth: dobString,
-          avatar: updated.avatar || (updated as any).avatarUrl || (updated as any).AvatarUrl || "",
-          avatarID: updated.avatarID || (updated as any).avatarId || (updated as any).AvatarId || 1,
-        });
-
-        setIsEditing(false);
-        dispatch(resetUpload());
-        toast.success("Profile updated successfully!");
-
-        // ── Real-time Header Synchronization ──
-        dispatch(
-          loginAction({
-            FirstName: updated.firstName,
-            LastName: updated.lastName,
-            UserName: updated.username || username || updated.firstName,
-            Email: email,
-            AvatarURL: updated.avatar || (updated as any).avatarUrl || (updated as any).AvatarUrl,
-            UserID: userId,
-          }),
-        );
-      } else {
-        toast.error("Failed to update profile. Please try again.");
-      }
-    } catch (err) {
-      console.error("Error updating profile:", err);
-      toast.error(
-        err instanceof Error ? err.message : "An unexpected error occurred.",
-      );
-    } finally {
-      setUpdating(false);
-    }
-  };
-
-  // Fetch districts when selectedProvinceCode changes
-  useEffect(() => {
-    if (selectedProvinceCode !== null) {
-      const fetchDistricts = async () => {
-        try {
-          const list = await ProvinceApi.getDistricts(selectedProvinceCode);
-          setDistricts(list || []);
-          setWards([]);
-          setSelectedDistrictCode(null);
-          setDistName("");
-          setWName("");
-        } catch (err) {
-          console.error("Districts fetch error:", err);
-        }
-      };
-      fetchDistricts();
-    } else {
-      setDistricts([]);
-      setWards([]);
-      setDistName("");
-      setWName("");
-    }
-  }, [selectedProvinceCode]);
-
-  // Fetch wards when selectedDistrictCode changes
-  useEffect(() => {
-    if (selectedDistrictCode !== null) {
-      const fetchWards = async () => {
-        try {
-          const list = await ProvinceApi.getWards(selectedDistrictCode);
-          setWards(list || []);
-          setWName("");
-        } catch (err) {
-          console.error("Wards fetch error:", err);
-        }
-      };
-      fetchWards();
-    } else {
-      setWards([]);
-      setWName("");
-    }
-  }, [selectedDistrictCode]);
-
   // Open Create Form
   const handleOpenCreateAddress = () => {
     setEditingAddress(null);
-    setRecName("");
-    setRecPhone("");
-    setStreet("");
-    setProvName("");
-    setDistName("");
-    setWName("");
-    setIsDefaultAddress(false);
-    setActiveAddressType("HOME");
-    setSelectedProvinceCode(null);
-    setSelectedDistrictCode(null);
     setIsAddingAddress(true);
   };
 
   // Open Edit Form
-  const handleOpenEditAddress = async (addr: Address) => {
-    setIsAddingAddress(true);
+  const handleOpenEditAddress = (addr: Address) => {
     setEditingAddress(addr);
-    setRecName(addr.receiverName);
-    setRecPhone(addr.receiverPhone);
-    setStreet(addr.street);
-    setProvName(addr.province);
-    setDistName(addr.district);
-    setWName(addr.ward);
-    setIsDefaultAddress(addr.isDefault);
-    setActiveAddressType(addr.addressType || "HOME");
-
-    // Prepopulate cascading selectors
-    const matchedProvince = provinces.find((p) => p.name === addr.province);
-    if (matchedProvince) {
-      setSelectedProvinceCode(matchedProvince.code);
-      try {
-        const districtList = await ProvinceApi.getDistricts(
-          matchedProvince.code,
-        );
-        setDistricts(districtList || []);
-        const matchedDistrict = districtList.find(
-          (d: any) => d.name === addr.district,
-        );
-        if (matchedDistrict) {
-          setSelectedDistrictCode(matchedDistrict.code);
-          const wardList = await ProvinceApi.getWards(matchedDistrict.code);
-          setWards(wardList || []);
-        }
-      } catch (err) {
-        console.error("Cascade prefill loading error:", err);
-      }
-    }
-  };
-
-  // Submit/Save Address
-  const handleAddressSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!userId) return;
-
-    if (
-      !recName.trim() ||
-      !recPhone.trim() ||
-      !provName ||
-      !distName ||
-      !wName ||
-      !street.trim()
-    ) {
-      toast.error("Please fill in all address specifications.");
-      return;
-    }
-
-    setSavingAddress(true);
-    const toastId = toast.loading("Syncing delivery address changes...");
-    try {
-      const payload: Address = {
-        addressID: editingAddress?.addressID,
-        receiverName: recName.trim(),
-        receiverPhone: recPhone.trim(),
-        province: provName,
-        district: distName,
-        ward: wName,
-        street: street.trim(),
-        isDefault: isDefaultAddress,
-        addressType: activeAddressType,
-        userID: userId,
-      };
-
-      const res = await AddressApi.updateAddress(payload);
-      if (res && res.data) {
-        toast.success("Delivery address updated successfully!", {
-          id: toastId,
-        });
-        await loadAddresses(userId);
-        setIsAddingAddress(false);
-        setEditingAddress(null);
-      } else {
-        toast.error("Failed to update delivery address.", { id: toastId });
-      }
-    } catch (err) {
-      console.error("Save address error:", err);
-      toast.error("An unexpected error occurred while syncing addresses.", {
-        id: toastId,
-      });
-    } finally {
-      setSavingAddress(false);
-    }
+    setIsAddingAddress(true);
   };
 
   if (loading) {
@@ -487,108 +165,10 @@ export default function ProfilePage() {
     );
   }
 
+  const avatarUrl = tempAvatarUrl || profile?.avatar || (profile as any)?.avatarUrl || (profile as any)?.AvatarUrl || "";
+
   return (
     <>
-      <style>{`
-        .profile-root {
-          font-family: 'Montserrat', sans-serif;
-          background: radial-gradient(circle at 10% 20%, rgba(254, 252, 232, 0.4) 0%, rgba(250, 250, 249, 1) 90%);
-        }
-        .dark .profile-root {
-          background: radial-gradient(circle at 10% 20%, rgba(28, 25, 23, 0.8) 0%, rgba(12, 10, 9, 1) 90%);
-        }
-        .profile-heading {
-          font-family: 'Cormorant', serif;
-        }
-        .glass-profile-card {
-          background: rgba(255, 255, 255, 0.45);
-          backdrop-filter: blur(32px) saturate(180%);
-          -webkit-backdrop-filter: blur(32px) saturate(180%);
-          border: 1px solid rgba(255, 255, 255, 0.6);
-          box-shadow: 
-            0 24px 64px rgba(139, 90, 43, 0.08),
-            inset 0 1px 0 rgba(255, 255, 255, 0.8);
-        }
-        .dark .glass-profile-card {
-          background: rgba(24, 24, 27, 0.45);
-          backdrop-filter: blur(32px) saturate(180%);
-          -webkit-backdrop-filter: blur(32px) saturate(180%);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          box-shadow: 
-            0 24px 64px rgba(0, 0, 0, 0.3),
-            inset 0 1px 0 rgba(255, 255, 255, 0.05);
-        }
-        .luxury-input {
-          width: 100%;
-          padding: 12px 16px;
-          background: rgba(255, 255, 255, 0.4);
-          border: 1.5px solid rgba(202, 138, 4, 0.2);
-          border-radius: 12px;
-          font-size: 15px;
-          color: #1a0a00;
-          outline: none;
-          transition: all 250ms ease;
-        }
-        .dark .luxury-input {
-          background: rgba(44, 40, 36, 0.4);
-          border: 1.5px solid rgba(202, 138, 4, 0.15);
-          color: #f5f5f4;
-        }
-        .luxury-input:focus {
-          border-color: #ca8a04;
-          background: rgba(255, 255, 255, 0.8);
-          box-shadow: 0 0 0 3px rgba(202, 138, 4, 0.12);
-        }
-        .dark .luxury-input:focus {
-          background: rgba(28, 25, 23, 0.8);
-          box-shadow: 0 0 0 3px rgba(202, 138, 4, 0.2);
-        }
-        .avatar-ring {
-          position: relative;
-          border-radius: 50%;
-          padding: 4px;
-          background: linear-gradient(135deg, #b45309 0%, #ca8a04 50%, #f59e0b 100%);
-          box-shadow: 0 12px 32px rgba(180, 83, 9, 0.25);
-        }
-        .btn-gold {
-          background: linear-gradient(135deg, #b45309 0%, #d97706 100%);
-          color: white;
-          box-shadow: 0 4px 14px rgba(180, 83, 9, 0.35);
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .btn-gold:hover:not(:disabled) {
-          background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(217, 119, 6, 0.45);
-        }
-        .btn-gold:active:not(:disabled) {
-          transform: translateY(0);
-        }
-        .btn-muted {
-          border: 1.5px solid rgba(68, 64, 60, 0.25);
-          color: #44403c;
-          transition: all 0.3s ease;
-        }
-        .dark .btn-muted {
-          border: 1.5px solid rgba(245, 245, 244, 0.15);
-          color: #e7e5e4;
-        }
-        .btn-muted:hover {
-          background: rgba(68, 64, 60, 0.05);
-          transform: translateY(-1px);
-        }
-        .dark .btn-muted:hover {
-          background: rgba(245, 245, 244, 0.05);
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(16px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade {
-          animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-      `}</style>
-
       <div className="profile-root w-full min-h-screen py-8 px-4 md:px-4 mt-16">
         <div className="max-w-4xl mx-auto animate-fade">
           {/* Header Action */}
@@ -617,11 +197,12 @@ export default function ProfilePage() {
             {/* Profile Avatar & Quick Info */}
             <div className="px-8 md:px-12 pb-8 relative z-10 flex flex-col md:flex-row items-center md:items-end gap-6 -mt-16">
               <div className="avatar-ring w-32 h-32 md:w-36 md:h-36 shrink-0 bg-stone-100 dark:bg-stone-800 overflow-hidden flex items-center justify-center">
-                {formData.avatar && !avatarError ? (
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  <img
-                    src={formData.avatar}
-                    alt={`${formData.firstName} ${formData.lastName}`}
+                {avatarUrl && !avatarError ? (
+                  <Image
+                    src={avatarUrl}
+                    alt={profile ? `${profile.firstName} ${profile.lastName}` : "User"}
+                    width={150}
+                    height={150}
                     className="w-full h-full object-cover rounded-full p-1"
                     onError={() => setAvatarError(true)}
                   />
@@ -667,26 +248,7 @@ export default function ProfilePage() {
                   </button>
                 ) : (
                   <button
-                    onClick={() => {
-                      setIsEditing(false);
-                      dispatch(resetUpload());
-                      // Reset form to actual data
-                      if (profile) {
-                        setFormData({
-                          firstName: profile.firstName || "",
-                          lastName: profile.lastName || "",
-                          gender: profile.gender || "OTHER",
-                          dateOfBirth: profile.dateOfBirth
-                            ? new Date(profile.dateOfBirth)
-                                .toISOString()
-                                .split("T")[0]
-                            : "",
-                          avatar: profile.avatar || (profile as any).avatarUrl || (profile as any).AvatarUrl || "",
-                          avatarID: profile.avatarID || (profile as any).avatarId || (profile as any).AvatarId || 1,
-                        });
-                      }
-                      setFormErrors({ firstName: "", lastName: "" });
-                    }}
+                    onClick={() => setIsEditing(false)}
                     className="btn-muted flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-bold tracking-wide cursor-pointer"
                   >
                     <X className="w-4 h-4" />
@@ -801,160 +363,27 @@ export default function ProfilePage() {
                 </div>
               ) : (
                 /* ── EDIT PROFILE MODE (FORM) ── */
-                <form onSubmit={handleSubmit} className="flex flex-col gap-8">
-                  <h3 className="profile-heading text-xl font-bold tracking-wide text-stone-900 dark:text-stone-50 border-b border-stone-200/50 dark:border-stone-800/50 pb-2.5">
-                    Modify Settings
-                  </h3>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* First name */}
-                    <div className="flex flex-col gap-2">
-                      <label
-                        htmlFor="firstName"
-                        className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider"
-                      >
-                        First Name
-                      </label>
-                      <input
-                        id="firstName"
-                        type="text"
-                        name="firstName"
-                        value={formData.firstName}
-                        onChange={handleInputChange}
-                        className={`luxury-input${formErrors.firstName ? " border-red-500 focus:border-red-500" : ""}`}
-                        placeholder="John"
-                      />
-                      {formErrors.firstName && (
-                        <p className="text-xs text-red-500 font-semibold mt-1">
-                          {formErrors.firstName}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Last name */}
-                    <div className="flex flex-col gap-2">
-                      <label
-                        htmlFor="lastName"
-                        className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider"
-                      >
-                        Last Name
-                      </label>
-                      <input
-                        id="lastName"
-                        type="text"
-                        name="lastName"
-                        value={formData.lastName}
-                        onChange={handleInputChange}
-                        className={`luxury-input${formErrors.lastName ? " border-red-500 focus:border-red-500" : ""}`}
-                        placeholder="Doe"
-                      />
-                      {formErrors.lastName && (
-                        <p className="text-xs text-red-500 font-semibold mt-1">
-                          {formErrors.lastName}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Username */}
-                    <div className="flex flex-col gap-2">
-                      <label
-                        htmlFor="username"
-                        className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider"
-                      >
-                        Username
-                      </label>
-                      <input
-                        id="username"
-                        type="text"
-                        name="username"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        className="luxury-input"
-                        placeholder="username"
-                        required
-                      />
-                    </div>
-
-                    {/* Gender */}
-                    <div className="flex flex-col gap-2">
-                      <label
-                        htmlFor="gender"
-                        className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider"
-                      >
-                        Gender
-                      </label>
-                      <select
-                        id="gender"
-                        name="gender"
-                        value={formData.gender}
-                        onChange={handleInputChange}
-                        className="luxury-input cursor-pointer"
-                      >
-                        <option value="MALE">Male</option>
-                        <option value="FEMALE">Female</option>
-                        <option value="OTHER">Other</option>
-                      </select>
-                    </div>
-
-                    {/* Date of Birth */}
-                    <div className="flex flex-col gap-2">
-                      <label
-                        htmlFor="dateOfBirth"
-                        className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider"
-                      >
-                        Date of Birth
-                      </label>
-                      <input
-                        id="dateOfBirth"
-                        type="date"
-                        name="dateOfBirth"
-                        value={formData.dateOfBirth}
-                        onChange={handleInputChange}
-                        className="luxury-input"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Reusable File Upload Component */}
-                  {userId && (
-                    <FileUpload
-                      uploadedBy={String(userId)}
-                      currentFileId={formData.avatarID}
-                      label="Avatar Image"
-                      accept="image/*"
-                      className="md:col-span-2 mt-2"
-                      onUploadSuccess={(fileId, fileUrl) => {
-                        setAvatarError(false);
-                        setFormData((prev) => ({
-                          ...prev,
-                          avatarID: fileId,
-                          avatar: fileUrl,
-                        }));
-                      }}
-                    />
-                  )}
-
-                  {/* Submit Button */}
-                  <div className="flex justify-end gap-4 mt-4 border-t border-stone-200/50 dark:border-stone-800/50 pt-6">
-                    <button
-                      type="submit"
-                      disabled={updating}
-                      className="btn-gold flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl font-bold tracking-wide cursor-pointer min-w-44"
-                    >
-                      {updating ? (
-                        <>
-                          <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
-                          Saving...
-                        </>
-                      ) : (
-                        <>
-                          <Save className="w-4 h-4" />
-                          Save Changes
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </form>
+                userId && (
+                  <ProfileForm
+                    userId={userId}
+                    accountId={accountId}
+                    username={username}
+                    setUsername={setUsername}
+                    email={email}
+                    profile={profile}
+                    onAvatarChange={(url) => setTempAvatarUrl(url)}
+                    onProfileUpdate={(updated) => {
+                      setProfile(updated);
+                      setTempAvatarUrl(null);
+                      setAvatarError(false);
+                      setIsEditing(false);
+                    }}
+                    onCancel={() => {
+                      setTempAvatarUrl(null);
+                      setIsEditing(false);
+                    }}
+                  />
+                )
               )}
             </div>
           </div>
@@ -1067,7 +496,7 @@ export default function ProfilePage() {
                           </div>
                           <div className="flex items-start gap-2.5 mt-1">
                             <MapPin className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                            <p className="leading-relaxed min-w-0 break-words text-stone-800 dark:text-stone-250">
+                            <p className="leading-relaxed min-w-0 wrap-break-word text-stone-800 dark:text-stone-250">
                               {addr.street}, {addr.ward}, {addr.district},{" "}
                               {addr.province}
                             </p>
@@ -1088,247 +517,21 @@ export default function ProfilePage() {
                 ))}
 
               {/* ── ADDRESS EDITOR/CREATOR FORM ── */}
-              {isAddingAddress && (
-                <form
-                  onSubmit={handleAddressSubmit}
-                  className="flex flex-col gap-6.5 animate-fade"
-                >
-                  <h3 className="profile-heading text-xl font-bold tracking-wide text-stone-900 dark:text-stone-50 border-b border-stone-200/40 dark:border-stone-800/40 pb-2">
-                    {editingAddress
-                      ? "Modify Delivery Destination"
-                      : "Create New Delivery Destination"}
-                  </h3>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Receiver Name */}
-                    <div className="flex flex-col gap-2">
-                      <label
-                        htmlFor="recName"
-                        className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider"
-                      >
-                        Receiver Name
-                      </label>
-                      <input
-                        id="recName"
-                        type="text"
-                        value={recName}
-                        onChange={(e) => setRecName(e.target.value)}
-                        className="luxury-input"
-                        placeholder="John Doe"
-                        required
-                      />
-                    </div>
-
-                    {/* Receiver Phone */}
-                    <div className="flex flex-col gap-2">
-                      <label
-                        htmlFor="recPhone"
-                        className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider"
-                      >
-                        Receiver Phone Number
-                      </label>
-                      <input
-                        id="recPhone"
-                        type="tel"
-                        value={recPhone}
-                        onChange={(e) => setRecPhone(e.target.value)}
-                        className="luxury-input"
-                        placeholder="0987654321"
-                        required
-                      />
-                    </div>
-
-                    {/* Province Cascading Dropdown */}
-                    <div className="flex flex-col gap-2">
-                      <label
-                        htmlFor="province"
-                        className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider"
-                      >
-                        Province / City
-                      </label>
-                      <select
-                        id="province"
-                        value={
-                          provinces.find((p) => p.name === provName)?.code || ""
-                        }
-                        onChange={(e) => {
-                          const code = Number(e.target.value);
-                          const name =
-                            provinces.find((p) => p.code === code)?.name || "";
-                          setProvName(name);
-                          setSelectedProvinceCode(code);
-                        }}
-                        className="luxury-input cursor-pointer"
-                        required
-                      >
-                        <option value="">-- Select Province/City --</option>
-                        {provinces.map((prov) => (
-                          <option key={prov.code} value={prov.code}>
-                            {prov.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* District Cascading Dropdown */}
-                    <div className="flex flex-col gap-2">
-                      <label
-                        htmlFor="district"
-                        className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider"
-                      >
-                        District
-                      </label>
-                      <select
-                        id="district"
-                        value={
-                          districts.find((d) => d.name === distName)?.code || ""
-                        }
-                        onChange={(e) => {
-                          const code = Number(e.target.value);
-                          const name =
-                            districts.find((d) => d.code === code)?.name || "";
-                          setDistName(name);
-                          setSelectedDistrictCode(code);
-                        }}
-                        className="luxury-input cursor-pointer"
-                        disabled={selectedProvinceCode === null}
-                        required
-                      >
-                        <option value="">-- Select District --</option>
-                        {districts.map((dist) => (
-                          <option key={dist.code} value={dist.code}>
-                            {dist.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Ward Cascading Dropdown */}
-                    <div className="flex flex-col gap-2">
-                      <label
-                        htmlFor="ward"
-                        className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider"
-                      >
-                        Ward
-                      </label>
-                      <select
-                        id="ward"
-                        value={wName}
-                        onChange={(e) => setWName(e.target.value)}
-                        className="luxury-input cursor-pointer"
-                        disabled={selectedDistrictCode === null}
-                        required
-                      >
-                        <option value="">-- Select Ward --</option>
-                        {wards.map((w) => (
-                          <option key={w.code} value={w.name}>
-                            {w.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Street Address */}
-                    <div className="flex flex-col gap-2 md:col-span-2">
-                      <label
-                        htmlFor="street"
-                        className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider"
-                      >
-                        Street Address / Specific Location
-                      </label>
-                      <input
-                        id="street"
-                        type="text"
-                        value={street}
-                        onChange={(e) => setStreet(e.target.value)}
-                        className="luxury-input"
-                        placeholder="123 Le Loi Street, Building B, Room 405"
-                        required
-                      />
-                    </div>
-
-                    {/* Address Type Toggle */}
-                    <div className="flex flex-col gap-2">
-                      <span className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
-                        Address Category
-                      </span>
-                      <div className="flex gap-4">
-                        <button
-                          type="button"
-                          onClick={() => setActiveAddressType("HOME")}
-                          className={`flex-1 h-11 flex items-center justify-center gap-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                            activeAddressType === "HOME"
-                              ? "bg-amber-600 text-white border border-amber-600 shadow-sm"
-                              : "border border-stone-200 dark:border-stone-850 text-stone-700 dark:text-stone-300"
-                          }`}
-                        >
-                          <HomeIcon className="w-4 h-4 shrink-0" />
-                          HOME
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setActiveAddressType("OFFICE")}
-                          className={`flex-1 h-11 flex items-center justify-center gap-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                            activeAddressType === "OFFICE"
-                              ? "bg-amber-600 text-white border border-amber-600 shadow-sm"
-                              : "border border-stone-200 dark:border-stone-850 text-stone-700 dark:text-stone-300"
-                          }`}
-                        >
-                          <Briefcase className="w-4 h-4 shrink-0" />
-                          OFFICE
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Default Address Checkbox */}
-                    <div className="flex items-center gap-3.5 mt-6 px-1">
-                      <input
-                        id="isDefault"
-                        type="checkbox"
-                        checked={isDefaultAddress}
-                        onChange={(e) => setIsDefaultAddress(e.target.checked)}
-                        className="w-5 h-5 rounded accent-amber-600 cursor-pointer border-stone-300"
-                      />
-                      <label
-                        htmlFor="isDefault"
-                        className="text-sm font-semibold text-stone-700 dark:text-stone-300 cursor-pointer select-none"
-                      >
-                        Set as Default Destination
-                      </label>
-                    </div>
-                  </div>
-
-                  {/* Form Submission Actions */}
-                  <div className="flex justify-end gap-4 mt-4 border-t border-stone-200/40 dark:border-stone-800/40 pt-6">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsAddingAddress(false);
-                        setEditingAddress(null);
-                      }}
-                      className="btn-muted px-6 py-3 rounded-xl text-xs font-bold tracking-wider uppercase cursor-pointer"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={savingAddress}
-                      className="btn-gold flex items-center justify-center gap-2 px-8 py-3 rounded-xl text-xs font-bold tracking-wider uppercase cursor-pointer min-w-36"
-                    >
-                      {savingAddress ? (
-                        <>
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          Saving...
-                        </>
-                      ) : (
-                        <>
-                          <Save className="w-3.5 h-3.5" />
-                          Save Destination
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </form>
+              {isAddingAddress && userId && (
+                <AddressForm
+                  userId={userId}
+                  editingAddress={editingAddress}
+                  provinces={provinces}
+                  onSuccess={async () => {
+                    setIsAddingAddress(false);
+                    setEditingAddress(null);
+                    await loadAddresses(userId);
+                  }}
+                  onCancel={() => {
+                    setIsAddingAddress(false);
+                    setEditingAddress(null);
+                  }}
+                />
               )}
             </div>
           </div>

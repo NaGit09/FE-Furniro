@@ -8,7 +8,9 @@ import { useSelector } from "react-redux";
 import type { RootState } from "@/stores/store";
 import UserDropdown from "@/components/customs/common/UserLayout/UserDropdown";
 import HeaderCartDrawer from "@/components/customs/common/UserLayout/HeaderCartDrawer";
-import "../../../../app/Header.css";
+import "@/style/Header.css";
+import { SearchIcon, UserIcon, Menu, ShoppingCart, X, DoorClosed } from "lucide-react";
+
 /* ─── Types ──────────────────────────────────────────────── */
 type NavItem = { label: string; href: string };
 
@@ -19,130 +21,27 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Subscribe", href: "/subscribe" },
 ];
 
-/* ─── SVG Icons ───────────────────────────────────────────── */
-const SearchIcon = () => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={2}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="w-5 h-5"
-    aria-hidden="true"
-  >
-    <circle cx="11" cy="11" r="8" />
-    <path d="m21 21-4.35-4.35" />
-  </svg>
-);
-
-const CartIcon = () => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={2}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="w-5 h-5"
-    aria-hidden="true"
-  >
-    <circle cx="9" cy="21" r="1" />
-    <circle cx="20" cy="21" r="1" />
-    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-  </svg>
-);
-const UserIcon = () => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={2}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="w-5 h-5"
-    aria-hidden="true"
-  >
-    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-    <circle cx="12" cy="7" r="4" />
-  </svg>
-);
-const MenuIcon = () => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={2}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="w-6 h-6"
-    aria-hidden="true"
-  >
-    <line x1="3" y1="6" x2="21" y2="6" />
-    <line x1="3" y1="12" x2="21" y2="12" />
-    <line x1="3" y1="18" x2="21" y2="18" />
-  </svg>
-);
-const CloseIcon = () => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={2}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="w-6 h-6"
-    aria-hidden="true"
-  >
-    <line x1="18" y1="6" x2="6" y2="18" />
-    <line x1="6" y1="6" x2="18" y2="18" />
-  </svg>
-);
-const XIcon = () => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={2.5}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="w-4 h-4"
-    aria-hidden="true"
-  >
-    <line x1="18" y1="6" x2="6" y2="18" />
-    <line x1="6" y1="6" x2="18" y2="18" />
-  </svg>
-);
-const LogoutIcon = () => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={2}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    style={{ width: 16, height: 16 }}
-    aria-hidden="true"
-  >
-    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-    <polyline points="16 17 21 12 16 7" />
-    <line x1="21" y1="12" x2="9" y2="12" />
-  </svg>
-);
-
 /* ─── Main Component ──────────────────────────────────────── */
 const Header = () => {
+
   const pathname = usePathname();
+
   const router = useRouter();
+
   const auth = useSelector((state: RootState) => state.authSlice);
+
   const cart = useSelector((state: RootState) => state.cartSlice);
+
   const cartCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
 
   const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
 
   const [scrolled, setScrolled] = useState(false);
+
   const [mobileOpen, setMobileOpen] = useState(false);
+
   const [searchOpen, setSearchOpen] = useState(false);
+
   const [searchQuery, setSearchQuery] = useState("");
 
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -274,7 +173,7 @@ const Header = () => {
               onClick={() => setCartDrawerOpen(true)}
               aria-label={`Shopping cart — ${cartCount} item${cartCount !== 1 ? "s" : ""}`}
             >
-              <CartIcon />
+              <ShoppingCart />
               {cartCount > 0 && (
                 <span className="hdr-badge" aria-hidden="true">
                   {cartCount > 99 ? "99+" : cartCount}
@@ -290,7 +189,7 @@ const Header = () => {
               aria-label="Open menu"
               aria-expanded={mobileOpen}
             >
-              <MenuIcon />
+              <Menu />
             </button>
           </div>
         </div>
@@ -338,10 +237,10 @@ const Header = () => {
               aria-label="Close search"
               onMouseEnter={(e) => (e.currentTarget.style.color = "#1C1917")}
               onMouseLeave={(e) =>
-                (e.currentTarget.style.color = "rgba(68,64,60,0.5)")
+              (e.currentTarget.style.color = "rgba(68,64,60,0.5)")
               }
             >
-              <XIcon />
+              <X />
             </button>
             <button
               type="submit"
@@ -392,7 +291,7 @@ const Header = () => {
                 onClick={() => setMobileOpen(false)}
                 aria-label="Close menu"
               >
-                <CloseIcon />
+                <DoorClosed />
               </button>
             </div>
 
@@ -429,14 +328,14 @@ const Header = () => {
                   Sign In
                 </Link>
               )}
-              <button 
+              <button
                 className="drawer-cta primary"
                 onClick={() => {
                   setMobileOpen(false);
                   setCartDrawerOpen(true);
                 }}
               >
-                <CartIcon />
+                <ShoppingCart />
                 View Cart
                 {cartCount > 0 && (
                   <span
@@ -452,9 +351,9 @@ const Header = () => {
         </>
       )}
 
-      <HeaderCartDrawer 
-        isOpen={cartDrawerOpen} 
-        onClose={() => setCartDrawerOpen(false)} 
+      <HeaderCartDrawer
+        isOpen={cartDrawerOpen}
+        onClose={() => setCartDrawerOpen(false)}
       />
     </>
   );

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Bodoni_Moda, Jost } from "next/font/google";
-import "./globals.css";
+import "@/style/globals.css";
 import StoreProvider from "./StoreProvider";
 import ScrollHandler from "@/components/customs/common/SmoothScrollProvider";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -29,7 +29,8 @@ const jost = Jost({
 
 export const metadata: Metadata = {
   title: "Furniro",
-  description: "Furniro — Premium Furniture for Modern Living & Sustainable Design",
+  description:
+    "Furniro — Premium Furniture for Modern Living & Sustainable Design",
 };
 
 export default function RootLayout({
@@ -40,13 +41,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${bodoniModa.variable} ${jost.variable} antialiased`}
+        className={`${geistSans.variable} 
+                    ${geistMono.variable} 
+                    ${bodoniModa.variable} 
+                    ${jost.variable} antialiased`}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <ScrollHandler />
-          <StoreProvider>
-            {children}
-          </StoreProvider>
+          <StoreProvider>{children}</StoreProvider>
         </ThemeProvider>
       </body>
     </html>

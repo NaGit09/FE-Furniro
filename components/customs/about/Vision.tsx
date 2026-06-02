@@ -3,7 +3,7 @@ import Image from "next/image";
 const Vision = () => {
   return (
     <section className="container mx-auto px-4 py-12 mb-12 overflow-hidden max-w-7xl">
-      <div className="relative h-[350px] md:h-[400px] w-full rounded-[40px] overflow-hidden group shadow-xl">
+      <div className="relative h-87.5 md:h-100 w-full rounded-[40px] overflow-hidden group shadow-xl">
         <Image
           src="/images/about-vision.png"
           alt="Our Vision"

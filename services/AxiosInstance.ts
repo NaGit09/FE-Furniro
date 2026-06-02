@@ -60,11 +60,13 @@ axiosInstance.interceptors.response.use(
     };
 
     const isUnauthorized = error.response?.status === 401;
+
     const isRefreshRequest = originalRequest?.url?.includes(
       "/auth-service/account/refresh",
     );
 
-    // If it's a 401 error, and it's NOT the refresh token request itself, and we haven't retried yet
+    // If it's a 401 error, and it's NOT the refresh token request itself, 
+    // and we haven't retried yet
     if (isUnauthorized && !isRefreshRequest && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {

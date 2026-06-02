@@ -5,7 +5,6 @@ import Link from "next/link";
 const PageNavigate = ({
   title,
   category,
-  id,
 }: {
   title: string;
   category: string;
@@ -34,7 +33,7 @@ const PageNavigate = ({
           <Separator orientation="vertical" className="h-4 bg-stone-300 dark:bg-stone-700 shrink-0" />
           
           <span 
-            className="text-stone-800 dark:text-stone-100 font-bold font-heading truncate max-w-[200px] sm:max-w-xs md:max-w-sm"
+            className="text-stone-800 dark:text-stone-100 font-bold font-heading truncate max-w-50 sm:max-w-xs md:max-w-sm"
           >
             {title}
           </span>

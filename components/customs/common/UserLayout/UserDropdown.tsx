@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
-import Image from "next/image";
+import { useCallback, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
@@ -34,21 +33,21 @@ import {
 import type { RootState } from "@/stores/store";
 import { logout as logoutAction } from "@/stores/slices/auth.store";
 import { AuthApi } from "@/services/api/Auth/auth.service";
-import { removeCookie } from "@/lib/utils/cookieUtils";
+import { cleanCookies } from "@/lib/utils/cookieUtils";
 
 /* ─── Menu definition ─────────────────────────────────────── */
 const MENU_ITEMS = [
-  { label: "My Profile",  href: "/user/profile",   icon: User        },
-  { label: "My Orders",   href: "/user/orders",    icon: ShoppingBag },
-  { label: "Wishlist",    href: "/user/wishlist",  icon: Heart       },
-  { label: "Settings",    href: "/user/settings",  icon: Settings    },
+  { label: "My Profile", href: "/user/profile", icon: User },
+  { label: "My Orders", href: "/user/orders", icon: ShoppingBag },
+  { label: "Wishlist", href: "/user/wishlist", icon: Heart },
+  { label: "Settings", href: "/user/settings", icon: Settings },
 ] as const;
 
 /* ─── Component ───────────────────────────────────────────── */
 export default function UserDropdown() {
-  const router   = useRouter();
+  const router = useRouter();
   const dispatch = useDispatch();
-  const auth     = useSelector((s: RootState) => s.authSlice);
+  const auth = useSelector((s: RootState) => s.authSlice);
 
   const [loggingOut, setLoggingOut] = useState(false);
 
@@ -64,10 +63,7 @@ export default function UserDropdown() {
     } catch {
       /* best-effort; always clear local state */
     } finally {
-      removeCookie("AccessToken");
-      removeCookie("RefreshToken");
-      removeCookie("UserID");
-      removeCookie("UserEmail");
+      cleanCookies(["AccessToken", "RefreshToken", "UserID", "UserEmail"]);
       dispatch(logoutAction());
       setLoggingOut(false);
       router.push("/auth/login");
@@ -98,7 +94,7 @@ export default function UserDropdown() {
               <AvatarImage src={auth.AvatarURL} alt={fullName} />
             )}
             <AvatarFallback
-              className="bg-gradient-to-br from-amber-600 to-yellow-500 text-white text-xs font-bold"
+              className="bg-linear-to-br from-amber-600 to-yellow-500 text-white text-xs font-bold"
             >
               {initials}
             </AvatarFallback>
@@ -107,11 +103,11 @@ export default function UserDropdown() {
           </Avatar>
 
           {/* Name — hidden on small screens */}
-          <span className="hidden sm:block max-w-[90px] truncate">{auth.FirstName || auth.UserName}</span>
+          <span className="hidden sm:block max-w-22.5 truncate">{auth.FirstName || auth.UserName}</span>
 
           {/* Chevron */}
           <ChevronDown
-            className="size-3.5 text-stone-400 transition-transform duration-200 [[data-state=open]_&]:rotate-180"
+            className="size-3.5 text-stone-400 transition-transform duration-200 in-data-[state=open]:rotate-180"
             aria-hidden
           />
         </button>
@@ -130,12 +126,12 @@ export default function UserDropdown() {
         ].join(" ")}
       >
         {/* ── User card header ── */}
-        <div className="flex items-center gap-3 px-4 py-4 bg-gradient-to-br from-amber-50 to-yellow-50/60 dark:from-stone-850 dark:to-stone-900/80 border-b border-amber-100 dark:border-stone-800">
-          <Avatar size="lg" className="border-2 border-amber-400/60 dark:border-amber-600/40 shadow-md flex-shrink-0">
+        <div className="flex items-center gap-3 px-4 py-4 bg-linear-to-br from-amber-50 to-yellow-50/60 dark:from-stone-850 dark:to-stone-900/80 border-b border-amber-100 dark:border-stone-800">
+          <Avatar size="lg" className="border-2 border-amber-400/60 dark:border-amber-600/40 shadow-md shrink-0">
             {auth.AvatarURL ? (
               <AvatarImage src={auth.AvatarURL} alt={fullName} />
             ) : null}
-            <AvatarFallback className="bg-gradient-to-br from-amber-600 to-yellow-500 text-white font-bold text-base">
+            <AvatarFallback className="bg-linear-to-br from-amber-600 to-yellow-500 text-white font-bold text-base">
               {initials}
             </AvatarFallback>
             <AvatarBadge className="bg-emerald-500 ring-amber-50 dark:ring-stone-850 animate-pulse" />

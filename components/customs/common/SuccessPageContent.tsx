@@ -1,10 +1,11 @@
 "use client";
 
-import React, { Suspense, useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle2, ArrowLeft, ShoppingBag, Home } from "lucide-react";
 import {OrderApi} from "@/services/api/Order/order.service";
+import "@/styles/success.css";
 
 function SuccessContent() {
   const searchParams = useSearchParams();
@@ -33,114 +34,6 @@ function SuccessContent() {
         <div className="particle particle-2" />
         <div className="particle particle-3" />
       </div>
-
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
-
-        .success-root {
-          font-family: 'Inter', sans-serif;
-        }
-        .success-heading {
-          font-family: 'Playfair Display', serif;
-        }
-
-        /* Glassmorphism main card */
-        .glass-success-card {
-          background: rgba(255, 255, 255, 0.7);
-          backdrop-filter: blur(20px) saturate(160%);
-          -webkit-backdrop-filter: blur(20px) saturate(160%);
-          border: 1px solid rgba(255, 255, 255, 0.5);
-          box-shadow: 
-            0 20px 50px rgba(180, 83, 9, 0.08),
-            inset 0 1px 0 rgba(255, 255, 255, 0.8);
-        }
-
-        .dark .glass-success-card {
-          background: rgba(24, 24, 27, 0.75);
-          backdrop-filter: blur(20px) saturate(160%);
-          -webkit-backdrop-filter: blur(20px) saturate(160%);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          box-shadow: 
-            0 20px 50px rgba(0, 0, 0, 0.4),
-            inset 0 1px 0 rgba(255, 255, 255, 0.05);
-        }
-
-        /* Gold gradient button */
-        .btn-gold {
-          background: linear-gradient(135deg, #b45309 0%, #d97706 100%);
-          color: white;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 4px 14px rgba(180, 83, 9, 0.3);
-        }
-        .btn-gold:hover {
-          background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(217, 119, 6, 0.4);
-        }
-
-        /* Secondary luxury button */
-        .btn-outline-gold {
-          border: 1.5px solid #d97706;
-          color: #b45309;
-          background: transparent;
-          transition: all 0.3s ease;
-        }
-        .dark .btn-outline-gold {
-          color: #f59e0b;
-        }
-        .btn-outline-gold:hover {
-          background: rgba(217, 119, 6, 0.08);
-          transform: translateY(-2px);
-        }
-
-        /* Dynamic floating animations */
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-15px) rotate(5deg); }
-        }
-        .particle {
-          position: absolute;
-          border-radius: 50%;
-          filter: blur(2px);
-          opacity: 0.3;
-          pointer-events: none;
-        }
-        .particle-1 {
-          width: 20px;
-          height: 20px;
-          background: #d97706;
-          top: 15%;
-          left: 10%;
-          animation: float 8s ease-in-out infinite;
-        }
-        .particle-2 {
-          width: 30px;
-          height: 30px;
-          background: #b45309;
-          bottom: 20%;
-          left: 15%;
-          animation: float 11s ease-in-out infinite 1s;
-        }
-        .particle-3 {
-          width: 15px;
-          height: 15px;
-          background: #f59e0b;
-          top: 30%;
-          right: 12%;
-          animation: float 7s ease-in-out infinite 2s;
-        }
-
-        /* Animated Success Checkmark Ring */
-        .checkmark-glow {
-          box-shadow: 0 0 30px rgba(245, 158, 11, 0.35);
-          animation: pulse-ring 2.5s infinite;
-        }
-        @keyframes pulse-ring {
-          0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
-          70% { box-shadow: 0 0 0 18px rgba(245, 158, 11, 0); }
-          100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
-        }
-      `}</style>
 
       {/* Main glass card container */}
       <div className="glass-success-card relative z-10 w-full max-w-2xl rounded-3xl p-8 md:p-12 text-center transition-all duration-300">

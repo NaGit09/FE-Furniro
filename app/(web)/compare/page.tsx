@@ -5,12 +5,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
-import { ShoppingCart, X, Plus, Sparkles, ChevronRight, Home } from "lucide-react";
+import { ShoppingCart, X, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 import PageBanner from "@/components/customs/common/ThemBackground";
 import { ProductApi } from "@/services/api/Product/product.service";
-import { ProductCompareRes, ProductCardRes } from "@/schema/response/product/product.res";
+import {
+  ProductCompareRes,
+  ProductCardRes,
+} from "@/schema/response/product/product.res";
 import { Button } from "@/components/ui/button";
 import { CartApi } from "@/services/api/Order/cart.service";
 import { setCart } from "@/stores/slices/cart.store";
@@ -26,10 +29,12 @@ export default function ComparePage() {
   const [compareIds, setCompareIds] = useState<number[]>([]);
   const [products, setProducts] = useState<ProductCompareRes[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Dropdown selectors for adding products in-place
   const [allProductsList, setAllProductsList] = useState<ProductCardRes[]>([]);
-  const [activeSlotDropdown, setActiveSlotDropdown] = useState<number | null>(null);
+  const [activeSlotDropdown, setActiveSlotDropdown] = useState<number | null>(
+    null,
+  );
 
   // 1. Retrieve comparison list from localStorage on mount
   useEffect(() => {
@@ -134,10 +139,12 @@ export default function ComparePage() {
           const cartRes = await CartApi.get_cart(auth.UserID);
           if (cartRes && cartRes.data) {
             activeCartID = cartRes.data.cartID;
-            dispatch(setCart({
-              cartID: cartRes.data.cartID,
-              items: cartRes.data.items || [],
-            }));
+            dispatch(
+              setCart({
+                cartID: cartRes.data.cartID,
+                items: cartRes.data.items || [],
+              }),
+            );
           }
         } catch (cartErr) {
           console.error("Lazy cart retrieval failed in Compare:", cartErr);
@@ -154,17 +161,21 @@ export default function ComparePage() {
 
       if (res && (res.code === 200 || res.data === true)) {
         toast.success(`Đã thêm ${product.name} vào giỏ hàng!`, { id: toastId });
-        
+
         // Refresh cart state globally
         const cartRes = await CartApi.get_cart(auth.UserID);
         if (cartRes && cartRes.data) {
-          dispatch(setCart({
-            cartID: cartRes.data.cartID,
-            items: cartRes.data.items || [],
-          }));
+          dispatch(
+            setCart({
+              cartID: cartRes.data.cartID,
+              items: cartRes.data.items || [],
+            }),
+          );
         }
       } else {
-        toast.error(res?.message || "Không thể thêm sản phẩm.", { id: toastId });
+        toast.error(res?.message || "Không thể thêm sản phẩm.", {
+          id: toastId,
+        });
       }
     } catch (err) {
       console.error("Add to cart error in Compare:", err);
@@ -189,7 +200,9 @@ export default function ComparePage() {
         {loading ? (
           <div className="flex flex-col items-center justify-center h-[40vh] gap-4">
             <div className="animate-spin rounded-full h-12 w-12 border-4 border-stone-200 border-t-yellow-600"></div>
-            <p className="text-stone-500 text-sm font-semibold">Đang tổng hợp thông tin so sánh...</p>
+            <p className="text-stone-500 text-sm font-semibold">
+              Đang tổng hợp thông tin so sánh...
+            </p>
           </div>
         ) : compareIds.length === 0 ? (
           /* Empty Comparison List State */
@@ -201,7 +214,8 @@ export default function ComparePage() {
               Danh sách so sánh trống
             </h2>
             <p className="text-stone-500 dark:text-stone-400 font-medium text-sm leading-relaxed max-w-sm">
-              Bạn chưa thêm bất kỳ sản phẩm nào vào bảng so sánh. Hãy quay lại cửa hàng để chọn các Masterpiece ưng ý nhất!
+              Bạn chưa thêm bất kỳ sản phẩm nào vào bảng so sánh. Hãy quay lại
+              cửa hàng để chọn các Masterpiece ưng ý nhất!
             </p>
             <Link href="/product">
               <Button className="h-12 px-8 bg-yellow-600 hover:bg-yellow-750 text-white rounded-full font-bold shadow-lg hover:shadow-yellow-600/20 active:scale-95 transition-all duration-350 cursor-pointer">
@@ -214,7 +228,7 @@ export default function ComparePage() {
           <div className="flex flex-col gap-8 animate-in fade-in duration-1000">
             {/* Table wrapper for horizontal scroll on mobile */}
             <div className="overflow-x-auto border border-stone-200/45 dark:border-stone-850/45 rounded-[30px] bg-white/70 dark:bg-stone-900/60 backdrop-blur-md shadow-md p-6.5 scrollbar-thin">
-              <table className="w-full min-w-[900px] border-collapse">
+              <table className="w-full min-w-225 border-collapse">
                 <thead>
                   {/* Row 1: Image Header & Dismiss */}
                   <tr className="border-b border-stone-200/40 dark:border-stone-800/40">
@@ -225,21 +239,29 @@ export default function ComparePage() {
                         </h6>
                         <h2 className="text-2xl font-bold font-heading text-stone-900 dark:text-stone-50 tracking-tight leading-none">
                           Chi tiết <br />
-                          <span className="text-yellow-600 italic font-medium font-heading">So Sánh</span>
+                          <span className="text-yellow-600 italic font-medium font-heading">
+                            So Sánh
+                          </span>
                         </h2>
                         <div className="h-0.5 w-12 bg-yellow-600 rounded-full mt-2.5" />
                       </div>
                     </th>
-                    
+
                     {[0, 1, 2].map((slotIdx) => {
                       const product = products[slotIdx];
                       return (
-                        <th key={slotIdx} className="w-1/4 py-6 px-4 relative text-center">
+                        <th
+                          key={slotIdx}
+                          className="w-1/4 py-6 px-4 relative text-center"
+                        >
                           {product ? (
-                            <div className="relative group mx-auto w-[180px] h-[180px] p-2 bg-white dark:bg-stone-950/80 rounded-[25px] border border-stone-200/40 dark:border-stone-850/40 shadow-inner overflow-hidden transition-all duration-300 hover:shadow-md">
+                            <div className="relative group mx-auto w-45 h-45 p-2 bg-white dark:bg-stone-950/80 rounded-[25px] border border-stone-200/40 dark:border-stone-850/40 shadow-inner overflow-hidden transition-all duration-300 hover:shadow-md">
                               <div className="relative w-full h-full rounded-[18px] overflow-hidden">
                                 <Image
-                                  src={product.image || "https://placehold.co/600x600"}
+                                  src={
+                                    product.image ||
+                                    "https://placehold.co/600x600"
+                                  }
                                   alt={product.name}
                                   fill
                                   sizes="180px"
@@ -248,7 +270,9 @@ export default function ComparePage() {
                               </div>
                               {/* Floating Remove Button */}
                               <button
-                                onClick={() => handleRemoveProduct(product.productID)}
+                                onClick={() =>
+                                  handleRemoveProduct(product.productID)
+                                }
                                 className="absolute top-3 right-3 w-7 h-7 bg-stone-900/80 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-md backdrop-blur-xs hover:scale-105 active:scale-95 transition-all cursor-pointer border border-white/10"
                                 aria-label="Xóa sản phẩm"
                               >
@@ -257,20 +281,34 @@ export default function ComparePage() {
                             </div>
                           ) : (
                             /* Slot Empty - In-place Add Product Selector */
-                            <div className="mx-auto w-[180px] h-[180px] rounded-[25px] border-2 border-dashed border-stone-200 dark:border-stone-800 flex flex-col items-center justify-center gap-3 bg-stone-50/20 dark:bg-stone-950/20 p-4 transition-all hover:border-yellow-600/40">
+                            <div className="mx-auto w-45 h-45 rounded-[25px] border-2 border-dashed border-stone-200 dark:border-stone-800 flex flex-col items-center justify-center gap-3 bg-stone-50/20 dark:bg-stone-950/20 p-4 transition-all hover:border-yellow-600/40">
                               {activeSlotDropdown === slotIdx ? (
                                 <div className="w-full flex flex-col gap-2 relative z-50">
-                                  <label className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase font-sans">Chọn sản phẩm:</label>
+                                  <label className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase font-sans">
+                                    Chọn sản phẩm:
+                                  </label>
                                   <select
-                                    onChange={(e) => handleAddProductInPlace(Number(e.target.value))}
+                                    onChange={(e) =>
+                                      handleAddProductInPlace(
+                                        Number(e.target.value),
+                                      )
+                                    }
                                     defaultValue=""
                                     className="w-full h-9 rounded-lg bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-xs font-bold text-stone-700 dark:text-stone-300 outline-none p-1.5 focus:border-yellow-600 cursor-pointer"
                                   >
-                                    <option value="" disabled>-- Chọn --</option>
+                                    <option value="" disabled>
+                                      -- Chọn --
+                                    </option>
                                     {allProductsList
-                                      .filter((item) => !compareIds.includes(item.productID))
+                                      .filter(
+                                        (item) =>
+                                          !compareIds.includes(item.productID),
+                                      )
                                       .map((item) => (
-                                        <option key={item.productID} value={item.productID}>
+                                        <option
+                                          key={item.productID}
+                                          value={item.productID}
+                                        >
                                           {item.name}
                                         </option>
                                       ))}
@@ -290,7 +328,9 @@ export default function ComparePage() {
                                   <div className="w-10 h-10 bg-stone-100 dark:bg-stone-900 rounded-full flex items-center justify-center group-hover:bg-yellow-600/10 border border-stone-200 dark:border-stone-800 transition-colors">
                                     <Plus size={18} />
                                   </div>
-                                  <span className="text-xs font-bold tracking-tight font-sans">Thêm so sánh</span>
+                                  <span className="text-xs font-bold tracking-tight font-sans">
+                                    Thêm so sánh
+                                  </span>
                                 </button>
                               )}
                             </div>
@@ -303,29 +343,46 @@ export default function ComparePage() {
                 <tbody className="font-sans font-medium text-sm sm:text-base text-stone-600 dark:text-stone-400">
                   {/* Row 2: Name */}
                   <tr className="border-b border-stone-200/40 dark:border-stone-800/40">
-                    <td className="py-4 px-4 font-bold text-stone-900 dark:text-stone-50 uppercase tracking-widest text-xs font-sans">Tên sản phẩm</td>
+                    <td className="py-4 px-4 font-bold text-stone-900 dark:text-stone-50 uppercase tracking-widest text-xs font-sans">
+                      Tên sản phẩm
+                    </td>
                     {[0, 1, 2].map((slotIdx) => (
-                      <td key={slotIdx} className="py-4 px-4 text-center font-heading font-bold text-stone-800 dark:text-stone-100 max-w-[200px] truncate">
+                      <td
+                        key={slotIdx}
+                        className="py-4 px-4 text-center font-heading font-bold text-stone-800 dark:text-stone-100 max-w-50 truncate"
+                      >
                         {products[slotIdx]?.name || "—"}
                       </td>
                     ))}
                   </tr>
-                  
+
                   {/* Row 3: Price */}
                   <tr className="border-b border-stone-200/40 dark:border-stone-800/40">
-                    <td className="py-4 px-4 font-bold text-stone-900 dark:text-stone-50 uppercase tracking-widest text-xs font-sans">Đơn giá</td>
+                    <td className="py-4 px-4 font-bold text-stone-900 dark:text-stone-50 uppercase tracking-widest text-xs font-sans">
+                      Đơn giá
+                    </td>
                     {[0, 1, 2].map((slotIdx) => (
-                      <td key={slotIdx} className="py-4 px-4 text-center text-yellow-600 dark:text-yellow-500 font-bold text-base">
-                        {products[slotIdx] ? formatPrice(products[slotIdx].basePrice) : "—"}
+                      <td
+                        key={slotIdx}
+                        className="py-4 px-4 text-center text-yellow-600 dark:text-yellow-500 font-bold text-base"
+                      >
+                        {products[slotIdx]
+                          ? formatPrice(products[slotIdx].basePrice)
+                          : "—"}
                       </td>
                     ))}
                   </tr>
 
                   {/* Row 4: Material */}
                   <tr className="border-b border-stone-200/40 dark:border-stone-800/40">
-                    <td className="py-4 px-4 font-bold text-stone-900 dark:text-stone-50 uppercase tracking-widest text-xs font-sans">Chất liệu</td>
+                    <td className="py-4 px-4 font-bold text-stone-900 dark:text-stone-50 uppercase tracking-widest text-xs font-sans">
+                      Chất liệu
+                    </td>
                     {[0, 1, 2].map((slotIdx) => (
-                      <td key={slotIdx} className="py-4 px-4 text-center text-stone-800 dark:text-stone-200">
+                      <td
+                        key={slotIdx}
+                        className="py-4 px-4 text-center text-stone-800 dark:text-stone-200"
+                      >
                         {products[slotIdx]?.material || "—"}
                       </td>
                     ))}
@@ -333,11 +390,16 @@ export default function ComparePage() {
 
                   {/* Row 5: Dimensions */}
                   <tr className="border-b border-stone-200/40 dark:border-stone-800/40">
-                    <td className="py-4 px-4 font-bold text-stone-900 dark:text-stone-50 uppercase tracking-widest text-xs font-sans">Kích thước (C x R x S)</td>
+                    <td className="py-4 px-4 font-bold text-stone-900 dark:text-stone-50 uppercase tracking-widest text-xs font-sans">
+                      Kích thước (C x R x S)
+                    </td>
                     {[0, 1, 2].map((slotIdx) => {
                       const p = products[slotIdx];
                       return (
-                        <td key={slotIdx} className="py-4 px-4 text-center text-stone-800 dark:text-stone-200">
+                        <td
+                          key={slotIdx}
+                          className="py-4 px-4 text-center text-stone-800 dark:text-stone-200"
+                        >
                           {p ? `${p.height} x ${p.width} x ${p.depth} cm` : "—"}
                         </td>
                       );
@@ -346,19 +408,31 @@ export default function ComparePage() {
 
                   {/* Row 6: Weight */}
                   <tr className="border-b border-stone-200/40 dark:border-stone-800/40">
-                    <td className="py-4 px-4 font-bold text-stone-900 dark:text-stone-50 uppercase tracking-widest text-xs font-sans">Trọng lượng</td>
+                    <td className="py-4 px-4 font-bold text-stone-900 dark:text-stone-50 uppercase tracking-widest text-xs font-sans">
+                      Trọng lượng
+                    </td>
                     {[0, 1, 2].map((slotIdx) => (
-                      <td key={slotIdx} className="py-4 px-4 text-center text-stone-800 dark:text-stone-200">
-                        {products[slotIdx] ? `${products[slotIdx].weight} kg` : "—"}
+                      <td
+                        key={slotIdx}
+                        className="py-4 px-4 text-center text-stone-800 dark:text-stone-200"
+                      >
+                        {products[slotIdx]
+                          ? `${products[slotIdx].weight} kg`
+                          : "—"}
                       </td>
                     ))}
                   </tr>
 
                   {/* Row 7: Warranty */}
                   <tr className="border-b border-stone-200/40 dark:border-stone-800/40">
-                    <td className="py-4 px-4 font-bold text-stone-900 dark:text-stone-50 uppercase tracking-widest text-xs font-sans">Chính sách bảo hành</td>
+                    <td className="py-4 px-4 font-bold text-stone-900 dark:text-stone-50 uppercase tracking-widest text-xs font-sans">
+                      Chính sách bảo hành
+                    </td>
                     {[0, 1, 2].map((slotIdx) => (
-                      <td key={slotIdx} className="py-4 px-4 text-center text-xs leading-relaxed max-w-[200px] text-stone-500 dark:text-stone-400">
+                      <td
+                        key={slotIdx}
+                        className="py-4 px-4 text-center text-xs leading-relaxed max-w-50 text-stone-500 dark:text-stone-400"
+                      >
                         {products[slotIdx]?.warranty || "—"}
                       </td>
                     ))}

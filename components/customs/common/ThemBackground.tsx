@@ -12,7 +12,7 @@ export default function PageBanner({
   breadcrumb = "Home > Shop",
 }: PageBannerProps) {
   return (
-    <div className="relative w-full h-[316px] mt-4">
+    <div className="relative w-full h-79 mt-4">
       {/* Background Image */}
       <Image
         src={"/images/background_furniro.avif"}

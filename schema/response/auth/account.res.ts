@@ -3,9 +3,9 @@ import { z } from "zod";
 export const AccountResSchema = z.object({
   AccountID: z.number().int(),
   Active: z.boolean(),
-  AvatarUrl: z.string().url(),
+  AvatarUrl: z.url(),
   Banned: z.boolean(),
-  Email: z.string().email(),
+  Email: z.email(),
   FirstName: z.string().min(1),
   LastName: z.string().min(1),
   Phone: z.string().min(1),

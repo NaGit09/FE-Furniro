@@ -38,7 +38,7 @@ const ProductAgreement = () => {
               >
                 {/* Gold Translucent Icon Shell */}
                 <div className="p-3.5 rounded-2xl bg-yellow-600/10 dark:bg-yellow-600/15 border border-yellow-600/10 transition-all duration-500 group-hover:bg-yellow-600 group-hover:border-yellow-600 group-hover:shadow-[0_10px_25px_rgba(202,138,4,0.3)]">
-                  <div className="transition-transform duration-500 group-hover:rotate-[360deg] group-hover:scale-105">
+                  <div className="transition-transform duration-500 group-hover:rotate-360 group-hover:scale-105">
                     <Icon className="w-8 h-8 text-yellow-600 group-hover:text-white transition-colors duration-300" />
                   </div>
                 </div>

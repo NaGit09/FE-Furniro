@@ -22,8 +22,11 @@ import { Label } from "@/components/ui/label";
 import { navigateAfter3Seconds } from "@/lib/utils/navigateUtils";
 
 export default function ConfirmOTPForm() {
+
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+
   const [apiError, setApiError] = useState<string | null>(null);
+  
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<ConfirmOTPFormData>({

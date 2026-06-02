@@ -3,7 +3,7 @@ import { Sparkles } from "lucide-react";
 
 const AboutHero = () => {
   return (
-    <div className="w-full h-[350px] md:h-[400px] relative overflow-hidden flex items-center justify-center">
+    <div className="w-full h-87.5 md:h-100 relative overflow-hidden flex items-center justify-center">
       {/* Background Image with Overlay */}
       <Image
         src="/images/about-hero.png"

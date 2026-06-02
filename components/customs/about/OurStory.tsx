@@ -5,7 +5,7 @@ const OurStory = () => {
     <section className="container mx-auto px-4 py-12 flex flex-col md:flex-row items-center gap-8 md:gap-14 overflow-hidden max-w-7xl">
       {/* Premium Framed Image Container */}
       <div className="w-full md:w-1/2 p-2.5 bg-white/70 dark:bg-stone-900/60 backdrop-blur-md rounded-[35px] border border-stone-200/40 dark:border-stone-850/40 shadow-md group transition-all duration-500 hover:shadow-[0_20px_50px_rgba(0,0,0,0.12)]">
-        <div className="relative h-[320px] sm:h-[380px] w-full rounded-[25px] overflow-hidden">
+        <div className="relative h-80 sm:h-95 w-full rounded-[25px] overflow-hidden">
           <Image
             src="/images/about-story.png"
             alt="Our Craftsmanship"
@@ -29,11 +29,11 @@ const OurStory = () => {
         <div className="h-0.5 w-16 bg-yellow-600 rounded-full mt-1" />
 
         <p className="text-sm sm:text-base text-stone-500 dark:text-stone-400 font-medium leading-relaxed max-w-xl font-sans">
-          It all started in a small workshop with a single bench and a deep resonance for wood. Furniro was born from the belief that furniture shouldn't just fill a space—it should inspire the people living in it.
+          It all started in a small workshop with a single bench and a deep resonance for wood. Furniro was born from the belief that furniture shouldn&apos;t just fill a space—it should inspire the people living in it.
         </p>
         
         <p className="text-sm sm:text-base text-stone-500 dark:text-stone-400 font-medium leading-relaxed max-w-xl font-sans">
-          Every joint, every grain, and every polish is a testament to our dedication to traditional craftsmanship, infused with modern innovation. We don't just build furniture; we create heirlooms.
+          Every joint, every grain, and every polish is a testament to our dedication to traditional craftsmanship, infused with modern innovation. We don&apos;t just build furniture; we create heirlooms.
         </p>
 
         <div className="flex gap-3.5 items-center mt-2.5">

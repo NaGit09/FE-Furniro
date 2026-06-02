@@ -34,7 +34,7 @@ export const UploadApi = {
 
     formData.append("uploadedBy", uploadedBy);
 
-    formData.append("oldFileId", String(oldFileId));
+    formData.append("oldFileId", oldFileId.toString());
 
     const res = await axiosInstance.put<ApiResponse<UploadRes>>(
       `${baseUploadApi}`,
