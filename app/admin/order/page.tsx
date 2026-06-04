@@ -99,6 +99,7 @@ export default function AdminOrderPage() {
     statusCancelled: lang === "VI" ? "Đã hủy" : "Cancelled",
     statusDelivered: lang === "VI" ? "Đã giao" : "Delivered",
     statusFailed: lang === "VI" ? "Thất bại" : "Failed",
+    statusCompleted: lang === "VI" ? "Đã hoàn thành" : "Completed",
     changeStatus: lang === "VI" ? "Thay đổi trạng thái" : "Update Status",
     toastStatusSuccess: lang === "VI" ? "Cập nhật trạng thái đơn hàng thành công!" : "Order status updated successfully!",
     toastStatusError: lang === "VI" ? "Lỗi cập nhật trạng thái đơn hàng." : "Failed to update order status.",
@@ -130,6 +131,7 @@ export default function AdminOrderPage() {
       case "CANCELLED": return t.statusCancelled;
       case "DELIVERED": return t.statusDelivered;
       case "FAILED": return t.statusFailed;
+      case "COMPLETED": return t.statusCompleted;
       default: return status;
     }
   };
@@ -298,6 +300,7 @@ export default function AdminOrderPage() {
         return "bg-sky-500/10 text-sky-600 dark:bg-sky-500/20 dark:text-sky-400 border border-sky-500/20";
       case "PAID":
       case "DELIVERED":
+      case "COMPLETED":
         return "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 border border-emerald-500/20";
       case "CANCELLED":
       case "FAILED":
@@ -443,6 +446,7 @@ export default function AdminOrderPage() {
                 <option value="DELIVERED">{t.statusDelivered}</option>
                 <option value="CANCELLED">{t.statusCancelled}</option>
                 <option value="FAILED">{t.statusFailed}</option>
+                <option value="COMPLETED">{t.statusCompleted}</option>
               </select>
             </div>
 
@@ -567,6 +571,7 @@ export default function AdminOrderPage() {
                                   { val: "DELIVERED", label: t.statusDelivered },
                                   { val: "CANCELLED", label: t.statusCancelled },
                                   { val: "FAILED", label: t.statusFailed },
+                                  { val: "COMPLETED", label: t.statusCompleted },
                                 ].map((st) => (
                                   <button
                                     key={st.val}
@@ -651,6 +656,7 @@ export default function AdminOrderPage() {
                           { val: "DELIVERED", label: t.statusDelivered },
                           { val: "CANCELLED", label: t.statusCancelled },
                           { val: "FAILED", label: t.statusFailed },
+                          { val: "COMPLETED", label: t.statusCompleted },
                         ].map((st) => (
                           <button
                             key={st.val}
@@ -772,7 +778,13 @@ export default function AdminOrderPage() {
                 <div className="flex justify-between items-center gap-2 border-t border-stone-200/20 dark:border-stone-850/20 pt-3">
                   <span className="text-stone-450 dark:text-stone-500 font-semibold">{t.colStatus}</span>
                   <div className="relative group/drawer-status inline-block">
-                    <button className="h-8 px-3.5 rounded-full text-[9px] font-bold uppercase tracking-wider flex items-center gap-1 cursor-pointer transition-all hover:brightness-95 shadow-xs bg-amber-500 text-white">
+                    <button className={`h-8 px-3.5 rounded-full text-[9px] font-bold uppercase tracking-wider flex items-center gap-1 cursor-pointer transition-all hover:brightness-95 shadow-xs border text-white ${
+                      selectedOrder.status.toUpperCase() === "PENDING" ? "bg-amber-500 border-amber-600/20" :
+                      (selectedOrder.status.toUpperCase() === "CREATED" || selectedOrder.status.toUpperCase() === "APPROVED") ? "bg-sky-600 border-sky-700/20" :
+                      (selectedOrder.status.toUpperCase() === "PAID" || selectedOrder.status.toUpperCase() === "DELIVERED" || selectedOrder.status.toUpperCase() === "COMPLETED") ? "bg-emerald-650 border-emerald-700/20" :
+                      (selectedOrder.status.toUpperCase() === "CANCELLED" || selectedOrder.status.toUpperCase() === "FAILED") ? "bg-rose-600 border-rose-700/20" :
+                      "bg-stone-600 border-stone-700/20"
+                    }`}>
                       {getStatusLabel(selectedOrder.status)} <ChevronDown className="w-3 h-3" />
                     </button>
                     <div className="absolute right-0 bottom-full mb-1.5 w-40 bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-850 shadow-xl p-1 z-30 hidden group-hover/drawer-status:block hover:block">
@@ -784,6 +796,7 @@ export default function AdminOrderPage() {
                         { val: "DELIVERED", label: t.statusDelivered },
                         { val: "CANCELLED", label: t.statusCancelled },
                         { val: "FAILED", label: t.statusFailed },
+                        { val: "COMPLETED", label: t.statusCompleted },
                       ].map((st) => (
                         <button
                           key={st.val}

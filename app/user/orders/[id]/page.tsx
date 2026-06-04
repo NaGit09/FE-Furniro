@@ -22,7 +22,8 @@ import {
   HelpCircle,
   Sparkles,
   FileCheck,
-  User
+  User,
+  Package
 } from "lucide-react";
 
 import { RootState } from "@/stores/store";
@@ -157,12 +158,23 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
   const getStatusBadge = (status: string) => {
     const formatted = status.toUpperCase();
     switch (formatted) {
+      case "DELIVERED":
+        return {
+          bg: "bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
+          icon: <Package className="w-4 h-4" />,
+          label: langPref === "VI" ? "Đã giao" : "Delivered",
+        };
       case "PAID":
+        return {
+          bg: "bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
+          icon: <CheckCircle2 className="w-4 h-4" />,
+          label: langPref === "VI" ? "Đã thanh toán" : "Paid",
+        };
       case "COMPLETED":
         return {
           bg: "bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
           icon: <CheckCircle2 className="w-4 h-4" />,
-          label: langPref === "VI" ? "Đã thanh toán" : "Completed",
+          label: langPref === "VI" ? "Đã hoàn thành" : "Completed",
         };
       case "PENDING":
         return {
@@ -170,11 +182,29 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
           icon: <Clock className="w-4 h-4 animate-pulse" />,
           label: langPref === "VI" ? "Chờ xử lý" : "Pending",
         };
+      case "CREATED":
+        return {
+          bg: "bg-blue-500/10 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400 border-blue-500/20",
+          icon: <Sparkles className="w-4 h-4" />,
+          label: langPref === "VI" ? "Đã tạo" : "Created",
+        };
+      case "APPROVED":
+        return {
+          bg: "bg-sky-500/10 dark:bg-sky-500/20 text-sky-700 dark:text-sky-400 border-sky-500/20",
+          icon: <CheckCircle2 className="w-4 h-4" />,
+          label: langPref === "VI" ? "Đã phê duyệt" : "Approved",
+        };
       case "CANCELLED":
         return {
           bg: "bg-red-500/10 dark:bg-red-500/20 text-red-700 dark:text-red-400 border-red-500/20",
           icon: <XCircle className="w-4 h-4" />,
           label: langPref === "VI" ? "Đã hủy" : "Cancelled",
+        };
+      case "FAILED":
+        return {
+          bg: "bg-rose-500/10 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400 border-rose-500/20",
+          icon: <AlertCircle className="w-4 h-4" />,
+          label: langPref === "VI" ? "Thất bại" : "Failed",
         };
       default:
         return {

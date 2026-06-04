@@ -20,7 +20,8 @@ import {
   AlertCircle, 
   ExternalLink,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  Package
 } from "lucide-react";
 
 import { RootState } from "@/stores/store";
@@ -44,6 +45,12 @@ export default function OrderHistoryPage() {
   const [orders, setOrders] = useState<OrderCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [langPref, setLangPref] = useState<"EN" | "VI">("EN");
+
+  useEffect(() => {
+    const savedLang = localStorage.getItem("furniro_language") as "EN" | "VI" | null;
+    if (savedLang) setLangPref(savedLang);
+  }, []);
 
   // Detail Modal States
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
@@ -152,24 +159,53 @@ export default function OrderHistoryPage() {
   const getStatusBadge = (status: string) => {
     const formatted = status.toUpperCase();
     switch (formatted) {
+      case "DELIVERED":
+        return {
+          bg: "bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
+          icon: <Package className="w-3.5 h-3.5" />,
+          label: langPref === "VI" ? "Đã giao" : "Delivered",
+        };
       case "PAID":
+        return {
+          bg: "bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
+          icon: <CheckCircle2 className="w-3.5 h-3.5" />,
+          label: langPref === "VI" ? "Đã thanh toán" : "Paid",
+        };
       case "COMPLETED":
         return {
           bg: "bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
           icon: <CheckCircle2 className="w-3.5 h-3.5" />,
-          label: "Completed",
+          label: langPref === "VI" ? "Đã hoàn thành" : "Completed",
         };
       case "PENDING":
         return {
           bg: "bg-amber-500/10 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-500/20",
           icon: <Clock className="w-3.5 h-3.5 animate-pulse" />,
-          label: "Pending",
+          label: langPref === "VI" ? "Chờ xử lý" : "Pending",
+        };
+      case "CREATED":
+        return {
+          bg: "bg-blue-500/10 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400 border-blue-500/20",
+          icon: <Sparkles className="w-3.5 h-3.5" />,
+          label: langPref === "VI" ? "Đã tạo" : "Created",
+        };
+      case "APPROVED":
+        return {
+          bg: "bg-sky-500/10 dark:bg-sky-500/20 text-sky-700 dark:text-sky-400 border-sky-500/20",
+          icon: <CheckCircle2 className="w-3.5 h-3.5" />,
+          label: langPref === "VI" ? "Đã phê duyệt" : "Approved",
         };
       case "CANCELLED":
         return {
           bg: "bg-red-500/10 dark:bg-red-500/20 text-red-700 dark:text-red-400 border-red-500/20",
           icon: <XCircle className="w-3.5 h-3.5" />,
-          label: "Cancelled",
+          label: langPref === "VI" ? "Đã hủy" : "Cancelled",
+        };
+      case "FAILED":
+        return {
+          bg: "bg-rose-500/10 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400 border-rose-500/20",
+          icon: <AlertCircle className="w-3.5 h-3.5" />,
+          label: langPref === "VI" ? "Thất bại" : "Failed",
         };
       default:
         return {

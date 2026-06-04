@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle2, ArrowLeft, ShoppingBag, Home } from "lucide-react";
 import {OrderApi} from "@/services/api/Order/order.service";
-import "@/styles/success.css";
+import "@/style/success.css";
 
 function SuccessContent() {
   const searchParams = useSearchParams();
