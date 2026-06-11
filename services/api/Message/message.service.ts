@@ -16,7 +16,7 @@ export const MessageApi = {
 
   get_message_by_conversation: async (conversationId: number) => {
     return await axiosInstance.get<ApiResponse<Page<MessageRes>>>(
-      `${Base_url}?conversation=${conversationId}`
+      `${Base_url}?conversationID=${conversationId}`
     );
   },
 };

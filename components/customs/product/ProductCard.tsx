@@ -5,13 +5,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
-import { ShoppingCart, Eye, Sparkles } from "lucide-react";
+import { ShoppingCart, Eye, Sparkles, Heart } from "lucide-react";
 import { toast } from "sonner";
 
 import { ProductCardRes } from "@/schema/response/product/product.res";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CartApi } from "@/services/api/Order/cart.service";
+import { ProductApi } from "@/services/api/Product/product.service";
+import { addToWishlistLocal, removeFromWishlistLocal } from "@/stores/slices/wishlist.store";
 import { setCart } from "@/stores/slices/cart.store";
 import { RootState } from "@/stores/store";
 
@@ -25,8 +27,44 @@ export default function ProductCard({ product }: ProductCardProps) {
   
   const auth = useSelector((s: RootState) => s.authSlice);
   const cart = useSelector((s: RootState) => s.cartSlice);
+  const wishlistProductIds = useSelector((state: RootState) => state.wishlistSlice.productIds);
   
   const [adding, setAdding] = useState(false);
+  const isWishlisted = wishlistProductIds.includes(product.productID);
+
+  const handleWishlistToggle = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!auth.isLoggedIn || !auth.UserID) {
+      toast.error("Vui lòng đăng nhập để sử dụng tính năng yêu thích.");
+      router.push("/auth/login");
+      return;
+    }
+
+    try {
+      if (isWishlisted) {
+        const res = await ProductApi.remove_from_wishlist(product.productID);
+        if (res.code === 200 || res.data === "Removed product from wishlist successfully") {
+          dispatch(removeFromWishlistLocal(product.productID));
+          toast.success("Đã xóa khỏi danh sách yêu thích");
+        } else {
+          toast.error(res.message || "Lỗi khi xóa khỏi danh sách yêu thích");
+        }
+      } else {
+        const res = await ProductApi.add_to_wishlist(product.productID);
+        if (res.code === 200 || res.data === "Added product to wishlist successfully") {
+          dispatch(addToWishlistLocal(product.productID));
+          toast.success("Đã thêm vào danh sách yêu thích");
+        } else {
+          toast.error(res.message || "Lỗi khi thêm vào danh sách yêu thích");
+        }
+      }
+    } catch (err) {
+      console.error("Wishlist toggle error:", err);
+      toast.error("Lỗi khi xử lý danh sách yêu thích.");
+    }
+  };
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -116,6 +154,19 @@ export default function ProductCard({ product }: ProductCardProps) {
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             className="object-cover transition-transform duration-700 ease-out group-hover:scale-108"
           />
+
+          {/* Wishlist Floating Button */}
+          <button
+            onClick={handleWishlistToggle}
+            className={`absolute top-3 right-3 z-10 w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 transition-all duration-300 cursor-pointer shadow-md
+              ${isWishlisted 
+                ? "bg-red-500/90 text-white hover:bg-red-600" 
+                : "bg-white/80 text-stone-600 hover:bg-white dark:bg-stone-900/80 dark:text-stone-300 dark:hover:bg-stone-900"
+              }`}
+            aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+          >
+            <Heart size={16} fill={isWishlisted ? "currentColor" : "none"} className={isWishlisted ? "animate-pulse" : ""} />
+          </button>
 
           {/* Liquid Glass Overlay Deck on Hover */}
           <div className="absolute inset-0 bg-stone-950/20 backdrop-blur-xs opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center gap-3">

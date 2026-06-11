@@ -8,6 +8,8 @@ import { UserApi } from "../services/api/Auth/user.service";
 import { CartApi } from "../services/api/Order/cart.service";
 import { setCart } from "../stores/slices/cart.store";
 import { parseJwt } from "../lib/utils/jwt";
+import { ProductApi } from "../services/api/Product/product.service";
+import { setWishlist } from "../stores/slices/wishlist.store";
 import "@/style/Header.css";
 
 function AuthInitializer({ children }: { children: ReactNode }) {
@@ -62,6 +64,17 @@ function AuthInitializer({ children }: { children: ReactNode }) {
                   items: cartRes.data.items || [],
                 }),
               );
+            }
+
+            // Proactively retrieve user's wishlist session
+            try {
+              const wishlistRes = await ProductApi.get_wishlist_products(0, 100);
+              if (wishlistRes && wishlistRes.data && wishlistRes.data.content) {
+                const productIds = wishlistRes.data.content.map(p => p.productID);
+                dispatch(setWishlist(productIds));
+              }
+            } catch (wishlistErr) {
+              console.error("Lazy wishlist retrieval failed in StoreProvider:", wishlistErr);
             }
           }
         } catch (err) {

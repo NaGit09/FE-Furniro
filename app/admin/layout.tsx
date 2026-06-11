@@ -25,6 +25,7 @@ import {
   CircleDot,
   Loader2,
   Percent,
+  MessageSquare,
 } from "lucide-react";
 
 import { RootState } from "@/stores/store";
@@ -41,6 +42,7 @@ const ADMIN_MENU_ITEMS = [
   { labelKey: "products", href: "/admin/product", icon: Package },
   { labelKey: "subscriptions", href: "/admin/subcription", icon: Mail },
   { labelKey: "promotions", href: "/admin/promotion", icon: Percent },
+  { labelKey: "chat", href: "/admin/chat", icon: MessageSquare },
 ] as const;
 
 export default function AdminLayout({
@@ -145,6 +147,7 @@ export default function AdminLayout({
     products: lang === "VI" ? "Danh mục sản phẩm" : "Product Catalog",
     subscriptions: lang === "VI" ? "Đăng ký nhận tin" : "Subscription List",
     promotions: lang === "VI" ? "Quản lý khuyến mãi" : "Manage Promotions",
+    chat: lang === "VI" ? "Hỗ trợ khách hàng" : "Customer Support",
     logout: lang === "VI" ? "Đăng xuất" : "Sign Out",
     backStore: lang === "VI" ? "Về cửa hàng" : "Back to Store",
     adminBadge: lang === "VI" ? "QUẢN TRỊ VIÊN" : "SYSTEM ADMIN",

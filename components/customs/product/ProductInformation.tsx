@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
-import { Minus, Plus, Star, ShoppingCart, Repeat, Sparkles } from "lucide-react";
+import { Minus, Plus, Star, ShoppingCart, Repeat, Sparkles, Heart } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { CartApi } from "@/services/api/Order/cart.service";
+import { ProductApi } from "@/services/api/Product/product.service";
+import { addToWishlistLocal, removeFromWishlistLocal } from "@/stores/slices/wishlist.store";
 import { setCart } from "@/stores/slices/cart.store";
 import { RootState } from "@/stores/store";
 
@@ -31,7 +33,44 @@ const ProductInformation = ({ data }: ProductInformationProps) => {
   const dispatch = useDispatch();
   const auth = useSelector((s: RootState) => s.authSlice);
   const cart = useSelector((s: RootState) => s.cartSlice);
+  const wishlistProductIds = useSelector((state: RootState) => state.wishlistSlice.productIds);
   const [addingToCart, setAddingToCart] = useState(false);
+
+  const activeId = data.productID || data.productId || 0;
+  const isWishlisted = wishlistProductIds.includes(activeId);
+
+  const handleWishlistToggle = async () => {
+    if (!auth.isLoggedIn || !auth.UserID) {
+      toast.error("Vui lòng đăng nhập để sử dụng tính năng yêu thích.");
+      router.push("/auth/login");
+      return;
+    }
+
+    if (!activeId) return;
+
+    try {
+      if (isWishlisted) {
+        const res = await ProductApi.remove_from_wishlist(activeId);
+        if (res.code === 200 || res.data === "Removed product from wishlist successfully") {
+          dispatch(removeFromWishlistLocal(activeId));
+          toast.success("Đã xóa khỏi danh sách yêu thích");
+        } else {
+          toast.error(res.message || "Lỗi khi xóa khỏi danh sách yêu thích");
+        }
+      } else {
+        const res = await ProductApi.add_to_wishlist(activeId);
+        if (res.code === 200 || res.data === "Added product to wishlist successfully") {
+          dispatch(addToWishlistLocal(activeId));
+          toast.success("Đã thêm vào danh sách yêu thích");
+        } else {
+          toast.error(res.message || "Lỗi khi thêm vào danh sách yêu thích");
+        }
+      }
+    } catch (err) {
+      console.error("Wishlist toggle error:", err);
+      toast.error("Lỗi khi xử lý danh sách yêu thích.");
+    }
+  };
 
   const handleAddToCart = async () => {
     if (!auth.isLoggedIn || !auth.UserID) {
@@ -272,6 +311,20 @@ const ProductInformation = ({ data }: ProductInformationProps) => {
         >
           <Repeat size={18} />
           Compare
+        </Button>
+
+        {/* Wishlist */}
+        <Button
+          variant="outline"
+          onClick={handleWishlistToggle}
+          className={`h-13 px-6 rounded-full font-bold font-sans transition-all duration-300 flex items-center gap-2 cursor-pointer
+            ${isWishlisted 
+              ? "border-red-205 bg-red-50/70 text-red-600 hover:bg-red-100 hover:border-red-300 dark:bg-red-950/20 dark:border-red-900/40 dark:text-red-400" 
+              : "border-stone-200/60 dark:border-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-850"
+            }`}
+        >
+          <Heart size={18} fill={isWishlisted ? "currentColor" : "none"} className={isWishlisted ? "animate-pulse" : ""} />
+          {isWishlisted ? "Wishlisted" : "Wishlist"}
         </Button>
       </div>
 

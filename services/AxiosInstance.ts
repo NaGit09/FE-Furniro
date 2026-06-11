@@ -36,6 +36,26 @@ const processQueue = (
 // Request Interceptor: Attach standard AccessToken or RefreshToken depending on request type
 axiosInstance.interceptors.request.use(
   (config) => {
+    // List of public auth endpoints that should never send an Authorization header
+    const publicAuthEndpoints = [
+      "/auth-service/account/login",
+      "/auth-service/account/login-by-username",
+      "/auth-service/account/register",
+      "/auth-service/account/send-otp",
+      "/auth-service/account/confirm-otp",
+      "/auth-service/account/active"
+    ];
+
+    const isPublicAuthRequest = publicAuthEndpoints.some((endpoint) =>
+      config.url?.includes(endpoint)
+    );
+
+    if (isPublicAuthRequest) {
+      // Clean up header if present
+      delete config.headers.Authorization;
+      return config;
+    }
+
     const isRefreshRequest = config.url?.includes(
       "/auth-service/account/refresh",
     );

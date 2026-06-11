@@ -59,4 +59,32 @@ export const ProductApi = {
     );
     return res.data;
   },
+
+  // WISHLIST API
+  get_wishlist_products: async (page = 0, size = 10) => {
+    const res = await axiosInstance.get<ApiResponse<Page<ProductCardRes>>>(
+      `${baseProductApi}/wishlist-products`,
+      {
+        params: {
+          page,
+          size,
+        },
+      },
+    );
+    return res.data;
+  },
+
+  add_to_wishlist: async (productId: number) => {
+    const res = await axiosInstance.post<ApiResponse<string>>(
+      `${baseProductApi}/wishlist-products/${productId}`,
+    );
+    return res.data;
+  },
+
+  remove_from_wishlist: async (productId: number) => {
+    const res = await axiosInstance.delete<ApiResponse<string>>(
+      `${baseProductApi}/wishlist-products/${productId}`,
+    );
+    return res.data;
+  },
 };
