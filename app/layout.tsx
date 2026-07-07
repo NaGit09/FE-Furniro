@@ -4,6 +4,7 @@ import "@/style/globals.css";
 import StoreProvider from "./StoreProvider";
 import ScrollHandler from "@/components/customs/common/SmoothScrollProvider";
 import { ThemeProvider } from "@/components/theme-provider";
+import { LanguageProvider } from "@/components/customs/common/LanguageContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,9 +29,63 @@ const jost = Jost({
 });
 
 export const metadata: Metadata = {
-  title: "Furniro",
+  metadataBase: new URL("https://furniro.com"),
+  title: {
+    template: "%s | Furniro",
+    default: "Furniro — Premium Furniture & Handcrafted Sustainable Design",
+  },
   description:
-    "Furniro — Premium Furniture for Modern Living & Sustainable Design",
+    "Furniro offers high-end, sustainable timber furniture designed in Milan and handcrafted to elevate modern living spaces. Shop tables, chairs, sofas, and custom decor.",
+  keywords: [
+    "furniture",
+    "sustainable design",
+    "timber furniture",
+    "modern living",
+    "luxury furniture",
+    "interior design",
+    "handcrafted chairs",
+    "premium dining tables",
+    "Furniro Milan",
+  ],
+  authors: [{ name: "Furniro Team" }],
+  creator: "Furniro",
+  publisher: "Furniro",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://furniro.com",
+    title: "Furniro — Premium Furniture & Handcrafted Sustainable Design",
+    description:
+      "Furniro offers high-end, sustainable timber furniture designed in Milan and handcrafted to elevate modern living spaces.",
+    siteName: "Furniro",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Furniro Premium Furniture Catalog",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Furniro — Premium Furniture & Handcrafted Sustainable Design",
+    description:
+      "Furniro offers high-end, sustainable timber furniture designed in Milan and handcrafted to elevate modern living spaces.",
+    images: ["/og-image.jpg"],
+    creator: "@furniro",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 export default function RootLayout({
@@ -47,8 +102,10 @@ export default function RootLayout({
                     ${jost.variable} antialiased`}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <ScrollHandler />
-          <StoreProvider>{children}</StoreProvider>
+          <LanguageProvider>
+            <ScrollHandler />
+            <StoreProvider>{children}</StoreProvider>
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -9,7 +9,8 @@ import type { RootState } from "@/stores/store";
 import UserDropdown from "@/components/customs/common/UserLayout/UserDropdown";
 import HeaderCartDrawer from "@/components/customs/common/UserLayout/HeaderCartDrawer";
 import "@/style/Header.css";
-import { SearchIcon, UserIcon, Menu, ShoppingCart, X, DoorClosed } from "lucide-react";
+import { SearchIcon, UserIcon, Menu, ShoppingCart, X, DoorClosed, Sun, Moon } from "lucide-react";
+import { useTheme } from "next-themes";
 
 /* ─── Types ──────────────────────────────────────────────── */
 type NavItem = { label: string; href: string };
@@ -31,6 +32,13 @@ const Header = () => {
   const auth = useSelector((state: RootState) => state.authSlice);
 
   const cart = useSelector((state: RootState) => state.cartSlice);
+
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const cartCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -145,6 +153,20 @@ const Header = () => {
               aria-label="Open search"
             >
               <SearchIcon />
+            </button>
+
+            {/* Theme Toggle */}
+            <button
+              id="hdr-btn-theme"
+              className="hdr-icon-btn"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              aria-label="Toggle theme"
+            >
+              {mounted && theme === "dark" ? (
+                <Sun className="w-5 h-5 text-amber-500" />
+              ) : (
+                <Moon className="w-5 h-5 text-stone-600 dark:text-stone-300" />
+              )}
             </button>
 
 

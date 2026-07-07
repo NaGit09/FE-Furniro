@@ -136,7 +136,7 @@ const ProductInformation = ({ data }: ProductInformationProps) => {
 
     try {
       const compareRaw = localStorage.getItem("furniro_compare");
-      let compareList: number[] = compareRaw ? JSON.parse(compareRaw) : [];
+      const compareList: number[] = compareRaw ? JSON.parse(compareRaw) : [];
 
       if (compareList.includes(activeId)) {
         toast.info("Sản phẩm đã có trong danh sách so sánh.");

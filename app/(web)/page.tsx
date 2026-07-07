@@ -4,9 +4,8 @@ import Features from "@/components/customs/home/Features";
 import Inspiration from "@/components/customs/home/Inspiration";
 import ProductListCard from "@/components/customs/product/ProductListCard";
 import { Metadata } from "next";
-
 export const metadata: Metadata = {
-  title: "Furniro | Premium Furniture Milan - Modern Living & Sustainable Design",
+  title: "Premium Furniture Milan — Modern Living & Sustainable Design",
   description: "Experience the next evolution of home design. Furniro brings you high-end, sustainable furniture crafted for comfort and minimalist elegance.",
 };
 

@@ -5,7 +5,7 @@ import Values from "@/components/customs/about/Values";
 import Vision from "@/components/customs/about/Vision";
 
 export const metadata: Metadata = {
-  title: "About Us | Furniro - Crafting Comfort Since 1995",
+  title: "About Us — Crafting Comfort Since 1995",
   description: "Learn more about Furniro's history, mission, and our passion for creating premium, sustainable furniture for your home.",
 };
 

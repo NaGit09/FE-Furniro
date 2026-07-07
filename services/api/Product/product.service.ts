@@ -32,6 +32,52 @@ export const ProductApi = {
     return res.data;
   },
 
+  update_product: async (id: string, data: Partial<ProductDetail>) => {
+    const res = await axiosInstance.put<ApiResponse<ProductDetail>>(
+      `${baseProductApi}/${id}`,
+      data,
+    );
+    return res.data;
+  },
+
+  get_product_reviews: async (productId: string) => {
+    const res = await axiosInstance.get<ApiResponse<any[]>>(
+      `${baseProductApi}/${productId}/reviews`,
+    );
+    return res.data;
+  },
+
+  add_product_review: async (productId: string, rating: number, comment: string) => {
+    const res = await axiosInstance.post<ApiResponse<any>>(
+      `${baseProductApi}/${productId}/reviews`,
+      { rating, comment },
+    );
+    return res.data;
+  },
+
+  create_product: async (data: any) => {
+    const res = await axiosInstance.post<ApiResponse<any>>(
+      `${baseProductApi}`,
+      data,
+    );
+    return res.data;
+  },
+
+  import_products_csv: async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await axiosInstance.post<ApiResponse<any>>(
+      `${baseProductApi}/import`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return res.data;
+  },
+
   compare_product: async (productIds: number[]) => {
     const res = await axiosInstance.post<ApiResponse<ProductCompareRes[]>>(
       `${baseProductApi}/compare`,

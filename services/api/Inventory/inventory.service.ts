@@ -82,3 +82,26 @@ export const get_stock_transactions = async (page = 0, size = 20) => {
   );
   return res.data;
 };
+
+export const export_stock_csv = async () => {
+  const res = await axiosInstance.get(
+    `${baseAdminStockApi}/export`,
+    { responseType: "blob" }
+  );
+  return res.data;
+};
+
+export const import_stock_csv = async (file: File) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await axiosInstance.post<ApiResponse<any>>(
+    `${baseAdminStockApi}/import`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+  return res.data;
+};

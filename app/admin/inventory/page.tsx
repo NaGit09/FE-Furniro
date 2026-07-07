@@ -32,6 +32,8 @@ import {
   create_stock,
   update_stock,
   delete_stock,
+  export_stock_csv,
+  import_stock_csv,
 } from "@/services/api/Inventory/inventory.service";
 import { StockDetail } from "@/schema/response/inventory/stockdetail";
 import { StockTransaction } from "@/schema/response/inventory/stocktransaction";
@@ -340,6 +342,77 @@ export default function InventoryPage() {
     }
   };
 
+  // Handle CSV Export
+  const handleExportCsv = async () => {
+    const loadId = toast.loading("Generating export file...");
+    try {
+      if (isDemoMode) {
+        // Fallback: Generate CSV in client browser
+        let csvContent = "StockID,VariantID,SKU,TotalQuantity,ReservedQuantity,AvailableQuantity,LowStockThreshold,WarehouseID,WarehouseName\n";
+        stocks.forEach((s) => {
+          csvContent += `${s.stockID},${s.variantID},${s.sku},${s.totalQuantity},${s.reservedQuantity},${s.availableQuantity},${s.lowStockThreshold},${s.warehouse.warehouseID},"${s.warehouse.name}"\n`;
+        });
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `inventory_demo_export_${Date.now()}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success("CSV exported successfully (Demo/Offline Mode)!", { id: loadId });
+      } else {
+        const data = await export_stock_csv();
+        const url = window.URL.createObjectURL(new Blob([data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `inventory_export_${Date.now()}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success("CSV exported successfully!", { id: loadId });
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to export stock CSV.", { id: loadId });
+    }
+  };
+
+  // Handle CSV Import File Selection
+  const handleImportCsv = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Reset target value so same file can be selected again
+    e.target.value = "";
+
+    const loadId = toast.loading(`Uploading and parsing "${file.name}"...`);
+    try {
+      if (isDemoMode) {
+        toast.error("CSV Import is not supported in simulation/offline mode.", { id: loadId });
+        return;
+      }
+
+      const res = await import_stock_csv(file);
+      if (res?.code === 200) {
+        const report = res.data;
+        const msg = `Import completed. Success: ${report.successCount}, Fails: ${report.failCount}.`;
+        if (report.failCount > 0) {
+          toast.warning(`${msg} Errors: ${report.errors.slice(0, 3).join("; ")}`, { id: loadId, duration: 6000 });
+        } else {
+          toast.success(msg, { id: loadId });
+        }
+        loadData(true);
+      } else {
+        toast.error(res?.message || "Failed to import CSV.", { id: loadId });
+      }
+    } catch (err: any) {
+      console.error(err);
+      const errMsg = err.response?.data?.message || "Failed to process stock import CSV.";
+      toast.error(errMsg, { id: loadId });
+    }
+  };
+
   const resetForm = () => {
     setFormSku("");
     setFormWarehouseId(1);
@@ -466,6 +539,30 @@ export default function InventoryPage() {
 
         {/* Global actions */}
         <div className="flex items-center gap-3 self-start md:self-center shrink-0">
+          <input
+            type="file"
+            id="csv-import-input"
+            accept=".csv"
+            onChange={handleImportCsv}
+            className="hidden"
+          />
+          
+          <button
+            onClick={() => document.getElementById("csv-import-input")?.click()}
+            className="flex items-center gap-2 px-4 py-2.5 bg-stone-100 dark:bg-stone-850 hover:bg-stone-200 dark:hover:bg-stone-800 active:scale-95 text-stone-800 dark:text-stone-100 rounded-xl text-xs font-bold tracking-wide uppercase transition-all duration-200 cursor-pointer shadow-xs border border-stone-200/30 dark:border-stone-800/30"
+            title="Import stocks from CSV file"
+          >
+            <PlusSquare className="w-4 h-4 text-amber-600 dark:text-amber-500" /> Import CSV
+          </button>
+
+          <button
+            onClick={handleExportCsv}
+            className="flex items-center gap-2 px-4 py-2.5 bg-stone-100 dark:bg-stone-850 hover:bg-stone-200 dark:hover:bg-stone-800 active:scale-95 text-stone-800 dark:text-stone-100 rounded-xl text-xs font-bold tracking-wide uppercase transition-all duration-200 cursor-pointer shadow-xs border border-stone-200/30 dark:border-stone-800/30"
+            title="Export stocks list as CSV file"
+          >
+            <Database className="w-4 h-4 text-emerald-600" /> Export CSV
+          </button>
+
           <button
             onClick={() => setIsCreateModalOpen(true)}
             className="flex items-center gap-2 px-4 py-2.5 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white rounded-xl text-xs font-bold tracking-wide uppercase transition-all duration-200 cursor-pointer shadow-md shadow-amber-600/15"

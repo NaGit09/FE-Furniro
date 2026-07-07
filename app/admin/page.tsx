@@ -23,6 +23,8 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { toast } from "sonner";
+import { ProductApi } from "@/services/api/Product/product.service";
+import { OrderApi } from "@/services/api/Order/order.service";
 
 // ==========================================
 // ─── HIGH-FIDELITY MOCK DATA GENERATION ───
@@ -115,11 +117,65 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<"revenue" | "orders">("revenue");
   
   // Real-time Data Manipulation Simulators
-  const [ordersList, setOrdersList] = useState(INITIAL_ORDERS);
-  const [productsList, setProductsList] = useState(INITIAL_PRODUCTS);
+  const [ordersList, setOrdersList] = useState<any[]>([]);
+  const [productsList, setProductsList] = useState<any[]>([]);
   const [activities, setActivities] = useState(RECENT_ACTIVITIES);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
+
+  const [stats, setStats] = useState<any>(null);
+  const [statsLoading, setStatsLoading] = useState(true);
+
+  const loadDashboardData = async () => {
+    setStatsLoading(true);
+    try {
+      const statsRes = await OrderApi.get_admin_statistics(timeRange);
+      if (statsRes?.code === 200 && statsRes.data) {
+        setStats(statsRes.data);
+      } else {
+        toast.error("Failed to load statistics from server.");
+      }
+
+      const ordersRes = await OrderApi.get_all_orders_admin(0, 5);
+      if (ordersRes?.code === 200 && ordersRes.data?.content) {
+        const mappedOrders = ordersRes.data.content.map((o: any) => ({
+          id: `ORD-${o.orderID}`,
+          customer: `User #${o.userID}`,
+          email: `user${o.userID}@furniro.com`,
+          avatar: `U${o.userID}`,
+          product: o.items && o.items.length > 0 ? `Product Variant #${o.items[0].variant}` : "Custom Design Furniture",
+          date: new Date(o.orderedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+          amount: `$${o.totalAmount ? o.totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 }) : "0.00"}`,
+          status: o.status.charAt(0).toUpperCase() + o.status.slice(1).toLowerCase(),
+        }));
+        setOrdersList(mappedOrders);
+      }
+
+      const productsRes = await ProductApi.get_product_list(0, 5);
+      if (productsRes?.code === 200 && productsRes.data?.content) {
+        const mappedProducts = productsRes.data.content.map((p: any) => ({
+          id: p.productID || p.productId,
+          name: p.name,
+          category: p.categoryName || "Living Room",
+          sales: p.salesCount || Math.floor(Math.random() * 50) + 10,
+          revenue: `$${((p.basePrice || 100) * (p.salesCount || 10)).toLocaleString(undefined, { minimumFractionDigits: 0 })}`,
+          stock: p.stockCount !== undefined ? p.stockCount : 15,
+          status: (p.stockCount !== undefined ? p.stockCount : 15) < 5 ? "Critical Stock" : (p.stockCount !== undefined ? p.stockCount : 15) < 15 ? "Low Stock" : "In Stock",
+          image: p.images && p.images.length > 0 ? p.images[0] : "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=200",
+        }));
+        setProductsList(mappedProducts);
+      }
+    } catch (error) {
+      console.error("Failed to load admin dashboard live data:", error);
+      toast.error("Failed to fetch live admin statistics.");
+    } finally {
+      setStatsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadDashboardData();
+  }, [timeRange]);
 
   // SVG Chart Tooltip State
   const [hoveredPoint, setHoveredPoint] = useState<{
@@ -139,15 +195,76 @@ export default function AdminDashboard() {
   const chartWidth = svgWidth - paddingX * 2;
   const chartHeight = svgHeight - paddingY * 2;
 
-  const currentDataset = CHART_DATASET[timeRange];
+  const currentDataset = useMemo(() => {
+    if (stats?.chartData) {
+      return stats.chartData;
+    }
+    return [];
+  }, [stats]);
+
+  const activeStats = useMemo(() => {
+    if (!stats) return [];
+    return [
+      {
+        title: "Total Revenue",
+        value: stats.totalRevenue,
+        change: stats.revenueChange,
+        isPositive: stats.revenuePositive,
+        desc: stats.revenueDesc,
+        icon: DollarSign,
+        color: "from-amber-500 to-yellow-500",
+        bgLight: "bg-amber-500/10",
+      },
+      {
+        title: "Total Orders",
+        value: stats.totalOrders,
+        change: stats.ordersChange,
+        isPositive: stats.ordersPositive,
+        desc: stats.ordersDesc,
+        icon: ShoppingBag,
+        color: "from-emerald-500 to-teal-500",
+        bgLight: "bg-emerald-500/10",
+      },
+      {
+        title: "Active Customers",
+        value: stats.activeCustomers,
+        change: stats.customersChange,
+        isPositive: stats.customersPositive,
+        desc: stats.customersDesc,
+        icon: Users,
+        color: "from-blue-500 to-indigo-500",
+        bgLight: "bg-blue-500/10",
+      },
+      {
+        title: "Inventory Stock",
+        value: stats.inventoryStock,
+        change: stats.stockChange,
+        isPositive: stats.stockPositive,
+        desc: stats.stockDesc,
+        icon: Boxes,
+        color: "from-rose-500 to-orange-500",
+        bgLight: "bg-rose-500/10",
+      },
+    ];
+  }, [stats]);
+
+  const categoriesList = useMemo(() => {
+    if (stats?.categories) {
+      return stats.categories;
+    }
+    return [];
+  }, [stats]);
+
   const maxVal = useMemo(() => {
-    const vals = currentDataset.map((d) => (activeTab === "revenue" ? d.revenue : d.orders));
+    if (currentDataset.length === 0) return 100;
+    const vals = currentDataset.map((d: any) => (activeTab === "revenue" ? d.revenue : d.orders));
     return Math.max(...vals) * 1.15 || 100;
   }, [currentDataset, activeTab]);
 
-  const points = useMemo(() => {
-    return currentDataset.map((d, index) => {
-      const x = paddingX + (index / (currentDataset.length - 1)) * chartWidth;
+  const points = useMemo<any[]>(() => {
+    if (currentDataset.length === 0) return [];
+    return currentDataset.map((d: any, index: number) => {
+      const x = paddingX + (index / (currentDataset.length - 1 || 1)) * chartWidth;
       const yVal = activeTab === "revenue" ? d.revenue : d.orders;
       const y = svgHeight - paddingY - (yVal / maxVal) * chartHeight;
       return { x, y, value: yVal, label: d.label };
@@ -156,7 +273,7 @@ export default function AdminDashboard() {
 
   const pathD = useMemo(() => {
     return points.reduce(
-      (acc, p, index) =>
+      (acc: string, p: any, index: number) =>
         index === 0 ? `M ${p.x} ${p.y}` : `${acc} L ${p.x} ${p.y}`,
       ""
     );
@@ -220,9 +337,6 @@ export default function AdminDashboard() {
       return matchesSearch && matchesFilter;
     });
   }, [ordersList, searchQuery, statusFilter]);
-
-  // Dynamic Stat Card values depending on the range selector
-  const activeStats = MOCK_STATS_DATA[timeRange];
 
   return (
     <div className="space-y-8 admin-root">
@@ -355,51 +469,72 @@ export default function AdminDashboard() {
 
       {/* ─── UPGRADED KPI Cards Grid (Liquid Glass Styles) ─── */}
       <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {activeStats.map((stat, i) => {
-          const Icon = stat.icon;
-          return (
+        {statsLoading || !stats ? (
+          Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className="liquid-glass-card relative rounded-2xl p-6 overflow-hidden cursor-pointer group"
+              className="liquid-glass-card relative rounded-2xl p-6 overflow-hidden animate-pulse"
             >
-              {/* Corner Glow Accent */}
-              <div className="absolute top-0 right-0 w-24 h-24 bg-linear-to-bl from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-bl-full" />
-              
               <div className="flex items-start justify-between">
-                <div className="space-y-2">
-                  <span className="text-[10px] font-bold tracking-widest text-stone-405 dark:text-stone-500 uppercase">
-                    {stat.title}
-                  </span>
-                  <h3 className="cormorant-heading text-3xl font-extrabold tracking-tight text-stone-900 dark:text-stone-50">
-                    {stat.value}
-                  </h3>
+                <div className="space-y-3 w-2/3">
+                  <div className="h-2.5 bg-stone-200 dark:bg-stone-800 rounded-sm w-1/2" />
+                  <div className="h-7 bg-stone-300 dark:bg-stone-700 rounded-md w-3/4" />
                 </div>
-
-                <div className="p-3.5 rounded-xl bg-amber-600/10 dark:bg-amber-500/5 text-amber-650 dark:text-amber-500 shrink-0 group-hover:rotate-6 transition-transform duration-300">
-                  <Icon className="w-5.5 h-5.5" />
-                </div>
+                <div className="w-12 h-12 rounded-xl bg-stone-200 dark:bg-stone-800" />
               </div>
-
               <div className="flex items-center gap-2 mt-5 pt-4 border-t border-stone-200/40 dark:border-stone-800/40">
-                <span
-                  className={`inline-flex items-center gap-0.5 text-xs font-bold ${
-                    stat.isPositive ? "text-emerald-600 dark:text-emerald-500" : "text-rose-600 dark:text-rose-505"
-                  }`}
-                >
-                  {stat.isPositive ? (
-                    <TrendingUp className="w-3.5 h-3.5" />
-                  ) : (
-                    <TrendingDown className="w-3.5 h-3.5" />
-                  )}
-                  {stat.change}
-                </span>
-                <span className="text-[9.5px] font-bold text-stone-405 dark:text-stone-500 uppercase tracking-wide">
-                  {stat.desc}
-                </span>
+                <div className="h-3 bg-stone-200 dark:bg-stone-800 rounded-sm w-1/4" />
+                <div className="h-2.5 bg-stone-100 dark:bg-stone-850 rounded-sm w-1/2" />
               </div>
             </div>
-          );
-        })}
+          ))
+        ) : (
+          activeStats.map((stat, i) => {
+            const Icon = stat.icon;
+            return (
+              <div
+                key={i}
+                className="liquid-glass-card relative rounded-2xl p-6 overflow-hidden cursor-pointer group"
+              >
+                {/* Corner Glow Accent */}
+                <div className="absolute top-0 right-0 w-24 h-24 bg-linear-to-bl from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-bl-full" />
+                
+                <div className="flex items-start justify-between">
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-bold tracking-widest text-stone-405 dark:text-stone-500 uppercase">
+                      {stat.title}
+                    </span>
+                    <h3 className="cormorant-heading text-3xl font-extrabold tracking-tight text-stone-900 dark:text-stone-50">
+                      {stat.value}
+                    </h3>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-amber-600/10 dark:bg-amber-500/5 text-amber-655 dark:text-amber-500 shrink-0 group-hover:rotate-6 transition-transform duration-300">
+                    <Icon className="w-5.5 h-5.5" />
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 mt-5 pt-4 border-t border-stone-200/40 dark:border-stone-800/40">
+                  <span
+                    className={`inline-flex items-center gap-0.5 text-xs font-bold ${
+                      stat.isPositive ? "text-emerald-600 dark:text-emerald-500" : "text-rose-600 dark:text-rose-505"
+                    }`}
+                  >
+                    {stat.isPositive ? (
+                      <TrendingUp className="w-3.5 h-3.5" />
+                    ) : (
+                      <TrendingDown className="w-3.5 h-3.5" />
+                    )}
+                    {stat.change}
+                  </span>
+                  <span className="text-[9.5px] font-bold text-stone-405 dark:text-stone-500 uppercase tracking-wide">
+                    {stat.desc}
+                  </span>
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
 
       {/* ─── Charts & Category Share (Liquid Glass) ─── */}
@@ -608,7 +743,7 @@ export default function AdminDashboard() {
           </div>
 
           <div className="space-y-4.5 my-6">
-            {CATEGORIES.map((cat, i) => (
+            {categoriesList.map((cat: any, i: number) => (
               <div key={i} className="group relative cursor-pointer">
                 <div className="flex items-center justify-between text-xs mb-1.5">
                   <span className="font-bold text-stone-700 dark:text-stone-300 flex items-center gap-2">

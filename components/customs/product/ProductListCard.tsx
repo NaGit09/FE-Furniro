@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
@@ -6,12 +7,9 @@ import { RootState } from "@/stores/store";
 import { ProductApi } from "@/services/api/Product/product.service";
 import {
   setProducts,
-  setLoading,
-  setError,
   setTotalElements,
   setTotalPages,
 } from "@/stores/slices/product.store";
-import { ProductCardRes } from "@/schema/response/product/product.res";
 
 interface ProductListCardProps {
   limit?: number;

@@ -16,33 +16,37 @@ import {
   Menu,
   X,
   ChevronRight,
-  Bell,
   Sun,
   Moon,
-  HelpCircle,
   LogOut,
   Store,
   CircleDot,
   Loader2,
   Percent,
   MessageSquare,
+  User,
+  Settings,
 } from "lucide-react";
 
 import { RootState } from "@/stores/store";
 import { logout as logoutAction } from "@/stores/slices/auth.store";
 import { removeCookie, getCookie } from "@/lib/utils/cookieUtils";
 import { AuthApi } from "@/services/api/Auth/auth.service";
+import { useLanguage } from "@/components/customs/common/LanguageContext";
+import NotificationDropdown from "@/components/customs/common/NotificationDropdown";
 
 /* ─── Menu configurations ───────────────────────────────────── */
 const ADMIN_MENU_ITEMS = [
-  { labelKey: "dashboard", href: "/admin", icon: LayoutDashboard },
-  { labelKey: "orders", href: "/admin/order", icon: ShoppingBag },
-  { labelKey: "users", href: "/admin/user", icon: Users },
-  { labelKey: "inventory", href: "/admin/inventory", icon: Boxes },
-  { labelKey: "products", href: "/admin/product", icon: Package },
-  { labelKey: "subscriptions", href: "/admin/subcription", icon: Mail },
-  { labelKey: "promotions", href: "/admin/promotion", icon: Percent },
-  { labelKey: "chat", href: "/admin/chat", icon: MessageSquare },
+  { labelKey: "dashboard" as const, href: "/admin", icon: LayoutDashboard },
+  { labelKey: "orders" as const, href: "/admin/order", icon: ShoppingBag },
+  { labelKey: "users" as const, href: "/admin/user", icon: Users },
+  { labelKey: "inventory" as const, href: "/admin/inventory", icon: Boxes },
+  { labelKey: "products" as const, href: "/admin/product", icon: Package },
+  { labelKey: "subscriptions" as const, href: "/admin/subcription", icon: Mail },
+  { labelKey: "promotions" as const, href: "/admin/promotion", icon: Percent },
+  { labelKey: "chat" as const, href: "/admin/chat", icon: MessageSquare },
+  { labelKey: "profile" as const, href: "/admin/profile", icon: User },
+  { labelKey: "settings" as const, href: "/admin/settings", icon: Settings },
 ] as const;
 
 export default function AdminLayout({
@@ -55,22 +59,17 @@ export default function AdminLayout({
   const dispatch = useDispatch();
   const auth = useSelector((s: RootState) => s.authSlice);
   const { theme, setTheme } = useTheme();
+  const { t, language } = useLanguage();
 
   // Local state controls
   const [mounted, setMounted] = useState(false);
   const [authorized, setAuthorized] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [lang, setLang] = useState<"EN" | "VI">("EN");
   const [loggingOut, setLoggingOut] = useState(false);
 
-  // Mount tracking (hydration avoidance for theme/language)
+  // Mount tracking
   useEffect(() => {
     setMounted(true);
-    const savedLang = localStorage.getItem("furniro_language") as
-      | "EN"
-      | "VI"
-      | null;
-    if (savedLang) setLang(savedLang);
   }, []);
 
   // Authentication guard
@@ -80,43 +79,28 @@ export default function AdminLayout({
       const storedUserId = getCookie("UserID");
 
       if (token && storedUserId) {
-        // If we have active cookies, wait for the AuthInitializer to restore session
         if (auth.isLoggedIn && auth.UserID) {
           setAuthorized(true);
         } else {
-          // Keep displaying the loader, wait up to 1200ms
           const timer = setTimeout(() => {
             if (!auth.isLoggedIn) {
-              toast.error(
-                lang === "VI"
-                  ? "Phiên làm việc hết hạn. Vui lòng đăng nhập lại."
-                  : "Session expired. Please sign in again.",
-              );
+              toast.error(t("sessionExpired"));
               router.push("/auth/login");
             }
           }, 1200);
           return () => clearTimeout(timer);
         }
       } else {
-        // No cookies present, reject access immediately
-        toast.error(
-          lang === "VI"
-            ? "Từ chối truy cập: Vui lòng đăng nhập quyền quản trị."
-            : "Access Denied: Please sign in as an administrator.",
-        );
+        toast.error(t("accessDenied"));
         router.push("/auth/login");
       }
     }
-  }, [mounted, auth.isLoggedIn, auth.UserID, router, lang]);
+  }, [mounted, auth.isLoggedIn, auth.UserID, router, t]);
 
   // Logout handler
   const handleLogout = async () => {
     setLoggingOut(true);
-    const toastId = toast.loading(
-      lang === "VI"
-        ? "Đang đăng xuất khỏi hệ thống..."
-        : "Signing out of system admin...",
-    );
+    const toastId = toast.loading(t("signingOut"));
     try {
       await AuthApi.logout();
     } catch {
@@ -128,38 +112,9 @@ export default function AdminLayout({
       removeCookie("UserEmail");
       dispatch(logoutAction());
       setLoggingOut(false);
-      toast.success(
-        lang === "VI"
-          ? "Đăng xuất quản trị thành công!"
-          : "Admin logged out successfully!",
-        { id: toastId },
-      );
+      toast.success(t("logoutSuccess"), { id: toastId });
       router.push("/auth/login");
     }
-  };
-
-  // Translations
-  const t = {
-    dashboard: lang === "VI" ? "Bảng điều khiển" : "Dashboard",
-    orders: lang === "VI" ? "Quản lý đơn hàng" : "Manage Orders",
-    users: lang === "VI" ? "Quản lý người dùng" : "Manage Users",
-    inventory: lang === "VI" ? "Quản lý kho" : "Inventory Control",
-    products: lang === "VI" ? "Danh mục sản phẩm" : "Product Catalog",
-    subscriptions: lang === "VI" ? "Đăng ký nhận tin" : "Subscription List",
-    promotions: lang === "VI" ? "Quản lý khuyến mãi" : "Manage Promotions",
-    chat: lang === "VI" ? "Hỗ trợ khách hàng" : "Customer Support",
-    logout: lang === "VI" ? "Đăng xuất" : "Sign Out",
-    backStore: lang === "VI" ? "Về cửa hàng" : "Back to Store",
-    adminBadge: lang === "VI" ? "QUẢN TRỊ VIÊN" : "SYSTEM ADMIN",
-    greeting: (name: string) =>
-      lang === "VI" ? `Xin chào, ${name}` : `Welcome back, ${name}`,
-    roleBadge: lang === "VI" ? "Quyền hệ thống" : "Active Credentials",
-    loading:
-      lang === "VI" ? "Đang xác thực quyền hạn..." : "Verifying credentials...",
-    searchPlaceholder:
-      lang === "VI"
-        ? "Tìm kiếm mã đơn, tài khoản..."
-        : "Search logs, identifiers...",
   };
 
   // Active path highlight helper
@@ -176,7 +131,7 @@ export default function AdminLayout({
       <div className="flex flex-col items-center justify-center min-h-screen bg-stone-50 dark:bg-stone-950">
         <Loader2 className="w-12 h-12 text-amber-600 animate-spin" />
         <p className="mt-4 text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-widest animate-pulse">
-          {t.loading}
+          {t("loading")}
         </p>
       </div>
     );
@@ -234,7 +189,7 @@ export default function AdminLayout({
           </h4>
           <span className="inline-flex items-center gap-1 text-[9px] font-bold text-amber-600 dark:text-amber-500 tracking-wider uppercase mt-1.5 px-2 py-0.5 rounded-full bg-amber-500/10">
             <CircleDot className="w-2 h-2 text-emerald-500" />
-            {t.adminBadge}
+            {t("adminBadge")}
           </span>
         </div>
       </div>
@@ -257,7 +212,7 @@ export default function AdminLayout({
                 <Icon
                   className={`w-4.5 h-4.5 shrink-0 ${active ? "text-white" : "text-amber-600 dark:text-amber-500"}`}
                 />
-                <span>{t[labelKey]}</span>
+                <span>{t(labelKey)}</span>
               </div>
               <ChevronRight
                 className={`w-3.5 h-3.5 transition-transform duration-200 ${active ? "transform rotate-90 text-white" : "opacity-0 group-hover:opacity-100 text-stone-400"}`}
@@ -274,7 +229,7 @@ export default function AdminLayout({
           className="flex items-center justify-center gap-2 w-full h-11 border border-stone-250 dark:border-stone-800 hover:border-amber-600/30 hover:bg-stone-50 dark:hover:bg-stone-900/50 text-stone-700 dark:text-stone-300 rounded-xl text-[11px] font-bold tracking-widest uppercase transition-all duration-200 decoration-none cursor-pointer"
         >
           <Store className="w-3.5 h-3.5 text-amber-600 dark:text-amber-500" />
-          {t.backStore}
+          {t("backStore")}
         </Link>
 
         <button
@@ -283,7 +238,7 @@ export default function AdminLayout({
           className="flex items-center justify-center gap-2 w-full h-11 bg-red-500/10 hover:bg-red-500 hover:text-white border border-red-500/20 text-red-600 dark:text-red-400 rounded-xl text-[11px] font-bold tracking-widest uppercase transition-all duration-200 cursor-pointer disabled:opacity-50"
         >
           <LogOut className="w-3.5 h-3.5" />
-          {loggingOut ? "..." : t.logout}
+          {loggingOut ? "..." : t("logout")}
         </button>
       </div>
     </div>
@@ -302,13 +257,38 @@ export default function AdminLayout({
           background: rgba(255, 255, 255, 0.4);
           backdrop-filter: blur(24px) saturate(180%);
           -webkit-backdrop-filter: blur(24px) saturate(180%);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+          box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
         }
         .dark .glass-admin-header {
-          background: rgba(20, 18, 16, 0.4);
+          background: rgba(24, 24, 27, 0.5);
           backdrop-filter: blur(24px) saturate(180%);
           -webkit-backdrop-filter: blur(24px) saturate(180%);
           border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+          box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+        }
+        .btn-muted {
+          border: 1.5px solid rgba(68, 64, 60, 0.2);
+          color: #44403c;
+          transition: all 250ms ease;
+        }
+        .dark .btn-muted {
+          border: 1.5px solid rgba(245, 245, 244, 0.1);
+          color: #e7e5e4;
+        }
+        .liquid-glass-card {
+          background: rgba(255, 255, 255, 0.45);
+          backdrop-filter: blur(24px) saturate(180%);
+          -webkit-backdrop-filter: blur(24px) saturate(180%);
+          border: 1px solid rgba(255, 255, 255, 0.5);
+          box-shadow: 0 20px 50px rgba(120, 90, 60, 0.04);
+        }
+        .dark .liquid-glass-card {
+          background: rgba(28, 25, 23, 0.35);
+          backdrop-filter: blur(24px) saturate(180%);
+          -webkit-backdrop-filter: blur(24px) saturate(180%);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
         }
         @keyframes fadeIn {
           from {
@@ -321,26 +301,26 @@ export default function AdminLayout({
           }
         }
         .animate-fade {
-          animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
       `}</style>
 
-      <div className="admin-root min-h-screen bg-stone-50 dark:bg-stone-950 flex relative text-stone-900 dark:text-stone-100">
+      <div className="flex min-h-screen bg-stone-50 dark:bg-stone-950 admin-root">
         {/* ══════════════════════ DESKTOP SIDEBAR ══════════════════════ */}
-        <aside className="hidden lg:block fixed inset-y-0 left-0 w-64 xl:w-72 z-40">
+        <aside className="hidden lg:block w-72 shrink-0 h-screen sticky top-0">
           <SidebarContent />
         </aside>
 
-        {/* ══════════════════════ VIEWPORT WRAPPER ══════════════════════ */}
-        <div className="flex-1 flex flex-col lg:pl-64 xl:pl-72 min-h-screen min-w-0">
-          {/* ── Viewport Header Bar ── */}
-          <header className="glass-admin-header sticky top-0 z-30 h-20 px-6 md:px-8 flex items-center justify-between gap-4">
-            {/* Left side actions */}
-            <div className="flex items-center gap-4 grow">
-              {/* Mobile hamburger menu */}
+        {/* ══════════════════════ MAIN WORKSPACE ══════════════════════ */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Header */}
+          <header className="h-20 flex items-center justify-between px-6 md:px-8 sticky top-0 z-40 glass-admin-header">
+            {/* Left Welcome controls */}
+            <div className="flex items-center gap-4">
+              {/* Mobile drawer trigger */}
               <button
                 onClick={() => setMobileOpen(true)}
-                className="lg:hidden p-2.5 rounded-xl border border-stone-200 dark:border-stone-800/80 hover:bg-stone-100 dark:hover:bg-stone-900 text-stone-600 dark:text-stone-300 cursor-pointer"
+                className="p-2.5 rounded-xl border border-stone-200 dark:border-stone-850 hover:bg-stone-100 dark:hover:bg-stone-900 lg:hidden cursor-pointer active:scale-95"
                 title="Toggle Menu"
               >
                 <Menu className="w-5 h-5" />
@@ -349,37 +329,24 @@ export default function AdminLayout({
               {/* Dynamic Welcome Heading */}
               <div className="hidden sm:flex flex-col">
                 <h2 className="text-sm font-bold text-stone-850 dark:text-stone-100 leading-none">
-                  {t.greeting(fullName)}
+                  {t("greeting", { name: fullName })}
                 </h2>
-                <span className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wider mt-1 font-mono">
-                  {t.roleBadge}: #USR-{auth.UserID}
+                <span className="text-[10px] font-bold text-stone-400 dark:text-stone-505 uppercase tracking-wider mt-1 font-mono">
+                  {t("roleBadge")}: #USR-{auth.UserID}
                 </span>
               </div>
             </div>
 
             {/* Right side actions */}
             <div className="flex items-center gap-3 shrink-0">
-              {/* Notifications */}
-              <button
-                className="p-2.5 rounded-xl border border-stone-200/50 dark:border-stone-800/50 text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-900/60 transition-all cursor-pointer relative"
-                title="Notifications Log"
-                onClick={() =>
-                  toast.info(
-                    lang === "VI"
-                      ? "Không có thông báo mới."
-                      : "No new notifications.",
-                  )
-                }
-              >
-                <Bell className="w-4.5 h-4.5" />
-                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-amber-600 animate-ping" />
-              </button>
+              {/* Dynamic Notification dropdown */}
+              <NotificationDropdown />
 
               {/* Theme Toggle */}
               <button
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                 className="p-2.5 rounded-xl border border-stone-200/50 dark:border-stone-800/50 text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-900/60 transition-all cursor-pointer"
-                title={lang === "VI" ? "Đổi giao diện" : "Switch Theme"}
+                title={language === "VI" ? "Đổi giao diện" : "Switch Theme"}
               >
                 {theme === "dark" ? (
                   <Sun className="w-4.5 h-4.5" />

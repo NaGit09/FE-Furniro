@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import ErrorPageContent from "@/components/customs/common/ErrorPageContent";
 
 export const metadata: Metadata = {
-  title: "Error — Furniro",
+  title: "An Error Occurred",
   description:
     "An error was encountered during the request. Please review the details or try again.",
 };
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function ErrorPage() {
   return (
     <div className="flex flex-col min-h-[85vh] bg-zinc-50 dark:bg-black">
-      <main className="w-full flex-grow">
+      <main className="w-full grow">
         <ErrorPageContent />
       </main>
     </div>

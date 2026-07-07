@@ -32,14 +32,22 @@ export default function AddressForm({
   const [distName, setDistName] = useState("");
   const [wName, setWName] = useState("");
   const [isDefaultAddress, setIsDefaultAddress] = useState(false);
-  const [activeAddressType, setActiveAddressType] = useState<"HOME" | "OFFICE">("HOME");
+  const [activeAddressType, setActiveAddressType] = useState<"HOME" | "OFFICE">(
+    "HOME",
+  );
   const [savingAddress, setSavingAddress] = useState(false);
 
   // Cascading states
-  const [districts, setDistricts] = useState<{ name: string; code: number }[]>([]);
+  const [districts, setDistricts] = useState<{ name: string; code: number }[]>(
+    [],
+  );
   const [wards, setWards] = useState<{ name: string; code: number }[]>([]);
-  const [selectedProvinceCode, setSelectedProvinceCode] = useState<number | null>(null);
-  const [selectedDistrictCode, setSelectedDistrictCode] = useState<number | null>(null);
+  const [selectedProvinceCode, setSelectedProvinceCode] = useState<
+    number | null
+  >(null);
+  const [selectedDistrictCode, setSelectedDistrictCode] = useState<
+    number | null
+  >(null);
 
   // Load and prefill cascades if editingAddress changes
   useEffect(() => {
@@ -53,14 +61,20 @@ export default function AddressForm({
       setIsDefaultAddress(editingAddress.isDefault);
       setActiveAddressType(editingAddress.addressType || "HOME");
 
-      const matchedProvince = provinces.find((p) => p.name === editingAddress.province);
+      const matchedProvince = provinces.find(
+        (p) => p.name === editingAddress.province,
+      );
       if (matchedProvince) {
         setSelectedProvinceCode(matchedProvince.code);
         const prefillCascades = async () => {
           try {
-            const districtList = await ProvinceApi.getDistricts(matchedProvince.code);
+            const districtList = await ProvinceApi.getDistricts(
+              matchedProvince.code,
+            );
             setDistricts(districtList || []);
-            const matchedDistrict = districtList.find((d: any) => d.name === editingAddress.district);
+            const matchedDistrict = districtList.find(
+              (d: any) => d.name === editingAddress.district,
+            );
             if (matchedDistrict) {
               setSelectedDistrictCode(matchedDistrict.code);
               const wardList = await ProvinceApi.getWards(matchedDistrict.code);
@@ -98,7 +112,11 @@ export default function AddressForm({
           const list = await ProvinceApi.getDistricts(selectedProvinceCode);
           setDistricts(list || []);
           // Only clear if the selected province is different from editing address province
-          if (!editingAddress || provinces.find((p) => p.name === editingAddress.province)?.code !== selectedProvinceCode) {
+          if (
+            !editingAddress ||
+            provinces.find((p) => p.name === editingAddress.province)?.code !==
+              selectedProvinceCode
+          ) {
             setWards([]);
             setSelectedDistrictCode(null);
             setDistName("");
@@ -124,7 +142,11 @@ export default function AddressForm({
         try {
           const list = await ProvinceApi.getWards(selectedDistrictCode);
           setWards(list || []);
-          if (!editingAddress || districts.find((d) => d.name === editingAddress.district)?.code !== selectedDistrictCode) {
+          if (
+            !editingAddress ||
+            districts.find((d) => d.name === editingAddress.district)?.code !==
+              selectedDistrictCode
+          ) {
             setWName("");
           }
         } catch (err) {
@@ -191,7 +213,10 @@ export default function AddressForm({
   };
 
   return (
-    <form onSubmit={handleAddressSubmit} className="flex flex-col gap-6.5 animate-fade">
+    <form
+      onSubmit={handleAddressSubmit}
+      className="flex flex-col gap-6.5 animate-fade"
+    >
       <h3 className="profile-heading text-xl font-bold tracking-wide text-stone-900 dark:text-stone-50 border-b border-stone-200/40 dark:border-stone-800/40 pb-2">
         {editingAddress
           ? "Modify Delivery Destination"

@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import ChangePasswordForm from "@/components/customs/auth/ChangePasswordForm";
 
 export const metadata: Metadata = {
-  title: "Đổi mật khẩu — Furniro",
+  title: "Đặt lại mật khẩu",
   description: "Đặt lại mật khẩu mới cho tài khoản Furniro của bạn sau khi xác thực OTP thành công.",
 };
 

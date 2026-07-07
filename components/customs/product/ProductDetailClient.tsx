@@ -10,6 +10,7 @@ import ProductDescription from "./ProductDescription";
 import ProductListCard from "./ProductListCard";
 import { Button } from "@/components/ui/button";
 import ProductAgreement from "./ProductAgreement";
+import ProductReviews from "./ProductReviews";
 
 export default function ProductDetailClient({
   product,
@@ -43,6 +44,11 @@ export default function ProductDetailClient({
 
       {/* Specifications & Tech Details */}
       <ProductDescription data={product} />
+
+      <Separator className="max-w-7xl mx-auto opacity-50 my-6" />
+
+      {/* Product Reviews & Customer Feedback */}
+      <ProductReviews productID={product.productID || product.productId || 0} />
 
       <Separator className="max-w-7xl mx-auto opacity-50 my-6" />
 

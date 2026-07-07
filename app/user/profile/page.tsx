@@ -165,7 +165,12 @@ export default function ProfilePage() {
     );
   }
 
-  const avatarUrl = tempAvatarUrl || profile?.avatar || (profile as any)?.avatarUrl || (profile as any)?.AvatarUrl || "";
+  const avatarUrl =
+    tempAvatarUrl ||
+    profile?.avatar ||
+    (profile as any)?.avatarUrl ||
+    (profile as any)?.AvatarUrl ||
+    "";
 
   return (
     <>
@@ -200,7 +205,11 @@ export default function ProfilePage() {
                 {avatarUrl && !avatarError ? (
                   <Image
                     src={avatarUrl}
-                    alt={profile ? `${profile.firstName} ${profile.lastName}` : "User"}
+                    alt={
+                      profile
+                        ? `${profile.firstName} ${profile.lastName}`
+                        : "User"
+                    }
                     width={150}
                     height={150}
                     className="w-full h-full object-cover rounded-full p-1"
@@ -341,21 +350,6 @@ export default function ProfilePage() {
                                 },
                               )
                             : "Not configured"}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Client Membership status */}
-                    <div className="flex items-start gap-3.5">
-                      <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-700 dark:bg-amber-500/20 dark:text-amber-500 shrink-0">
-                        <UserCheck className="w-5 h-5" />
-                      </div>
-                      <div className="flex flex-col gap-0.5">
-                        <span className="text-xs font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wider">
-                          Client Membership
-                        </span>
-                        <span className="text-base font-bold text-amber-700 dark:text-amber-500">
-                          Premium VIP Circle
                         </span>
                       </div>
                     </div>

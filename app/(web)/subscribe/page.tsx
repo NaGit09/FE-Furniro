@@ -3,7 +3,7 @@ import SubscribeHero from "@/components/customs/subscribe/SubscribeHero";
 import SubscribeForm from "@/components/customs/subscribe/SubscribeForm";
 
 export const metadata: Metadata = {
-  title: "Join Exclusive Circle | Furniro - Luxury Furniture Milan",
+  title: "Join Exclusive Circle — Luxury Furniture Milan",
   description: "Join Furniro's Exclusive Circle to receive our curated lookbooks, Milanese styling trends, and premium welcome discounts. Subscribe today to stay ahead of the design curve.",
   keywords: ["Subscribe Furniro", "Furniro Exclusive Club", "Luxury Furniture Newsletter", "Milan Designer Furniture Deals", "Sustainable Wood Campaigns"],
 };

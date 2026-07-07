@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "sonner";
-import { Save, Loader2, UploadCloud } from "lucide-react";
-import Image from "next/image";
+import { Save, Loader2 } from "lucide-react";
 
 import { UserApi } from "@/services/api/Auth/user.service";
-import { UploadApi } from "@/services/api/Upload/upload.service";
 import { UserRes, UserReq } from "@/schema/response/auth/User.res";
 import { login as loginAction } from "@/stores/slices/auth.store";
+import { useLanguage } from "@/components/customs/common/LanguageContext";
+import UploadFile from "@/components/customs/common/UploadFile";
 
 interface ProfileFormProps {
   userId: number;
@@ -36,7 +36,7 @@ export default function ProfileForm({
   onAvatarChange,
 }: ProfileFormProps) {
   const dispatch = useDispatch();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { t } = useLanguage();
 
   // Helper to format initial Date of Birth
   const getInitialDobString = () => {
@@ -73,7 +73,6 @@ export default function ProfileForm({
   });
 
   const [updating, setUpdating] = useState(false);
-  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [localUsername, setLocalUsername] = useState(
     username || profile?.username || "",
   );
@@ -91,80 +90,17 @@ export default function ProfileForm({
     }
   };
 
-  // Avatar Upload Logic
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !userId) return;
-
-    // Validation: Mime Type
-    const allowedTypes = [
-      "image/jpeg",
-      "image/jpg",
-      "image/png",
-      "image/webp",
-      "image/gif",
-      "image/svg+xml",
-    ];
-    if (!allowedTypes.includes(file.type)) {
-      toast.error(
-        "Please select an allowed file format (jpeg, jpg, png, webp, gif, svg).",
-      );
-      return;
-    }
-
-    // Validation: File Size (5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("File size should be less than 5MB.");
-      return;
-    }
-
-    setUploadingAvatar(true);
-    const toastId = toast.loading("Uploading avatar to Cloudinary...");
-
-    try {
-      let res;
-      if (formData.avatarID && formData.avatarID > 4) {
-        res = await UploadApi.upload_file(file, String(userId));
-      }
-
-      if (res && res.data) {
-        toast.success("Avatar uploaded successfully!", { id: toastId });
-        const fileId = res.data.id ?? res.data.fileId ?? 1;
-        const fileUrl = res.data.url ?? res.data.fileUrl ?? "";
-
-        setFormData((prev) => ({
-          ...prev,
-          avatarID: fileId,
-          avatar: fileUrl,
-        }));
-        if (onAvatarChange) {
-          onAvatarChange(fileUrl, fileId);
-        }
-      } else {
-        toast.error("Failed to upload avatar.", { id: toastId });
-      }
-    } catch (err: any) {
-      console.error("Avatar upload error:", err);
-      toast.error(
-        err?.message || "Could not upload avatar. Please try again.",
-        { id: toastId },
-      );
-    } finally {
-      setUploadingAvatar(false);
-    }
-  };
-
   // Validate form
   const validateForm = () => {
     let valid = true;
     const errors = { firstName: "", lastName: "" };
 
     if (!formData.firstName.trim()) {
-      errors.firstName = "First name is required";
+      errors.firstName = t("fillRequired") || "First name is required";
       valid = false;
     }
     if (!formData.lastName.trim()) {
-      errors.lastName = "Last name is required";
+      errors.lastName = t("fillRequired") || "Last name is required";
       valid = false;
     }
 
@@ -178,6 +114,9 @@ export default function ProfileForm({
     if (!validateForm() || !userId) return;
 
     setUpdating(true);
+    const toastId = toast.loading(
+      t("updatingProfile") || "Updating profile...",
+    );
     try {
       const payload: UserReq = {
         userID: userId,
@@ -211,7 +150,9 @@ export default function ProfileForm({
           setUsername(updated.username);
         }
 
-        toast.success("Profile updated successfully!");
+        toast.success(t("updateSuccess") || "Profile updated successfully!", {
+          id: toastId,
+        });
 
         // Real-time Header Synchronization in Redux
         dispatch(
@@ -228,12 +169,18 @@ export default function ProfileForm({
           }),
         );
       } else {
-        toast.error("Failed to update profile. Please try again.");
+        toast.error(
+          t("updateError") || "Failed to update profile. Please try again.",
+          { id: toastId },
+        );
       }
     } catch (err: any) {
       console.error("Error updating profile:", err);
       toast.error(
-        err instanceof Error ? err.message : "An unexpected error occurred.",
+        err instanceof Error
+          ? err.message
+          : t("updateError") || "An unexpected error occurred.",
+        { id: toastId },
       );
     } finally {
       setUpdating(false);
@@ -243,7 +190,7 @@ export default function ProfileForm({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-8">
       <h3 className="profile-heading text-xl font-bold tracking-wide text-stone-900 dark:text-stone-50 border-b border-stone-200/50 dark:border-stone-800/50 pb-2.5">
-        Modify Settings
+        {t("modifyMemberProfile") || "Modify Settings"}
       </h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -253,7 +200,7 @@ export default function ProfileForm({
             htmlFor="firstName"
             className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider"
           >
-            First Name
+            {t("firstName") || "First Name"}
           </label>
           <input
             id="firstName"
@@ -277,7 +224,7 @@ export default function ProfileForm({
             htmlFor="lastName"
             className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider"
           >
-            Last Name
+            {t("lastName") || "Last Name"}
           </label>
           <input
             id="lastName"
@@ -301,7 +248,7 @@ export default function ProfileForm({
             htmlFor="username"
             className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider"
           >
-            Username
+            {t("username") || "Username"}
           </label>
           <input
             id="username"
@@ -321,7 +268,7 @@ export default function ProfileForm({
             htmlFor="gender"
             className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider"
           >
-            Gender
+            {t("gender") || "Gender"}
           </label>
           <select
             id="gender"
@@ -330,9 +277,9 @@ export default function ProfileForm({
             onChange={handleInputChange}
             className="luxury-input cursor-pointer"
           >
-            <option value="MALE">Male</option>
-            <option value="FEMALE">Female</option>
-            <option value="OTHER">Other</option>
+            <option value="MALE">{t("genderMale") || "Male"}</option>
+            <option value="FEMALE">{t("genderFemale") || "Female"}</option>
+            <option value="OTHER">{t("genderOther") || "Other"}</option>
           </select>
         </div>
 
@@ -342,7 +289,7 @@ export default function ProfileForm({
             htmlFor="dateOfBirth"
             className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider"
           >
-            Date of Birth
+            {t("dateOfBirth") || "Date of Birth"}
           </label>
           <input
             id="dateOfBirth"
@@ -355,71 +302,25 @@ export default function ProfileForm({
         </div>
       </div>
 
-      {/* Local File Upload Section */}
-      <div className="flex flex-col gap-3.5 mt-2">
-        <span className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
-          Avatar Image
-        </span>
-
-        <div
-          onClick={() => !uploadingAvatar && fileInputRef.current?.click()}
-          className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-2xl p-8 text-center transition-all cursor-pointer ${
-            uploadingAvatar
-              ? "border-amber-600/40 bg-amber-500/5 cursor-not-allowed"
-              : "border-stone-200/50 hover:border-amber-600/40 hover:bg-stone-50/50 dark:border-stone-800/50 dark:hover:border-amber-600/40 dark:hover:bg-stone-900/30"
-          }`}
-        >
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleAvatarUpload}
-            accept="image/*"
-            className="hidden"
-            disabled={uploadingAvatar}
-          />
-
-          {uploadingAvatar ? (
-            <div className="flex flex-col items-center gap-3">
-              <Loader2 className="w-10 h-10 text-amber-600 animate-spin" />
-              <div className="text-sm font-semibold text-amber-700 dark:text-amber-500 animate-pulse">
-                Uploading to Cloudinary...
-              </div>
-            </div>
-          ) : formData.avatar ? (
-            <div className="flex flex-col items-center gap-3">
-              <Image
-                src={formData.avatar}
-                alt="Avatar Preview"
-                width={96}
-                height={96}
-                className="w-24 h-24 rounded-full object-cover p-1 ring-2 ring-amber-500/30"
-              />
-              <div>
-                <span className="text-sm font-bold text-amber-700 dark:text-amber-500 hover:underline">
-                  Click to change avatar image
-                </span>
-              </div>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-3">
-              <div className="p-3.5 rounded-full bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-500">
-                <UploadCloud className="w-8 h-8" />
-              </div>
-              <div>
-                <span className="text-sm font-bold text-amber-700 dark:text-amber-500 hover:underline">
-                  Click to upload
-                </span>
-                <span className="text-sm font-medium text-stone-500 dark:text-stone-400">
-                  {" "}
-                  or drag and drop your file
-                </span>
-              </div>
-              <p className="text-xs font-semibold text-stone-400 dark:text-stone-500">
-                Supports JPG, PNG, WEBP (Max. 5MB)
-              </p>
-            </div>
-          )}
-        </div>
+      {/* Upload Component */}
+      <div className="mt-2">
+        <UploadFile
+          userId={userId}
+          currentUrl={formData.avatar}
+          avatarID={formData.avatarID}
+          onUploadSuccess={(url, id) => {
+            setFormData((prev) => ({
+              ...prev,
+              avatarID: id,
+              avatar: url,
+            }));
+            if (onAvatarChange) {
+              onAvatarChange(url, id);
+            }
+          }}
+          isCircular={true}
+          label={t("profile") || "Avatar Image"}
+        />
       </div>
 
       {/* Submit and Cancel Buttons */}
@@ -429,23 +330,23 @@ export default function ProfileForm({
           onClick={onCancel}
           className="btn-muted px-6 py-3 rounded-xl text-sm font-bold tracking-wide cursor-pointer"
         >
-          Cancel
+          {t("cancelBtn") || "Cancel"}
         </button>
 
         <button
           type="submit"
-          disabled={updating || uploadingAvatar}
+          disabled={updating}
           className="btn-gold flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl font-bold tracking-wide cursor-pointer min-w-44"
         >
           {updating ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
-              Saving...
+              {t("loading") || "Saving..."}
             </>
           ) : (
             <>
               <Save className="w-4 h-4" />
-              Save Changes
+              {t("saveProfile") || "Save Changes"}
             </>
           )}
         </button>

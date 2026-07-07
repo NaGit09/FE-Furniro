@@ -26,7 +26,7 @@ export default function ProductImageGallery({
   return (
     <div className="grid grid-cols-1 md:grid-cols-5 gap-4 md:gap-6">
       {/* Thumbnail Decks */}
-      <div className="flex md:flex-col gap-3 order-2 md:order-1 overflow-x-auto md:overflow-y-auto max-h-[450px] pr-1 py-1 scrollbar-thin scrollbar-thumb-stone-300">
+      <div className="flex md:flex-col gap-3 order-2 md:order-1 overflow-x-auto md:overflow-y-auto max-h-112.5 pr-1 py-1 scrollbar-thin scrollbar-thumb-stone-300">
         {images.map((img, index) => (
           <button
             key={index}

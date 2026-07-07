@@ -1,9 +1,9 @@
 "use client";
 
-import React, { Suspense } from "react";
+import  { Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { AlertTriangle, ArrowLeft, RefreshCw, Home, HelpCircle } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Home } from "lucide-react";
 
 function ErrorContent() {
   const searchParams = useSearchParams();
@@ -140,7 +140,7 @@ function ErrorContent() {
         
         {/* Animated Warning Indicator */}
         <div className="flex justify-center mb-8">
-          <div className="warning-glow flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-tr from-rose-600 to-amber-500 text-white animate-bounce-slow">
+          <div className="warning-glow flex items-center justify-center w-24 h-24 rounded-full bg-linear-to-tr from-rose-600 to-amber-500 text-white animate-bounce-slow">
             <AlertTriangle className="w-12 h-12 stroke-[2.5]" />
           </div>
         </div>

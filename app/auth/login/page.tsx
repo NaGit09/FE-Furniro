@@ -3,7 +3,7 @@ import Image from "next/image";
 import LoginForm from "@/components/customs/auth/LoginForm";
 
 export const metadata: Metadata = {
-  title: "Sign In — Furniro",
+  title: "Sign In",
   description:
     "Sign in to your Furniro account and explore our curated collection of premium furniture.",
 };

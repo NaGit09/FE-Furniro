@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import ConfirmOTPForm from "@/components/customs/auth/ConfirmOTPForm";
 
 export const metadata: Metadata = {
-  title: "Confirm OTP — Furniro",
+  title: "Confirm OTP",
   description:
     "Confirm your OTP code to complete your account verification on Furniro.",
 };

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import SuccessPageContent from "@/components/customs/common/SuccessPageContent";
 
 export const metadata: Metadata = {
-  title: "Success — Furniro",
+  title: "Order Successful",
   description:
     "Your action was successfully completed. Thank you for choosing Furniro premium furniture collections.",
 };

@@ -81,4 +81,11 @@ export const OrderApi = {
     );
     return res.data;
   },
+
+  get_admin_statistics: async (timeRange: string) => {
+    const res = await axiosInstance.get<ApiResponse<any>>(
+      `${baseOrderApi}/admin/statistics?timeRange=${encodeURIComponent(timeRange)}`,
+    );
+    return res.data;
+  },
 };

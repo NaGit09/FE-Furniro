@@ -25,7 +25,6 @@ const ProductPage = () => {
   const { filter, pageable, totalPages } = useSelector(
     (state: RootState) => state.productSlice,
   );
-
   useEffect(() => {
     const fetchProducts = async () => {
       dispatch(setLoading(true));
@@ -46,8 +45,7 @@ const ProductPage = () => {
     };
 
     fetchProducts();
-  }, [filter, pageable.pageNumber, pageable.pageSize]);
-
+  }, [filter, pageable.pageNumber, pageable.pageSize, dispatch]);
   return (
     <div className="flex flex-col items-center justify-center">
       <PageBanner title="Shop" />

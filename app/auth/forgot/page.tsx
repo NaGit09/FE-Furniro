@@ -3,7 +3,7 @@ import Image from "next/image";
 import ForgotPasswordForm from "@/components/customs/auth/ForgotPasswordForm";
 
 export const metadata: Metadata = {
-  title: "Quên mật khẩu — Furniro",
+  title: "Quên mật khẩu",
   description: "Gửi mã OTP đến email để khôi phục mật khẩu hoặc xác thực tài khoản.",
 };
 
