@@ -47,11 +47,22 @@ export default function ConfirmOTPForm() {
       const res = await AuthApi.confirmOTP(data);
 
       if (res?.code === 200) {
-        setStatusMessage(
-          "Xác nhận OTP thành công. Tài khoản của bạn đã được kích hoạt.",
-        );
-        form.reset();
-        navigateAfter3Seconds("/auth/login");
+        const resetToken = res.data?.resetToken;
+        if (resetToken) {
+          setStatusMessage(
+            "Xác nhận OTP thành công. Đang chuyển hướng đến trang đổi mật khẩu...",
+          );
+          form.reset();
+          navigateAfter3Seconds(
+            `/auth/change-password?email=${encodeURIComponent(data.email)}&token=${encodeURIComponent(resetToken)}`
+          );
+        } else {
+          setStatusMessage(
+            "Xác nhận OTP thành công. Tài khoản của bạn đã được kích hoạt.",
+          );
+          form.reset();
+          navigateAfter3Seconds("/auth/login");
+        }
       } else {
         setApiError(
           res?.message || "Không thể xác nhận OTP. Vui lòng thử lại.",

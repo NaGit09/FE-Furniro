@@ -7,9 +7,13 @@ export default async function Page({
 }) {
   const { id } = await params;
 
-  const res = await ProductApi.get_product_detail(id);
-
-  const product = res.data;
+  let product = null;
+  try {
+    const res = await ProductApi.get_product_detail(id);
+    product = res?.data || null;
+  } catch (error) {
+    console.error("Failed to fetch product detail:", error);
+  }
 
   return <ProductDetailClient product={product} />;
 }

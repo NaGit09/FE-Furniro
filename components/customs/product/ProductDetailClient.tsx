@@ -14,7 +14,7 @@ import ProductAgreement from "./ProductAgreement";
 export default function ProductDetailClient({
   product,
 }: {
-  product: ProductDetail;
+  product: ProductDetail | null;
 }) {
   if (!product) {
     return (

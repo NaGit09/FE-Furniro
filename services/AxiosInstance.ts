@@ -9,7 +9,9 @@ interface FailedQueueItem {
 }
 
 const baseURL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1/furniro";
+  typeof window === "undefined"
+    ? (process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1/furniro")
+    : (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1/furniro");
 
 const axiosInstance = axios.create({
   baseURL,

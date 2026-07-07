@@ -26,7 +26,7 @@ const wishlistSlice = createSlice({
       }
     },
     removeFromWishlistLocal: (state, action: PayloadAction<number>) => {
-      state.productIds = state.productIds.filter(id => id !== action.payload);
+      state.productIds = state.productIds.filter((id) => id !== action.payload);
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
@@ -38,5 +38,11 @@ const wishlistSlice = createSlice({
   },
 });
 
-export const { setWishlist, addToWishlistLocal, removeFromWishlistLocal, setLoading, clearWishlist } = wishlistSlice.actions;
+export const {
+  setWishlist,
+  addToWishlistLocal,
+  removeFromWishlistLocal,
+  setLoading,
+  clearWishlist,
+} = wishlistSlice.actions;
 export default wishlistSlice.reducer;

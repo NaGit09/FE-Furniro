@@ -26,7 +26,10 @@ const cartSlice = createSlice({
   name: "cart",
   initialState: initCartState,
   reducers: {
-    setCart: (state, action: PayloadAction<{ cartID: number; items: CartItem[] }>) => {
+    setCart: (
+      state,
+      action: PayloadAction<{ cartID: number; items: CartItem[] }>,
+    ) => {
       state.cartID = action.payload.cartID;
       state.items = action.payload.items;
       state.error = null;

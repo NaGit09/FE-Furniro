@@ -38,7 +38,7 @@ export const create_stock = async (req: StockReq) => {
   return res.data;
 };
 
-export const update_stock = async (req:StockReq) => {
+export const update_stock = async (req: StockReq) => {
   const res = await axiosInstance.put<ApiResponse<StockDetail>>(
     `${baseAdminStockApi}/update`,
     req,

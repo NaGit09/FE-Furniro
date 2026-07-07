@@ -5,6 +5,7 @@ import { AccountRes } from "@/schema/response/auth/account.res";
 import { Page } from "@/schema/common/pagination";
 
 export const AdminApi = {
+  
   getAllUsers: async (page = 0, size = 10, sortBy = "createdAt") => {
     try {
       const res = await axiosInstance.get<ApiResponse<Page<AccountRes[]>>>(

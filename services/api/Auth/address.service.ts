@@ -1,9 +1,8 @@
 import axiosInstance from "@/services/AxiosInstance";
 import { ApiResponse } from "@/schema/common/AType";
 import { Address } from "@/schema/response/auth/address.res";
-import {ADDRESS_URL} from "@/lib/constant/Auth/address.url"
+import { ADDRESS_URL } from "@/lib/constant/Auth/address.url";
 export const AddressApi = {
-
   getAddress: async (userId: number) => {
     try {
       const res = await axiosInstance.get<ApiResponse<Address[]>>(
@@ -26,5 +25,4 @@ export const AddressApi = {
       console.log(error);
     }
   },
-
 };
