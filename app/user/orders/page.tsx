@@ -18,7 +18,6 @@ import {
   Clock, 
   XCircle, 
   AlertCircle, 
-  ExternalLink,
   ChevronRight,
   Sparkles,
   Package
@@ -300,7 +299,7 @@ export default function OrderHistoryPage() {
         }
       `}</style>
 
-      <div className="orders-root w-full min-h-screen py-8 px-4 md:px-8 mt-4">
+      <div className="orders-root w-full min-h-screen py-8 px-4 md:px-8 mt-0">
         <div className="max-w-6xl mx-auto animate-fade">
 
           {/* Navigation Trigger */}

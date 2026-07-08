@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axiosInstance from "@/services/AxiosInstance";
 import { ApiResponse } from "@/schema/common/AType";
 import { CreateOrderRequest } from "@/schema/request/order/CreateOrder";

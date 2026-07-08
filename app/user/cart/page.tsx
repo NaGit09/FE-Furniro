@@ -1,15 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "sonner";
 import { 
   ShoppingBag, 
-  Minus, 
-  Plus, 
-  Trash2, 
   Loader2, 
   ArrowRight,
   ShieldCheck,
@@ -20,11 +17,7 @@ import {
   MapPin,
   CreditCard,
   X,
-  AlertCircle,
-  User,
   FileText,
-  CheckCircle2,
-  Clock
 } from "lucide-react";
 
 import { RootState } from "@/stores/store";
@@ -423,7 +416,7 @@ export default function CartPage() {
         }
       `}</style>
 
-      <div className="cart-root w-full min-h-screen py-16 px-4 md:px-8 mt-24">
+      <div className="cart-root w-full min-h-screen py-16 px-4 md:px-8 mt-4">
         <div className="max-w-7xl mx-auto animate-fade">
 
           {/* Navigation Triggers */}

@@ -1,12 +1,11 @@
 "use client";
 
-import React, { use, useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import NextImage from "next/image";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { toast } from "sonner";
 import { 
-  ShoppingBag, 
   ArrowLeft, 
   Loader2, 
   Calendar, 
@@ -18,7 +17,6 @@ import {
   Clock, 
   XCircle, 
   AlertCircle, 
-  DollarSign,
   HelpCircle,
   Sparkles,
   FileCheck,
@@ -347,7 +345,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
         }
       `}</style>
 
-      <div className="orders-root w-full min-h-screen py-16 px-4 md:px-8 mt-24">
+      <div className="orders-root w-full min-h-screen py-16 px-4 md:px-8">
         <div className="max-w-6xl mx-auto animate-fade">
 
           {/* Navigation link */}

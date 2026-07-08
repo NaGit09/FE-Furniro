@@ -1,6 +1,8 @@
 "use client";
+import "@/style/admin-user.css";
 
 import React, { useState, useEffect, useMemo } from "react";
+import Image from "next/image";
 import {
   Users,
   Shield,
@@ -194,54 +196,7 @@ export default function UserManagementPage() {
   return (
     <div className="space-y-8 admin-root relative">
       {/* ─── Montserrat & Cormorant Google Fonts Loader ─── */}
-      <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Montserrat:wght@300;400;550;600;700&display=swap');
-        
-        .admin-root {
-          font-family: 'Montserrat', sans-serif;
-        }
-        
-        .cormorant-heading {
-          font-family: 'Cormorant Garamond', serif;
-        }
-
-        /* Glassmorphism Liquid Glass overrides */
-        .glass-user-card {
-          background: rgba(255, 255, 255, 0.45);
-          backdrop-filter: blur(20px) saturate(190%);
-          -webkit-backdrop-filter: blur(20px) saturate(190%);
-          border: 1px solid rgba(255, 255, 255, 0.6);
-          box-shadow: 
-            0 8px 32px rgba(27, 23, 20, 0.05),
-            inset 0 1px 0 rgba(255, 255, 255, 0.4);
-          transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 300ms ease;
-        }
-        .dark .glass-user-card {
-          background: rgba(24, 22, 20, 0.55);
-          backdrop-filter: blur(20px) saturate(190%);
-          -webkit-backdrop-filter: blur(20px) saturate(190%);
-          border: 1px solid rgba(255, 255, 255, 0.04);
-          box-shadow: 
-            0 8px 32px rgba(0, 0, 0, 0.35),
-            inset 0 1px 0 rgba(255, 255, 255, 0.05);
-        }
-        .glass-user-card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 12px 30px rgba(202, 138, 4, 0.06);
-        }
-        .dark .glass-user-card:hover {
-          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
-        }
-
-        /* Batch Action Sticky Bar */
-        .batch-actions-bar {
-          animation: slideUp 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        @keyframes slideUp {
-          from { transform: translateY(100%) translateX(-50%); opacity: 0; }
-          to { transform: translateY(0) translateX(-50%); opacity: 1; }
-        }
-      `}</style>
+      
 
       {/* ─── Ambient Glow Blobs ─── */}
       <div className="absolute top-10 right-10 w-96 h-96 bg-radial from-amber-500/10 to-transparent blur-3xl pointer-events-none" />
@@ -408,10 +363,13 @@ export default function UserManagementPage() {
                           <td className="py-4 px-2">
                             <div className="flex items-center gap-2.5">
                               {u.AvatarUrl ? (
-                                <img
+                                <Image
                                   src={u.AvatarUrl}
                                   alt={u.UserName}
+                                  width={36}
+                                  height={36}
                                   className="w-9 h-9 rounded-full object-cover shadow-xs shrink-0"
+                                  unoptimized
                                 />
                               ) : (
                                 <div className="w-9 h-9 rounded-full bg-linear-to-br from-amber-600 to-yellow-500 flex items-center justify-center text-[10.5px] font-bold text-white uppercase shadow-xs shrink-0 font-mono">

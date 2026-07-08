@@ -1,4 +1,5 @@
 "use client";
+import "@/style/admin-subcription.css";
 
 import React, { useState, useEffect, useMemo } from "react";
 import {
@@ -179,49 +180,7 @@ export default function AdminSubscriptionPage() {
   return (
     <div className="space-y-8 admin-root relative">
       {/* ─── Montserrat & Cormorant Google Fonts Loader ─── */}
-      <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Montserrat:wght@300;400;550;600;700&display=swap');
-        
-        .admin-root {
-          font-family: 'Montserrat', sans-serif;
-        }
-        
-        .cormorant-heading {
-          font-family: 'Cormorant Garamond', serif;
-        }
-
-        /* Glassmorphism Liquid Glass Table Card */
-        .glass-sub-card {
-          background: rgba(255, 255, 255, 0.45);
-          backdrop-filter: blur(20px) saturate(190%);
-          -webkit-backdrop-filter: blur(20px) saturate(190%);
-          border: 1px solid rgba(255, 255, 255, 0.6);
-          box-shadow: 
-            0 8px 32px rgba(27, 23, 20, 0.05),
-            inset 0 1px 0 rgba(255, 255, 255, 0.4);
-        }
-        .dark .glass-sub-card {
-          background: rgba(24, 22, 20, 0.55);
-          backdrop-filter: blur(20px) saturate(190%);
-          -webkit-backdrop-filter: blur(20px) saturate(190%);
-          border: 1px solid rgba(255, 255, 255, 0.04);
-          box-shadow: 
-            0 8px 32px rgba(0, 0, 0, 0.35),
-            inset 0 1px 0 rgba(255, 255, 255, 0.05);
-        }
-        
-        /* Stats card hover rules */
-        .glass-kpi-card {
-          transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 300ms ease;
-        }
-        .glass-kpi-card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 12px 30px rgba(202, 138, 4, 0.06);
-        }
-        .dark .glass-kpi-card:hover {
-          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
-        }
-      `}</style>
+      
 
       {/* ─── Ambient Glow Blobs ─── */}
       <div className="absolute top-10 left-10 w-96 h-96 bg-radial from-amber-500/10 to-transparent blur-3xl pointer-events-none" />

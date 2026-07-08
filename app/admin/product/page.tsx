@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
@@ -255,7 +256,7 @@ export default function AdminProductPage() {
   const totalCategoriesCount = categories.length;
 
   return (
-    <div className="space-y-8 admin-root max-w-7xl mx-auto px-4 py-8">
+    <div className="space-y-8 admin-root max-w-7xl mx-auto px-4 py-4">
       {/* ─── Header Section ─── */}
       <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
         <div>

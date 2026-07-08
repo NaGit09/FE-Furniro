@@ -3,6 +3,7 @@
 import React from "react";
 import { X } from "lucide-react";
 import { ProductDetail } from "@/schema/response/product/product.res";
+import { useLanguage } from "@/components/customs/common/LanguageContext";
 
 interface ProductDetailsEditProps {
   editForm: Partial<ProductDetail>;
@@ -21,6 +22,7 @@ export default function ProductDetailsEdit({
   onSubmit,
   updateLoading,
 }: ProductDetailsEditProps) {
+  const { t } = useLanguage();
 
   const setFormStatus = (status: "ACTIVE" | "INACTIVE") => {
     setEditForm((prev) => ({ ...prev, status }));
@@ -28,20 +30,20 @@ export default function ProductDetailsEdit({
 
   return (
     <>
-      <div className="flex-1 flex flex-col overflow-y-auto">
+      <div className="flex flex-col overflow-y-auto">
         {/* Title & Close */}
         <div className="flex items-center justify-between p-6 border-b border-stone-200/40 dark:border-stone-800/40 shrink-0">
           <div>
-            <span className="text-[9px] font-extrabold text-amber-655 dark:text-amber-500 uppercase tracking-widest">
-              Edit blueprints
+            <span className="text-[9px] font-extrabold text-amber-600 dark:text-amber-500 uppercase tracking-widest">
+              {t("editBlueprintsTitle")}
             </span>
             <h3 className="cormorant-heading text-2xl font-bold text-stone-900 dark:text-stone-50 mt-1">
-              Modify Catalog Entry
+              {t("modifyCatalogTitle")}
             </h3>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl border border-stone-200 dark:border-stone-855 hover:bg-stone-50 dark:hover:bg-stone-950 text-stone-605 cursor-pointer dark:text-stone-300 active:scale-95"
+            className="p-2 rounded-xl border border-stone-200 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-955 text-stone-600 cursor-pointer dark:text-stone-300 active:scale-95"
           >
             <X className="w-4 h-4" />
           </button>
@@ -51,13 +53,13 @@ export default function ProductDetailsEdit({
         <div className="p-6 space-y-6">
           {/* Basic Meta */}
           <div className="space-y-4">
-            <h4 className="text-[10px] font-bold text-stone-400 dark:text-stone-505 uppercase tracking-widest border-b border-stone-200/40 dark:border-stone-800/40 pb-1">
-              Thông Tin Cơ Bản
+            <h4 className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest border-b border-stone-200/40 dark:border-stone-800/40 pb-1">
+              {t("specsBasicInfo")}
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5 flex flex-col">
                 <label className="font-bold text-stone-750 dark:text-stone-300">
-                  Tên Sản Phẩm
+                  {t("specsProdName")}
                 </label>
                 <input
                   type="text"
@@ -70,7 +72,7 @@ export default function ProductDetailsEdit({
               </div>
               <div className="space-y-1.5 flex flex-col">
                 <label className="font-bold text-stone-750 dark:text-stone-300">
-                  Thương Hiệu
+                  {t("specsBrandName")}
                 </label>
                 <input
                   type="text"
@@ -81,7 +83,7 @@ export default function ProductDetailsEdit({
                       brand: e.target.value,
                     })
                   }
-                  className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-805 bg-white dark:bg-stone-955 text-stone-900 dark:text-stone-100 focus:outline-none"
+                  className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-805 bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 focus:outline-none"
                 />
               </div>
             </div>
@@ -89,7 +91,7 @@ export default function ProductDetailsEdit({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5 flex flex-col">
                 <label className="font-bold text-stone-750 dark:text-stone-300">
-                  Giá cơ bản (USD)
+                  {t("specsBasePrice")}
                 </label>
                 <input
                   type="number"
@@ -100,17 +102,17 @@ export default function ProductDetailsEdit({
                       basePrice: Number(e.target.value),
                     })
                   }
-                  className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-805 bg-white dark:bg-stone-955 text-stone-900 dark:text-stone-100 focus:outline-none"
+                  className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-805 bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 focus:outline-none"
                 />
               </div>
               <div className="space-y-1.5 flex flex-col">
                 <label className="font-bold text-stone-750 dark:text-stone-300">
-                  Trạng Thái
+                  {t("specsStatus")}
                 </label>
                 <select
                   value={editForm.status || "ACTIVE"}
                   onChange={(e) => setFormStatus(e.target.value as "ACTIVE" | "INACTIVE")}
-                  className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-805 bg-white dark:bg-stone-955 text-stone-900 dark:text-stone-100 focus:outline-none"
+                  className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-805 bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 focus:outline-none"
                 >
                   <option value="ACTIVE">ACTIVE</option>
                   <option value="INACTIVE">INACTIVE</option>
@@ -120,7 +122,7 @@ export default function ProductDetailsEdit({
 
             <div className="space-y-1.5 flex flex-col">
               <label className="font-bold text-stone-750 dark:text-stone-300">
-                Mô Tả Sản Phẩm
+                {t("specsDesc")}
               </label>
               <textarea
                 rows={3}
@@ -131,20 +133,20 @@ export default function ProductDetailsEdit({
                     description: e.target.value,
                   })
                 }
-                className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-805 bg-white dark:bg-stone-955 text-stone-900 dark:text-stone-100 focus:outline-none resize-none font-semibold"
+                className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-805 bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 focus:outline-none resize-none font-semibold"
               />
             </div>
           </div>
 
           {/* Dimensions Specifications */}
           <div className="space-y-4 pt-2">
-            <h4 className="text-[10px] font-bold text-stone-400 dark:text-stone-505 uppercase tracking-widest border-b border-stone-200/40 dark:border-stone-800/40 pb-1">
-              Thông Sẽ Kỹ Thuật
+            <h4 className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest border-b border-stone-200/40 dark:border-stone-800/40 pb-1">
+              {t("blueprints")}
             </h4>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div className="space-y-1.5 flex flex-col">
                 <label className="font-bold text-stone-750 dark:text-stone-300">
-                  Chiều Rộng (cm)
+                  {t("width")} (cm)
                 </label>
                 <input
                   type="number"
@@ -155,12 +157,12 @@ export default function ProductDetailsEdit({
                       width: Number(e.target.value),
                     })
                   }
-                  className="w-full p-2 rounded-xl border border-stone-200 dark:border-stone-805 bg-white dark:bg-stone-955 text-stone-900 dark:text-stone-100"
+                  className="w-full p-2 rounded-xl border border-stone-200 dark:border-stone-805 bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100"
                 />
               </div>
               <div className="space-y-1.5 flex flex-col">
                 <label className="font-bold text-stone-750 dark:text-stone-300">
-                  Chiều Cao (cm)
+                  {t("height")} (cm)
                 </label>
                 <input
                   type="number"
@@ -171,12 +173,12 @@ export default function ProductDetailsEdit({
                       height: Number(e.target.value),
                     })
                   }
-                  className="w-full p-2 rounded-xl border border-stone-200 dark:border-stone-805 bg-white dark:bg-stone-955 text-stone-900 dark:text-stone-100"
+                  className="w-full p-2 rounded-xl border border-stone-200 dark:border-stone-855 bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100"
                 />
               </div>
               <div className="space-y-1.5 flex flex-col">
                 <label className="font-bold text-stone-750 dark:text-stone-300">
-                  Chiều Sâu (cm)
+                  {t("depth")} (cm)
                 </label>
                 <input
                   type="number"
@@ -187,12 +189,12 @@ export default function ProductDetailsEdit({
                       depth: Number(e.target.value),
                     })
                   }
-                  className="w-full p-2 rounded-xl border border-stone-200 dark:border-stone-805 bg-white dark:bg-stone-955 text-stone-900 dark:text-stone-100"
+                  className="w-full p-2 rounded-xl border border-stone-200 dark:border-stone-855 bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100"
                 />
               </div>
               <div className="space-y-1.5 flex flex-col">
                 <label className="font-bold text-stone-750 dark:text-stone-300">
-                  Khối Lượng (kg)
+                  {t("weight")} (kg)
                 </label>
                 <input
                   type="number"
@@ -203,7 +205,7 @@ export default function ProductDetailsEdit({
                       weight: Number(e.target.value),
                     })
                   }
-                  className="w-full p-2 rounded-xl border border-stone-200 dark:border-stone-805 bg-white dark:bg-stone-955 text-stone-900 dark:text-stone-100"
+                  className="w-full p-2 rounded-xl border border-stone-200 dark:border-stone-855 bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100"
                 />
               </div>
             </div>
@@ -211,7 +213,7 @@ export default function ProductDetailsEdit({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5 flex flex-col">
                 <label className="font-bold text-stone-700 dark:text-stone-300">
-                  Chất Liệu
+                  {t("material")}
                 </label>
                 <input
                   type="text"
@@ -222,12 +224,12 @@ export default function ProductDetailsEdit({
                       material: e.target.value,
                     })
                   }
-                  className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-805 bg-white dark:bg-stone-955 text-stone-900 dark:text-stone-100"
+                  className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-805 bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100"
                 />
               </div>
               <div className="space-y-1.5 flex flex-col">
                 <label className="font-bold text-stone-700 dark:text-stone-300">
-                  Cấu Hình
+                  {t("configuration")}
                 </label>
                 <input
                   type="text"
@@ -238,7 +240,7 @@ export default function ProductDetailsEdit({
                       configuration: e.target.value,
                     })
                   }
-                  className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-805 bg-white dark:bg-stone-955 text-stone-900 dark:text-stone-100"
+                  className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-855 bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100"
                 />
               </div>
             </div>
@@ -246,13 +248,13 @@ export default function ProductDetailsEdit({
 
           {/* Warranty Specifications */}
           <div className="space-y-4 pt-2">
-            <h4 className="text-[10px] font-bold text-stone-400 dark:text-stone-505 uppercase tracking-widest border-b border-stone-200/40 dark:border-stone-800/40 pb-1">
-              Thông Tin Bảo Hành
+            <h4 className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest border-b border-stone-200/40 dark:border-stone-800/40 pb-1">
+              {t("specsWarrantyInfo")}
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5 flex flex-col">
                 <label className="font-bold text-stone-700 dark:text-stone-300">
-                  Loại Bảo Hành
+                  {t("warrantyType")}
                 </label>
                 <input
                   type="text"
@@ -263,12 +265,12 @@ export default function ProductDetailsEdit({
                       warrantyType: e.target.value,
                     })
                   }
-                  className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-850 bg-white dark:bg-stone-955 text-stone-900 dark:text-stone-100"
+                  className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-850 bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100"
                 />
               </div>
               <div className="space-y-1.5 flex flex-col">
                 <label className="font-bold text-stone-700 dark:text-stone-300">
-                  Thời Hạn Bảo Hành
+                  {t("warrantyDuration")}
                 </label>
                 <input
                   type="text"
@@ -279,13 +281,13 @@ export default function ProductDetailsEdit({
                       warrantyDuration: e.target.value,
                     })
                   }
-                  className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-850 bg-white dark:bg-stone-955 text-stone-900 dark:text-stone-100"
+                  className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-850 bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100"
                 />
               </div>
             </div>
             <div className="space-y-1.5 flex flex-col">
               <label className="font-bold text-stone-700 dark:text-stone-300">
-                Tóm Tắt Bảo Hành
+                {t("warrantySummary")}
               </label>
               <textarea
                 rows={2}
@@ -296,7 +298,7 @@ export default function ProductDetailsEdit({
                     warrantySummary: e.target.value,
                   })
                 }
-                className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-850 bg-white dark:bg-stone-955 text-stone-900 dark:text-stone-100 resize-none"
+                className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-855 bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 resize-none"
               />
             </div>
           </div>
@@ -309,9 +311,9 @@ export default function ProductDetailsEdit({
           type="button"
           disabled={updateLoading}
           onClick={onCancel}
-          className="px-4 py-2 border border-stone-205 dark:border-stone-800 hover:bg-stone-100 dark:hover:bg-stone-900 text-stone-700 dark:text-stone-300 rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer active:scale-95 disabled:opacity-50"
+          className="px-4 py-2 border border-stone-200 dark:border-stone-800 hover:bg-stone-100 dark:hover:bg-stone-900 text-stone-700 dark:text-stone-300 rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer active:scale-95 disabled:opacity-50"
         >
-          Cancel
+          {t("cancelBtn")}
         </button>
         <button
           type="button"
@@ -319,7 +321,7 @@ export default function ProductDetailsEdit({
           onClick={onSubmit}
           className="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer active:scale-95 disabled:opacity-50 shadow-md shadow-amber-600/15"
         >
-          {updateLoading ? "Saving..." : "Save Changes"}
+          {updateLoading ? t("loading") : t("saveSpecsChanges")}
         </button>
       </div>
     </>

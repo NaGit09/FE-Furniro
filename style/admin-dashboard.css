@@ -1,0 +1,71 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Montserrat:wght@300;400;550;600;700&display=swap');
+        
+        .admin-root {
+          font-family: 'Montserrat', sans-serif;
+        }
+        
+        .cormorant-heading {
+          font-family: 'Cormorant Garamond', serif;
+        }
+
+        /* Iridescent premium Liquid Glass elements */
+        .liquid-glass-card {
+          background: rgba(255, 255, 255, 0.45);
+          backdrop-filter: blur(20px) saturate(190%);
+          -webkit-backdrop-filter: blur(20px) saturate(190%);
+          border: 1px solid rgba(255, 255, 255, 0.6);
+          box-shadow: 
+            0 8px 32px rgba(27, 23, 20, 0.05),
+            inset 0 1px 0 rgba(255, 255, 255, 0.4);
+          transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 300ms ease;
+        }
+        .dark .liquid-glass-card {
+          background: rgba(24, 22, 20, 0.55);
+          backdrop-filter: blur(20px) saturate(190%);
+          -webkit-backdrop-filter: blur(20px) saturate(190%);
+          border: 1px solid rgba(255, 255, 255, 0.04);
+          box-shadow: 
+            0 8px 32px rgba(0, 0, 0, 0.35),
+            inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+        .liquid-glass-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 
+            0 16px 40px rgba(202, 138, 4, 0.08),
+            0 1px 2px rgba(255, 255, 255, 0.8);
+        }
+        .dark .liquid-glass-card:hover {
+          box-shadow: 
+            0 16px 40px rgba(0, 0, 0, 0.5),
+            0 0 0 1px rgba(202, 138, 4, 0.15);
+        }
+
+        /* Glowing backdrops / blur blobs */
+        .glow-blob-gold {
+          position: absolute;
+          width: 250px;
+          height: 250px;
+          background: radial-gradient(circle, rgba(202, 138, 4, 0.15) 0%, rgba(202, 138, 4, 0) 70%);
+          filter: blur(40px);
+          border-radius: 50%;
+          pointer-events: none;
+          z-index: 0;
+        }
+        .glow-blob-pink {
+          position: absolute;
+          width: 300px;
+          height: 300px;
+          background: radial-gradient(circle, rgba(180, 83, 9, 0.1) 0%, rgba(180, 83, 9, 0) 70%);
+          filter: blur(50px);
+          border-radius: 50%;
+          pointer-events: none;
+          z-index: 0;
+        }
+        
+        .pulse-gold {
+          animation: gold-pulse-anim 2s infinite alternate;
+        }
+        @keyframes gold-pulse-anim {
+          0% { box-shadow: 0 0 0 0 rgba(202, 138, 4, 0.4); }
+          100% { box-shadow: 0 0 0 6px rgba(202, 138, 4, 0); }
+        }

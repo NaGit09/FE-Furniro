@@ -1,6 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+import "@/style/admin-dashboard.css";
 
 import React, { useState, useEffect, useMemo } from "react";
+import Image from "next/image";
 import {
   TrendingUp,
   TrendingDown,
@@ -8,101 +11,18 @@ import {
   ShoppingBag,
   Users,
   Boxes,
-  ArrowUpRight,
   Activity,
-  Package,
-  Calendar,
   Layers,
   Search,
-  Filter,
   RefreshCw,
   PlusCircle,
   CheckCircle2,
   XCircle,
   AlertTriangle,
-  ChevronDown,
 } from "lucide-react";
 import { toast } from "sonner";
 import { ProductApi } from "@/services/api/Product/product.service";
 import { OrderApi } from "@/services/api/Order/order.service";
-
-// ==========================================
-// ─── HIGH-FIDELITY MOCK DATA GENERATION ───
-// ==========================================
-
-const MOCK_STATS_DATA = {
-  "This Year": [
-    { title: "Total Revenue", value: "$148,256.00", rawVal: 148256, change: "+14.2%", isPositive: true, desc: "vs. $129,820 last year", icon: DollarSign, color: "from-amber-500 to-yellow-500", bgLight: "bg-amber-500/10" },
-    { title: "Total Orders", value: "3,284", rawVal: 3284, change: "+8.4%", isPositive: true, desc: "vs. 3,030 last year", icon: ShoppingBag, color: "from-emerald-500 to-teal-500", bgLight: "bg-emerald-500/10" },
-    { title: "Active Customers", value: "1,842", rawVal: 1842, change: "+12.1%", isPositive: true, desc: "vs. 1,643 last year", icon: Users, color: "from-blue-500 to-indigo-500", bgLight: "bg-blue-500/10" },
-    { title: "Inventory Stock", value: "842 items", rawVal: 842, change: "-2.3%", isPositive: false, desc: "24 items low in stock", icon: Boxes, color: "from-rose-500 to-orange-500", bgLight: "bg-rose-500/10" },
-  ],
-  "This Month": [
-    { title: "Total Revenue", value: "$28,450.00", rawVal: 28450, change: "+18.9%", isPositive: true, desc: "vs. $23,920 last month", icon: DollarSign, color: "from-amber-500 to-yellow-500", bgLight: "bg-amber-500/10" },
-    { title: "Total Orders", value: "624", rawVal: 624, change: "+11.3%", isPositive: true, desc: "vs. 560 last month", icon: ShoppingBag, color: "from-emerald-500 to-teal-500", bgLight: "bg-emerald-500/10" },
-    { title: "Active Customers", value: "482", rawVal: 482, change: "+9.5%", isPositive: true, desc: "vs. 440 last month", icon: Users, color: "from-blue-500 to-indigo-500", bgLight: "bg-blue-500/10" },
-    { title: "Inventory Stock", value: "852 items", rawVal: 852, change: "+1.2%", isPositive: true, desc: "15 items restocked", icon: Boxes, color: "from-rose-500 to-orange-500", bgLight: "bg-rose-500/10" },
-  ],
-  "This Week": [
-    { title: "Total Revenue", value: "$7,820.00", rawVal: 7820, change: "+24.5%", isPositive: true, desc: "vs. $6,280 last week", icon: DollarSign, color: "from-amber-500 to-yellow-500", bgLight: "bg-amber-500/10" },
-    { title: "Total Orders", value: "148", rawVal: 148, change: "+5.7%", isPositive: true, desc: "vs. 140 last week", icon: ShoppingBag, color: "from-emerald-500 to-teal-500", bgLight: "bg-emerald-500/10" },
-    { title: "Active Customers", value: "124", rawVal: 124, change: "+14.8%", isPositive: true, desc: "vs. 108 last week", icon: Users, color: "from-blue-500 to-indigo-500", bgLight: "bg-blue-500/10" },
-    { title: "Inventory Stock", value: "842 items", rawVal: 842, change: "-0.5%", isPositive: false, desc: "8 items low in stock", icon: Boxes, color: "from-rose-500 to-orange-500", bgLight: "bg-rose-500/10" },
-  ],
-};
-
-const CHART_DATASET = {
-  "This Year": [
-    { label: "Jan", revenue: 18200, orders: 340 },
-    { label: "Feb", revenue: 22400, orders: 410 },
-    { label: "Mar", revenue: 19800, orders: 390 },
-    { label: "Apr", revenue: 32400, orders: 620 },
-    { label: "May", revenue: 28900, orders: 550 },
-    { label: "Jun", revenue: 38500, orders: 740 },
-    { label: "Jul", revenue: 35200, orders: 680 },
-    { label: "Aug", revenue: 42100, orders: 810 },
-    { label: "Sep", revenue: 39800, orders: 760 },
-    { label: "Oct", revenue: 48900, orders: 920 },
-    { label: "Nov", revenue: 45600, orders: 860 },
-    { label: "Dec", revenue: 58200, orders: 1120 },
-  ],
-  "This Month": [
-    { label: "Wk 1", revenue: 6200, orders: 130 },
-    { label: "Wk 2", revenue: 8400, orders: 185 },
-    { label: "Wk 3", revenue: 5900, orders: 125 },
-    { label: "Wk 4", revenue: 7950, orders: 184 },
-  ],
-  "This Week": [
-    { label: "Mon", revenue: 1200, orders: 22 },
-    { label: "Tue", revenue: 1450, orders: 28 },
-    { label: "Wed", revenue: 980, orders: 18 },
-    { label: "Thu", revenue: 1650, orders: 32 },
-    { label: "Fri", revenue: 1320, orders: 25 },
-    { label: "Sat", revenue: 850, orders: 15 },
-    { label: "Sun", revenue: 370, orders: 8 },
-  ],
-};
-
-const CATEGORIES = [
-  { name: "Living Room", share: 45, value: "$66,715", count: 1478, color: "#CA8A04" },
-  { name: "Bedroom", share: 30, value: "$44,476", count: 985, color: "#B45309" },
-  { name: "Dining Room", share: 15, value: "$22,238", count: 492, color: "#78350F" },
-  { name: "Workspace", share: 10, value: "$14,825", count: 329, color: "#EAB308" },
-];
-
-const INITIAL_ORDERS = [
-  { id: "ORD-9842", customer: "Sophia Loren", email: "sophia.l@example.com", avatar: "SL", product: "Asgaard Sofa", date: "May 28, 2026", amount: "$2,450.00", status: "Completed" },
-  { id: "ORD-9841", customer: "Liam Neeson", email: "liam.n@example.com", avatar: "LN", product: "Grado Dining Chair", date: "May 27, 2026", amount: "$850.00", status: "Pending" },
-  { id: "ORD-9840", customer: "Scarlett Johansson", email: "scarlett.j@example.com", avatar: "SJ", product: "Outdoor Table Set", date: "May 26, 2026", amount: "$1,890.00", status: "Completed" },
-  { id: "ORD-9839", customer: "Keanu Reeves", email: "keanu.r@example.com", avatar: "KR", product: "Syltherin Lounge Chair", date: "May 25, 2026", amount: "$420.00", status: "Cancelled" },
-  { id: "ORD-9838", customer: "Emma Watson", email: "emma.w@example.com", avatar: "EW", product: "Leviosa Sofa Bed", date: "May 25, 2026", amount: "$1,200.00", status: "Completed" },
-];
-
-const INITIAL_PRODUCTS = [
-  { id: 1, name: "Asgaard Sofa", category: "Living Room", sales: 128, revenue: "$313,600", stock: 14, status: "Low Stock", image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=200" },
-  { id: 2, name: "Syltherin Chair", category: "Dining Room", sales: 94, revenue: "$39,480", stock: 45, status: "In Stock", image: "https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?auto=format&fit=crop&q=80&w=200" },
-  { id: 3, name: "Leviosa Sofa Bed", category: "Bedroom", sales: 86, revenue: "$103,200", stock: 8, status: "Critical Stock", image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=200" },
-];
 
 const RECENT_ACTIVITIES = [
   { text: "Stock for Asgaard Sofa updated by system (+5 restocked)", time: "10 mins ago", type: "system" },
@@ -341,79 +261,7 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-8 admin-root">
       {/* ─── Montserrat & Cormorant Google Fonts Loader ─── */}
-      <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Montserrat:wght@300;400;550;600;700&display=swap');
-        
-        .admin-root {
-          font-family: 'Montserrat', sans-serif;
-        }
-        
-        .cormorant-heading {
-          font-family: 'Cormorant Garamond', serif;
-        }
-
-        /* Iridescent premium Liquid Glass elements */
-        .liquid-glass-card {
-          background: rgba(255, 255, 255, 0.45);
-          backdrop-filter: blur(20px) saturate(190%);
-          -webkit-backdrop-filter: blur(20px) saturate(190%);
-          border: 1px solid rgba(255, 255, 255, 0.6);
-          box-shadow: 
-            0 8px 32px rgba(27, 23, 20, 0.05),
-            inset 0 1px 0 rgba(255, 255, 255, 0.4);
-          transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 300ms ease;
-        }
-        .dark .liquid-glass-card {
-          background: rgba(24, 22, 20, 0.55);
-          backdrop-filter: blur(20px) saturate(190%);
-          -webkit-backdrop-filter: blur(20px) saturate(190%);
-          border: 1px solid rgba(255, 255, 255, 0.04);
-          box-shadow: 
-            0 8px 32px rgba(0, 0, 0, 0.35),
-            inset 0 1px 0 rgba(255, 255, 255, 0.05);
-        }
-        .liquid-glass-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 
-            0 16px 40px rgba(202, 138, 4, 0.08),
-            0 1px 2px rgba(255, 255, 255, 0.8);
-        }
-        .dark .liquid-glass-card:hover {
-          box-shadow: 
-            0 16px 40px rgba(0, 0, 0, 0.5),
-            0 0 0 1px rgba(202, 138, 4, 0.15);
-        }
-
-        /* Glowing backdrops / blur blobs */
-        .glow-blob-gold {
-          position: absolute;
-          width: 250px;
-          height: 250px;
-          background: radial-gradient(circle, rgba(202, 138, 4, 0.15) 0%, rgba(202, 138, 4, 0) 70%);
-          filter: blur(40px);
-          border-radius: 50%;
-          pointer-events: none;
-          z-index: 0;
-        }
-        .glow-blob-pink {
-          position: absolute;
-          width: 300px;
-          height: 300px;
-          background: radial-gradient(circle, rgba(180, 83, 9, 0.1) 0%, rgba(180, 83, 9, 0) 70%);
-          filter: blur(50px);
-          border-radius: 50%;
-          pointer-events: none;
-          z-index: 0;
-        }
-        
-        .pulse-gold {
-          animation: gold-pulse-anim 2s infinite alternate;
-        }
-        @keyframes gold-pulse-anim {
-          0% { box-shadow: 0 0 0 0 rgba(202, 138, 4, 0.4); }
-          100% { box-shadow: 0 0 0 6px rgba(202, 138, 4, 0); }
-        }
-      `}</style>
+      
 
       {/* ─── Ambient Glow Blobs in Background ─── */}
       <div className="absolute top-24 left-1/4 glow-blob-gold -translate-x-1/2" />
@@ -957,10 +805,13 @@ export default function AdminDashboard() {
                     key={idx}
                     className="flex items-center gap-3.5 p-2 rounded-xl hover:bg-stone-50 dark:hover:bg-stone-950/20 transition-all duration-200 group"
                   >
-                    <img
+                    <Image
                       src={prod.image}
                       alt={prod.name}
+                      width={48}
+                      height={48}
                       className="w-12 h-12 rounded-xl object-cover border border-stone-200/30 dark:border-stone-800/30"
+                      unoptimized
                     />
                     <div className="grow min-w-0">
                       <h4 className="text-xs font-bold text-stone-900 dark:text-stone-100 truncate">

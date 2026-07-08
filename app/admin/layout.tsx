@@ -1,7 +1,9 @@
 "use client";
+import "@/style/admin-layout.css";
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { useTheme } from "next-themes";
@@ -171,10 +173,13 @@ export default function AdminLayout({
       <div className="p-5 border-b border-stone-250/20 dark:border-stone-800/40 flex items-center gap-3.5 bg-stone-50/40 dark:bg-stone-950/20">
         <div className="relative w-11 h-11 rounded-full border-2 border-amber-500/50 overflow-hidden flex items-center justify-center bg-stone-200 dark:bg-stone-800 shrink-0 shadow-sm">
           {auth.AvatarURL ? (
-            <img
+            <Image
               src={auth.AvatarURL}
               alt={fullName}
+              width={44}
+              height={44}
               className="w-full h-full object-cover"
+              unoptimized
             />
           ) : (
             <span className="font-bold text-sm text-stone-700 dark:text-stone-300">
@@ -246,64 +251,7 @@ export default function AdminLayout({
 
   return (
     <>
-      <style jsx global>{`
-        .admin-root {
-          font-family: "Montserrat", sans-serif;
-        }
-        .admin-heading {
-          font-family: "Cormorant", serif;
-        }
-        .glass-admin-header {
-          background: rgba(255, 255, 255, 0.4);
-          backdrop-filter: blur(24px) saturate(180%);
-          -webkit-backdrop-filter: blur(24px) saturate(180%);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.5);
-          box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
-        }
-        .dark .glass-admin-header {
-          background: rgba(24, 24, 27, 0.5);
-          backdrop-filter: blur(24px) saturate(180%);
-          -webkit-backdrop-filter: blur(24px) saturate(180%);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-          box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
-        }
-        .btn-muted {
-          border: 1.5px solid rgba(68, 64, 60, 0.2);
-          color: #44403c;
-          transition: all 250ms ease;
-        }
-        .dark .btn-muted {
-          border: 1.5px solid rgba(245, 245, 244, 0.1);
-          color: #e7e5e4;
-        }
-        .liquid-glass-card {
-          background: rgba(255, 255, 255, 0.45);
-          backdrop-filter: blur(24px) saturate(180%);
-          -webkit-backdrop-filter: blur(24px) saturate(180%);
-          border: 1px solid rgba(255, 255, 255, 0.5);
-          box-shadow: 0 20px 50px rgba(120, 90, 60, 0.04);
-        }
-        .dark .liquid-glass-card {
-          background: rgba(28, 25, 23, 0.35);
-          backdrop-filter: blur(24px) saturate(180%);
-          -webkit-backdrop-filter: blur(24px) saturate(180%);
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
-        }
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(12px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fade {
-          animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-      `}</style>
+      
 
       <div className="flex min-h-screen bg-stone-50 dark:bg-stone-950 admin-root">
         {/* ══════════════════════ DESKTOP SIDEBAR ══════════════════════ */}
@@ -313,60 +261,9 @@ export default function AdminLayout({
 
         {/* ══════════════════════ MAIN WORKSPACE ══════════════════════ */}
         <div className="flex-1 flex flex-col min-w-0">
-          {/* Header */}
-          <header className="h-20 flex items-center justify-between px-6 md:px-8 sticky top-0 z-40 glass-admin-header">
-            {/* Left Welcome controls */}
-            <div className="flex items-center gap-4">
-              {/* Mobile drawer trigger */}
-              <button
-                onClick={() => setMobileOpen(true)}
-                className="p-2.5 rounded-xl border border-stone-200 dark:border-stone-850 hover:bg-stone-100 dark:hover:bg-stone-900 lg:hidden cursor-pointer active:scale-95"
-                title="Toggle Menu"
-              >
-                <Menu className="w-5 h-5" />
-              </button>
-
-              {/* Dynamic Welcome Heading */}
-              <div className="hidden sm:flex flex-col">
-                <h2 className="text-sm font-bold text-stone-850 dark:text-stone-100 leading-none">
-                  {t("greeting", { name: fullName })}
-                </h2>
-                <span className="text-[10px] font-bold text-stone-400 dark:text-stone-505 uppercase tracking-wider mt-1 font-mono">
-                  {t("roleBadge")}: #USR-{auth.UserID}
-                </span>
-              </div>
-            </div>
-
-            {/* Right side actions */}
-            <div className="flex items-center gap-3 shrink-0">
-              {/* Dynamic Notification dropdown */}
-              <NotificationDropdown />
-
-              {/* Theme Toggle */}
-              <button
-                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="p-2.5 rounded-xl border border-stone-200/50 dark:border-stone-800/50 text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-900/60 transition-all cursor-pointer"
-                title={language === "VI" ? "Đổi giao diện" : "Switch Theme"}
-              >
-                {theme === "dark" ? (
-                  <Sun className="w-4.5 h-4.5" />
-                ) : (
-                  <Moon className="w-4.5 h-4.5" />
-                )}
-              </button>
-
-              {/* Status Indicator */}
-              <div className="hidden md:flex items-center gap-2 pl-2 border-l border-stone-200 dark:border-stone-800">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-500/20" />
-                <span className="text-[10px] font-bold tracking-widest text-emerald-600 uppercase">
-                  Online
-                </span>
-              </div>
-            </div>
-          </header>
 
           {/* ── Main Dashboard Body ── */}
-          <main className="flex-1 p-6 md:p-8 min-w-0 animate-fade">
+          <main className="flex-1 py-4 px-2 md:p-8 min-w-0 animate-fade">
             {children}
           </main>
         </div>

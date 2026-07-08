@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useState } from "react";
+import Image from "next/image";
 import { UploadCloud, Loader2, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { UploadApi } from "@/services/api/Upload/upload.service";
@@ -130,10 +131,13 @@ export default function UploadFile({
         <div className="flex flex-col sm:flex-row items-center gap-5">
           <div className="relative w-24 h-24 rounded-full border-2 border-dashed border-stone-300 dark:border-stone-700 overflow-hidden flex items-center justify-center bg-stone-50 dark:bg-stone-900 group shadow-sm transition-all hover:border-amber-500">
             {currentUrl ? (
-              <img
+              <Image
                 src={currentUrl}
                 alt="Upload preview"
+                width={96}
+                height={96}
                 className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                unoptimized
               />
             ) : (
               <ImageIcon className="w-8 h-8 text-stone-300 dark:text-stone-700" />
