@@ -18,6 +18,7 @@ type NavItem = { label: string; href: string };
 const NAV_ITEMS: NavItem[] = [
   { label: "Home", href: "/" },
   { label: "Product", href: "/product" },
+  { label: "Compare", href: "/compare" },
   { label: "About", href: "/about" },
   { label: "Subscribe", href: "/subscribe" },
 ];

@@ -203,9 +203,10 @@ export default function CartPage() {
         return;
       }
       try {
-        const res = await OrderApi.validate_promo_code(appliedPromo.code, subtotal);
+        const subtotalInUSD = subtotal / 25000;
+        const res = await OrderApi.validate_promo_code(appliedPromo.code, subtotalInUSD);
         if (res && res.data) {
-          setDiscountAmount(res.data.discountAmount);
+          setDiscountAmount(res.data.discountAmount * 25000);
         }
       } catch (err) {
         console.error("Failed to revalidate coupon after cart update:", err);
@@ -226,14 +227,15 @@ export default function CartPage() {
     const toastId = toast.loading("Validating coupon code...");
     
     try {
-      const res = await OrderApi.validate_promo_code(couponCode, subtotal);
+      const subtotalInUSD = subtotal / 25000;
+      const res = await OrderApi.validate_promo_code(couponCode, subtotalInUSD);
       if (res && res.data) {
         setAppliedPromo({
           code: res.data.code,
           discountType: res.data.discountType as "PERCENTAGE" | "FLAT",
-          discountValue: res.data.discountValue,
+          discountValue: res.data.discountType === "PERCENTAGE" ? res.data.discountValue : res.data.discountValue * 25000,
         });
-        setDiscountAmount(res.data.discountAmount);
+        setDiscountAmount(res.data.discountAmount * 25000);
         toast.success(`Coupon code ${res.data.code} applied successfully!`, { id: toastId });
       } else {
         toast.error("Invalid coupon code.", { id: toastId });
@@ -306,17 +308,17 @@ export default function CartPage() {
       const itemsPayload = cart.items.map(item => ({
         variantID: item.variantID,
         quantity: item.quantity,
-        price: item.price,
+        price: Math.round((item.price / 25000) * 100) / 100,
       }));
 
       const payload = {
         userID: auth.UserID,
         note: orderNote || "Online Checkout",
         address: finalAddressString,
-        shippingFee: shipping,
+        shippingFee: Math.round((shipping / 25000) * 100) / 100,
         paymentMethod,
         paymentStatus: "PENDING" as const,
-        currency: "VND",
+        currency: "USD",
         orderItems: itemsPayload,
         promoCode: appliedPromo ? appliedPromo.code : undefined,
       };

@@ -134,11 +134,21 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
 
   // Pricing Helpers
   const formatPrice = (amount: number) => {
+    const baseCurrency = orderDetail?.currency || "USD";
+    let converted = amount;
+
+    if (baseCurrency !== currencyPref) {
+      if (baseCurrency === "USD" && currencyPref === "VND") {
+        converted = amount * 25000;
+      } else if (baseCurrency === "VND" && currencyPref === "USD") {
+        converted = amount / 25000;
+      }
+    }
+
     if (currencyPref === "USD") {
-      const converted = amount / 25000;
       return `$${converted.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`;
     }
-    return `${amount.toLocaleString("vi-VN")}₫`;
+    return `${converted.toLocaleString("vi-VN")}₫`;
   };
 
   // Date formatter

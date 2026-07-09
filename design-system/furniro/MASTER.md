@@ -7,7 +7,7 @@
 ---
 
 **Project:** Furniro
-**Generated:** 2026-05-30 13:04:58
+**Generated:** 2026-07-09 13:19:40
 **Category:** Analytics Dashboard
 
 ---
@@ -18,13 +18,13 @@
 
 | Role | Hex | CSS Variable |
 |------|-----|--------------|
-| Primary | `#059669` | `--color-primary` |
-| Secondary | `#10B981` | `--color-secondary` |
-| CTA/Accent | `#F97316` | `--color-cta` |
-| Background | `#ECFDF5` | `--color-background` |
-| Text | `#064E3B` | `--color-text` |
+| Primary | `#0F172A` | `--color-primary` |
+| Secondary | `#1E293B` | `--color-secondary` |
+| CTA/Accent | `#22C55E` | `--color-cta` |
+| Background | `#020617` | `--color-background` |
+| Text | `#F8FAFC` | `--color-text` |
 
-**Color Notes:** Success green + urgency orange
+**Color Notes:** Dark bg + green positive indicators
 
 ### Typography
 
@@ -68,7 +68,7 @@
 ```css
 /* Primary Button */
 .btn-primary {
-  background: #F97316;
+  background: #22C55E;
   color: white;
   padding: 12px 24px;
   border-radius: 8px;
@@ -85,8 +85,8 @@
 /* Secondary Button */
 .btn-secondary {
   background: transparent;
-  color: #059669;
-  border: 2px solid #059669;
+  color: #0F172A;
+  border: 2px solid #0F172A;
   padding: 12px 24px;
   border-radius: 8px;
   font-weight: 600;
@@ -99,7 +99,7 @@
 
 ```css
 .card {
-  background: #ECFDF5;
+  background: #020617;
   border-radius: 12px;
   padding: 24px;
   box-shadow: var(--shadow-md);
@@ -125,9 +125,9 @@
 }
 
 .input:focus {
-  border-color: #059669;
+  border-color: #0F172A;
   outline: none;
-  box-shadow: 0 0 0 3px #05966920;
+  box-shadow: 0 0 0 3px #0F172A20;
 }
 ```
 

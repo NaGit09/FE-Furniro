@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Boxes, AlertTriangle, History, Search, PlusSquare, Database, Plus, RefreshCw } from "lucide-react";
+import { Boxes, AlertTriangle, History, Search, Plus, RefreshCw, Upload, Download } from "lucide-react";
 
 interface InventoryToolbarProps {
   activeTab: "list" | "low" | "transactions";
@@ -33,11 +33,11 @@ export default function InventoryToolbar({
   onSync,
 }: InventoryToolbarProps) {
   return (
-    <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-5 border-b border-stone-200/40 dark:border-stone-850/40 pb-5">
-      {/* ─── Tabs and Filtering controls ─── */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-        {/* Navigation tabs */}
-        <div className="inline-flex rounded-xl p-1 bg-stone-100 dark:bg-stone-950 border border-stone-250/20 dark:border-stone-850/40">
+    <div className="relative z-10 flex flex-col gap-5 border-b border-stone-200/40 dark:border-stone-850/40 pb-5">
+      {/* ─── LEVEL 1: Navigation Tabs & Primary Action Group ─── */}
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        {/* Navigation Tabs */}
+        <div className="inline-flex rounded-xl p-1 bg-stone-100 dark:bg-stone-950 border border-stone-250/20 dark:border-stone-850/40 self-start">
           {[
             { id: "list", label: "Active Inventory", icon: Boxes },
             { id: "low", label: "Low Stock Alert", icon: AlertTriangle },
@@ -48,94 +48,105 @@ export default function InventoryToolbar({
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[10px] font-bold tracking-wider uppercase transition-all duration-200 cursor-pointer ${
+                className={`flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg text-[10px] sm:text-xs font-bold tracking-wider uppercase transition-all duration-200 cursor-pointer ${
                   activeTab === tab.id
                     ? "bg-amber-600 text-white shadow-md shadow-amber-600/10"
                     : "text-stone-650 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-50"
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
-                {tab.label}
+                <span className="hidden sm:inline">{tab.label}</span>
+                <span className="sm:hidden">
+                  {tab.id === "list" ? "Active" : tab.id === "low" ? "Low Stock" : "Ledger"}
+                </span>
               </button>
             );
           })}
         </div>
 
-        {/* Filtering inputs */}
-        <div className="flex items-center gap-2">
+        {/* Primary action controls */}
+        <div className="flex items-center gap-2 w-full lg:w-auto justify-end sm:justify-start lg:justify-end">
+          <button
+            onClick={onSync}
+            className="p-2.5 rounded-xl border border-stone-200 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-900 text-stone-650 dark:text-stone-300 transition-all duration-200 cursor-pointer shadow-xs active:scale-95 bg-white/40 dark:bg-stone-900/40"
+            title="Reload Inventory"
+          >
+            <RefreshCw className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={onAddClick}
+            className="flex items-center gap-2 px-4 py-2.5 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white rounded-xl text-xs font-bold tracking-wide uppercase transition-all duration-200 cursor-pointer shadow-md shadow-amber-600/15"
+          >
+            <Plus className="w-4 h-4" />
+            Add Stock Entry
+          </button>
+        </div>
+      </div>
+
+      {/* ─── LEVEL 2: Filters & Secondary Actions ─── */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        {/* Filtering inputs (Search SKU & Warehouse) */}
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
           {/* Search SKU */}
-          <div className="relative">
+          <div className="relative w-full sm:w-56">
             <input
               type="text"
               placeholder="Search SKU code..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-48 pl-8 pr-3 py-2 rounded-xl bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-850 text-xs font-semibold focus:outline-none focus:border-amber-600 transition-all dark:text-white"
+              className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-850 text-xs font-semibold focus:outline-none focus:border-amber-600 transition-all dark:text-white"
             />
-            <Search className="w-3.5 h-3.5 text-stone-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-3.5 h-3.5 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
           </div>
 
           {/* Warehouse filter */}
           {activeTab !== "transactions" && (
-            <select
-              value={warehouseFilter}
-              onChange={(e) => setWarehouseFilter(e.target.value)}
-              className="px-2.5 py-2 rounded-xl bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-850 text-xs font-semibold focus:outline-none text-stone-700 dark:text-stone-300 cursor-pointer"
-            >
-              <option value="All">All Warehouses</option>
-              {warehouses.map((w) => (
-                <option key={w.warehouseID} value={w.name}>
-                  {w.name}
-                </option>
-              ))}
-            </select>
+            <div className="relative w-full sm:w-auto">
+              <select
+                value={warehouseFilter}
+                onChange={(e) => setWarehouseFilter(e.target.value)}
+                className="w-full sm:w-auto pl-3 pr-4 py-2.5 rounded-xl bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-850 text-xs font-semibold focus:outline-none text-stone-700 dark:text-stone-300 cursor-pointer"
+              >
+                <option value="All">All Warehouses</option>
+                {warehouses.map((w) => (
+                  <option key={w.warehouseID} value={w.name}>
+                    {w.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           )}
         </div>
-      </div>
 
-      {/* ─── Actions Center ─── */}
-      <div className="flex items-center gap-2 self-start md:self-center shrink-0">
-        <input
-          type="file"
-          id="csv-import-input"
-          accept=".csv"
-          onChange={onImportCsv}
-          className="hidden"
-        />
+        {/* CSV Import/Export secondary controls */}
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+          <input
+            type="file"
+            id="csv-import-input"
+            accept=".csv"
+            onChange={onImportCsv}
+            className="hidden"
+          />
 
-        <button
-          onClick={() => document.getElementById("csv-import-input")?.click()}
-          className="flex items-center gap-2 px-3.5 py-2 bg-stone-100 dark:bg-stone-850 hover:bg-stone-200 dark:hover:bg-stone-800 active:scale-95 text-stone-850 dark:text-stone-100 rounded-xl text-xs font-bold tracking-wide uppercase transition-all duration-200 cursor-pointer border border-stone-200/35 dark:border-stone-800/30"
-          title="Import stocks from CSV file"
-        >
-          <PlusSquare className="w-4 h-4 text-amber-600" />
-          Import CSV
-        </button>
+          <button
+            onClick={() => document.getElementById("csv-import-input")?.click()}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3.5 py-2.5 bg-stone-100 dark:bg-stone-850 hover:bg-stone-200 dark:hover:bg-stone-800 active:scale-95 text-stone-850 dark:text-stone-100 rounded-xl text-xs font-bold tracking-wide uppercase transition-all duration-200 cursor-pointer border border-stone-200/35 dark:border-stone-800/30"
+            title="Import stocks from CSV file"
+          >
+            <Upload className="w-4 h-4 text-amber-600" />
+            Import CSV
+          </button>
 
-        <button
-          onClick={onExportCsv}
-          className="flex items-center gap-2 px-3.5 py-2 bg-stone-100 dark:bg-stone-850 hover:bg-stone-200 dark:hover:bg-stone-800 active:scale-95 text-stone-850 dark:text-stone-100 rounded-xl text-xs font-bold tracking-wide uppercase transition-all duration-200 cursor-pointer border border-stone-200/35 dark:border-stone-800/30"
-          title="Export stocks list as CSV file"
-        >
-          <Database className="w-4 h-4 text-emerald-600" />
-          Export CSV
-        </button>
-
-        <button
-          onClick={onAddClick}
-          className="flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white rounded-xl text-xs font-bold tracking-wide uppercase transition-all duration-200 cursor-pointer shadow-md shadow-amber-600/15"
-        >
-          <Plus className="w-4 h-4" />
-          Add Stock Entry
-        </button>
-
-        <button
-          onClick={onSync}
-          className="p-2 rounded-xl border border-stone-200 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-900 text-stone-650 dark:text-stone-300 transition-all cursor-pointer shadow-xs active:scale-95 bg-white/40 dark:bg-stone-900/40"
-          title="Reload Inventory"
-        >
-          <RefreshCw className="w-4 h-4" />
-        </button>
+          <button
+            onClick={onExportCsv}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3.5 py-2.5 bg-stone-100 dark:bg-stone-850 hover:bg-stone-200 dark:hover:bg-stone-800 active:scale-95 text-stone-850 dark:text-stone-100 rounded-xl text-xs font-bold tracking-wide uppercase transition-all duration-200 cursor-pointer border border-stone-200/35 dark:border-stone-800/30"
+            title="Export stocks list as CSV file"
+          >
+            <Download className="w-4 h-4 text-emerald-600" />
+            Export CSV
+          </button>
+        </div>
       </div>
     </div>
   );

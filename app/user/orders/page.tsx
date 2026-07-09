@@ -46,6 +46,13 @@ export default function OrderHistoryPage() {
   const [error, setError] = useState<string | null>(null);
   const [langPref, setLangPref] = useState<"EN" | "VI">("EN");
 
+  const formatPrice = (amount: number, currency: string) => {
+    if (currency === "USD") {
+      return `$${amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`;
+    }
+    return `${amount.toLocaleString("vi-VN")}₫`;
+  };
+
   useEffect(() => {
     const savedLang = localStorage.getItem("furniro_language") as "EN" | "VI" | null;
     if (savedLang) setLangPref(savedLang);
@@ -441,7 +448,7 @@ export default function OrderHistoryPage() {
                       <div className="flex justify-between items-baseline mt-2.5">
                         <span className="text-xs font-bold text-stone-400 uppercase tracking-wider">Total Value</span>
                         <span className="text-xl font-bold text-amber-700 dark:text-amber-500 font-serif">
-                          {order.totalAmount.toLocaleString("vi-VN")}{order.currency === "VND" ? "₫" : order.currency}
+                          {formatPrice(order.totalAmount, order.currency || "USD")}
                         </span>
                       </div>
                     </div>
@@ -608,7 +615,7 @@ export default function OrderHistoryPage() {
 
                               <div className="flex flex-col items-end shrink-0 pl-2">
                                 <span className="text-sm font-bold text-stone-900 dark:text-stone-50">
-                                  {item.priceAtPurchase.toLocaleString("vi-VN")}₫
+                                  {formatPrice(item.priceAtPurchase, orderDetail.currency || "USD")}
                                 </span>
                                 <span className="text-[11px] font-semibold text-stone-400 dark:text-stone-500 mt-0.5">
                                   Qty: {item.quantity}
@@ -648,7 +655,7 @@ export default function OrderHistoryPage() {
                                 </div>
                                 
                                 <div className="text-xs text-stone-500 dark:text-stone-400 leading-normal">
-                                  Settled Value: <span className="font-bold text-stone-850 dark:text-stone-100">{pmt.amount.toLocaleString("vi-VN")}{pmt.currency === "VND" ? "₫" : pmt.currency}</span>
+                                  Settled Value: <span className="font-bold text-stone-850 dark:text-stone-100">{formatPrice(pmt.amount, pmt.currency || "USD")}</span>
                                 </div>
 
                                 {pmt.paypalOrderId && (
@@ -680,7 +687,7 @@ export default function OrderHistoryPage() {
                     <div className="flex justify-between text-xs font-semibold text-stone-500 dark:text-stone-400">
                       <span>Invoiced Subtotal</span>
                       <span className="font-bold text-stone-850 dark:text-stone-200">
-                        {orderDetail.items.reduce((sum, item) => sum + item.priceAtPurchase * item.quantity, 0).toLocaleString("vi-VN")}₫
+                        {formatPrice(orderDetail.items.reduce((sum, item) => sum + item.priceAtPurchase * item.quantity, 0), orderDetail.currency || "USD")}
                       </span>
                     </div>
 
@@ -688,7 +695,7 @@ export default function OrderHistoryPage() {
                     <div className="flex justify-between text-xs font-semibold text-stone-500 dark:text-stone-400">
                       <span>Est. Courier Delivery</span>
                       <span className="font-bold text-stone-850 dark:text-stone-200">
-                        {orderDetail.shippingFee === 0 ? "FREE" : `${orderDetail.shippingFee.toLocaleString("vi-VN")}₫`}
+                        {orderDetail.shippingFee === 0 ? "FREE" : formatPrice(orderDetail.shippingFee, orderDetail.currency || "USD")}
                       </span>
                     </div>
 
@@ -696,16 +703,16 @@ export default function OrderHistoryPage() {
                     <div className="flex justify-between text-xs font-semibold text-stone-500 dark:text-stone-400 border-b border-stone-100 dark:border-stone-800/40 pb-2.5">
                       <span>Est. VAT (8%)</span>
                       <span className="font-bold text-stone-850 dark:text-stone-200">
-                        {Math.round(orderDetail.items.reduce((sum, item) => sum + item.priceAtPurchase * item.quantity, 0) * 0.08).toLocaleString("vi-VN")}₫
+                        {formatPrice(Math.round(orderDetail.items.reduce((sum, item) => sum + item.priceAtPurchase * item.quantity, 0) * 0.08), orderDetail.currency || "USD")}
                       </span>
                     </div>
 
                     {/* Grand Total */}
                     <div className="flex justify-between items-baseline mt-1.5">
-                      <span className="text-sm font-bold text-stone-900 dark:text-stone-50">Total Reservation Value</span>
-                      <span className="text-xl font-bold text-amber-700 dark:text-amber-500 font-serif tracking-tight">
-                        {orderDetail.totalAmount.toLocaleString("vi-VN")}{orderDetail.currency === "VND" ? "₫" : orderDetail.currency}
-                      </span>
+                       <span className="text-sm font-bold text-stone-900 dark:text-stone-50">Total Reservation Value</span>
+                       <span className="text-xl font-bold text-amber-700 dark:text-amber-500 font-serif tracking-tight">
+                         {formatPrice(orderDetail.totalAmount, orderDetail.currency || "USD")}
+                       </span>
                     </div>
                   </div>
                 </div>
