@@ -69,18 +69,18 @@ export default function OrderKpis({ kpiStats }: OrderKpisProps) {
             className="glass-order-card glass-kpi-card rounded-2xl p-6 relative overflow-hidden flex items-center justify-between"
           >
             <div>
-              <span className="text-[10px] font-bold tracking-widest text-stone-450 uppercase">
+              <span className="text-[10px] font-bold tracking-widest text-stone-400 dark:text-stone-500 uppercase block">
                 {c.title}
               </span>
-              <h3 className="cormorant-heading text-2.5xl font-extrabold tracking-tight text-stone-900 dark:text-stone-550 mt-1.5 leading-none">
+              <h3 className="cormorant-heading text-3xl font-extrabold tracking-tight text-stone-900 dark:text-stone-50 mt-1.5 leading-none block">
                 {c.value}
               </h3>
-              <span className="text-[9px] font-bold text-stone-400 dark:text-stone-550 uppercase tracking-wide mt-2 block">
+              <span className="text-[10px] font-semibold text-stone-400 dark:text-stone-500 mt-2 block">
                 {c.subtitle}
               </span>
             </div>
-            <div className={`p-3 rounded-xl bg-stone-100/60 dark:bg-stone-950/40 shrink-0 ${c.color}`}>
-              <Icon className="w-5.5 h-5.5" />
+            <div className="p-3 rounded-xl bg-stone-100/60 dark:bg-stone-955/40 shrink-0">
+              <Icon className={`w-5 h-5 ${c.color}`} />
             </div>
           </div>
         );

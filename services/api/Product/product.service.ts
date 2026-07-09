@@ -63,6 +63,19 @@ export const ProductApi = {
     return res.data;
   },
 
+  add_product_image: async (productID: number, url: string, imageID: number) => {
+    const res = await axiosInstance.post<ApiResponse<any>>(
+      `product-service/product-images`,
+      {
+        productID,
+        url,
+        imageID,
+        sortOrder: 0,
+      },
+    );
+    return res.data;
+  },
+
   import_products_csv: async (file: File) => {
     const formData = new FormData();
     formData.append("file", file);

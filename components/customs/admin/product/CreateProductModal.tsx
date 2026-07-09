@@ -2,8 +2,11 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { X } from "lucide-react";
 import { CategoryRes } from "@/schema/response/product/product.res";
+import { getCookie } from "@/lib/utils/cookieUtils";
+import UploadFile from "@/components/customs/common/UploadFile";
 
 interface CreateProductModalProps {
   isOpen: boolean;
@@ -20,6 +23,9 @@ export default function CreateProductModal({
   onSubmit,
   loading,
 }: CreateProductModalProps) {
+  const storedUserId = getCookie("UserID");
+  const userId = storedUserId ? Number(storedUserId) : 1;
+
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -35,6 +41,8 @@ export default function CreateProductModal({
     warrantyType: "",
     warrantyDuration: "",
     warrantySummary: "",
+    imageUrl: "",
+    imageID: 0,
   });
 
   if (!isOpen) return null;
@@ -251,6 +259,43 @@ export default function CreateProductModal({
                   onChange={(e) => setForm({ ...form, warrantySummary: e.target.value })}
                   className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-955 text-stone-900 dark:text-stone-100 focus:outline-none focus:border-amber-600 font-semibold resize-none"
                 />
+              </div>
+            </div>
+
+            {/* 4. Product Image */}
+            <div className="space-y-4 pt-2">
+              <h4 className="text-[10px] font-bold text-stone-400 dark:text-stone-505 uppercase tracking-widest border-b border-stone-200/40 dark:border-stone-800/40 pb-1">
+                Hình Ảnh Sản Phẩm
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <UploadFile
+                  userId={userId}
+                  currentUrl={form.imageUrl}
+                  onUploadSuccess={(url, id) => {
+                    setForm((prev) => ({
+                      ...prev,
+                      imageUrl: url,
+                      imageID: id,
+                    }));
+                  }}
+                  isCircular={false}
+                  label="Tải lên ảnh sản phẩm"
+                />
+                <div className="flex flex-col items-center justify-center border border-stone-200/60 dark:border-stone-850/60 rounded-2xl bg-stone-50/50 dark:bg-stone-950/20 p-4 min-h-[160px]">
+                  {form.imageUrl ? (
+                    <div className="relative w-full h-32 rounded-xl overflow-hidden">
+                      <Image
+                        src={form.imageUrl}
+                        alt="Product Preview"
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    </div>
+                  ) : (
+                    <span className="text-stone-400 font-semibold text-xs">Chưa có ảnh được chọn</span>
+                  )}
+                </div>
               </div>
             </div>
 

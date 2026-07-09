@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
-import { Minus, Plus, Star, ShoppingCart, Repeat, Sparkles, Heart } from "lucide-react";
+import { Minus, Plus, Star, ShoppingCart, Repeat, Sparkles, Heart, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { CartApi } from "@/services/api/Order/cart.service";
 import { ProductApi } from "@/services/api/Product/product.service";
+import { check_stock_available } from "@/services/api/Inventory/inventory.service";
 import { addToWishlistLocal, removeFromWishlistLocal } from "@/stores/slices/wishlist.store";
 import { setCart } from "@/stores/slices/cart.store";
 import { RootState } from "@/stores/store";
@@ -28,6 +29,58 @@ const ProductInformation = ({ data }: ProductInformationProps) => {
   const [quantity, setQuantity] = useState(1);
   const [colorSelect, chooseColor] = useState(data.colors[0]);
   const [sizeSelect, chooseSize] = useState(data.sizes[0]);
+
+  const [stockAvailable, setStockAvailable] = useState<number | null>(null);
+  const [loadingStock, setLoadingStock] = useState(false);
+
+  const activeVariant = data.variants?.find(
+    (v) => v.color.toLowerCase() === colorSelect?.toLowerCase() && v.size.toLowerCase() === sizeSelect?.toLowerCase()
+  );
+
+  const displayPrice = activeVariant && activeVariant.price ? activeVariant.price : data.basePrice;
+
+  useEffect(() => {
+    const fetchStock = async () => {
+      if (!data.variants || data.variants.length === 0) {
+        // Fallback if no variants list is populated
+        if (data.skus && data.skus[0]) {
+          setLoadingStock(true);
+          try {
+            const res = await check_stock_available(data.skus[0]);
+            if (res && res.code === 200) {
+              setStockAvailable(res.data);
+            }
+          } catch (err) {
+            console.error("Failed to check fallback stock:", err);
+          } finally {
+            setLoadingStock(false);
+          }
+        }
+        return;
+      }
+
+      if (activeVariant) {
+        setLoadingStock(true);
+        try {
+          const res = await check_stock_available(activeVariant.sku);
+          if (res && res.code === 200) {
+            setStockAvailable(res.data);
+          } else {
+            setStockAvailable(0);
+          }
+        } catch (err) {
+          console.error("Failed to check variant stock:", err);
+          setStockAvailable(null);
+        } finally {
+          setLoadingStock(false);
+        }
+      } else {
+        setStockAvailable(0);
+      }
+    };
+
+    fetchStock();
+  }, [colorSelect, sizeSelect, data.variants, data.skus, activeVariant]);
 
   const router = useRouter();
   const dispatch = useDispatch();
@@ -103,9 +156,9 @@ const ProductInformation = ({ data }: ProductInformationProps) => {
       const res = await CartApi.add_to_cart({
         cartID: activeCartID || 0,
         userID: auth.UserID,
-        variantID: data.productID || data.productId || 0,
+        variantID: activeVariant ? activeVariant.variantID : (data.productID || data.productId || 0),
         quantity,
-        price: data.basePrice,
+        price: displayPrice,
       });
 
       if (res && (res.code === 200 || res.data === true)) {
@@ -194,7 +247,7 @@ const ProductInformation = ({ data }: ProductInformationProps) => {
       {/* Price & Rating Deck */}
       <div className="flex items-center gap-6 flex-wrap">
         <div className="text-3xl font-bold text-yellow-600 dark:text-yellow-500 font-sans tracking-tight">
-          {data.basePrice.toLocaleString("vi-VN")} ₫
+          {displayPrice.toLocaleString("vi-VN")} ₫
         </div>
         
         <div className="flex items-center gap-2.5 bg-stone-100/50 dark:bg-stone-900/40 border border-stone-200/30 dark:border-stone-800/30 rounded-full px-3.5 py-1 text-xs sm:text-sm font-semibold shadow-inner">
@@ -261,6 +314,36 @@ const ProductInformation = ({ data }: ProductInformationProps) => {
         </div>
       </div>
 
+      {/* Stock Availability Indicator */}
+      <div className="flex flex-col gap-2.5 items-start">
+        <Label className="text-sm font-bold text-stone-700 dark:text-stone-300 uppercase tracking-widest font-sans">
+          Tình trạng kho hàng
+        </Label>
+        <div className="flex items-center gap-2">
+          {loadingStock ? (
+            <div className="flex items-center gap-2 text-stone-500 text-sm">
+              <Loader2 className="w-4 h-4 animate-spin text-yellow-650" />
+              <span>Đang kiểm tra kho...</span>
+            </div>
+          ) : stockAvailable !== null ? (
+            stockAvailable > 0 ? (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-450 border border-emerald-500/20">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                Còn hàng (Có {stockAvailable} sản phẩm)
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-red-50/70 text-red-600 dark:bg-red-950/20 dark:text-red-400 border border-red-500/20">
+                Hết hàng
+              </span>
+            )
+          ) : (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-stone-100 text-stone-500 dark:bg-stone-900 dark:text-stone-400 border border-stone-200/50 dark:border-stone-800/40">
+              Hết hàng
+            </span>
+          )}
+        </div>
+      </div>
+
       <Separator className="bg-stone-200 dark:bg-stone-850 my-1" />
 
       {/* Interaction: Quantity Stepper & Buttons */}
@@ -295,12 +378,12 @@ const ProductInformation = ({ data }: ProductInformationProps) => {
 
         {/* Add To Cart */}
         <Button
-          disabled={addingToCart}
+          disabled={addingToCart || stockAvailable === 0}
           onClick={handleAddToCart}
-          className="h-13 px-8 bg-yellow-600 hover:bg-yellow-750 text-white rounded-full font-bold shadow-lg hover:shadow-yellow-600/20 hover:scale-102 active:scale-98 transition-all duration-300 cursor-pointer flex items-center gap-2"
+          className="h-13 px-8 bg-yellow-600 hover:bg-yellow-750 text-white rounded-full font-bold shadow-lg hover:shadow-yellow-600/20 hover:scale-102 active:scale-98 transition-all duration-300 cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <ShoppingCart size={18} />
-          {addingToCart ? "Adding..." : "Add to cart"}
+          {addingToCart ? "Adding..." : stockAvailable === 0 ? "Hết hàng" : "Add to cart"}
         </Button>
 
         {/* Compare */}
@@ -338,7 +421,7 @@ const ProductInformation = ({ data }: ProductInformationProps) => {
         </div>
         <div className="flex gap-2">
           <span className="text-stone-400 dark:text-stone-500">SKU:</span>
-          <span className="text-stone-800 dark:text-stone-200 font-semibold">{data.skus[0] || "FN-MILAN-001"}</span>
+          <span className="text-stone-800 dark:text-stone-200 font-semibold">{activeVariant ? activeVariant.sku : (data.skus[0] || "N/A")}</span>
         </div>
         <div className="flex gap-2">
           <span className="text-stone-400 dark:text-stone-500">Category:</span>

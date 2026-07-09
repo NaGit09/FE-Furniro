@@ -14,6 +14,14 @@ export const ProductCardResSchema = z.object({
 
 export type ProductCardRes = z.infer<typeof ProductCardResSchema>;
 
+export const ProductVariantResSchema = z.object({
+  variantID: z.number(),
+  price: z.number(),
+  sku: z.string(),
+  color: z.string(),
+  size: z.string(),
+});
+
 export const ProductDetailSchema = z.object({
   productId: z.number().int().positive().optional(),
   productID: z.number().int().positive().optional(),
@@ -30,6 +38,7 @@ export const ProductDetailSchema = z.object({
   sizes: z.array(z.string()),
   colors: z.array(z.string()),
   skus: z.array(z.string()),
+  variants: z.array(ProductVariantResSchema).optional(),
 
   width: z.number().positive(),
   height: z.number().positive(),

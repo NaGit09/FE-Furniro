@@ -198,8 +198,22 @@ export default function AdminProductPage() {
         weight: formData.weight ? Number(formData.weight) : 0,
       };
 
+      // Strip image properties from the main product payload
+      delete (payload as any).imageUrl;
+      delete (payload as any).imageID;
+
       const res = await ProductApi.create_product(payload);
       if (res?.code === 200) {
+        // Associate image if uploaded
+        if (formData.imageUrl && formData.imageID) {
+          try {
+            const productID = res.data.productID;
+            await ProductApi.add_product_image(productID, formData.imageUrl, formData.imageID);
+          } catch (imgErr) {
+            console.error("Failed to associate product image:", imgErr);
+            toast.error("Khởi tạo sản phẩm thành công nhưng không thể lưu ảnh.");
+          }
+        }
         toast.success("Khởi tạo sản phẩm mới thành công!", { id: loadId });
         setCreateModalOpen(false);
         loadData(true);

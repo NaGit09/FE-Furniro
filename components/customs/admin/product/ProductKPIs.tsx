@@ -60,17 +60,17 @@ export default function ProductKPIs({
           >
             <div className="flex items-center justify-between">
               <div>
-                <span className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest block">
+                <span className="text-[10px] font-bold tracking-widest text-stone-400 dark:text-stone-500 uppercase block">
                   {c.title}
                 </span>
-                <span className="text-xl md:text-2xl font-bold text-stone-900 dark:text-stone-100 tracking-tight mt-1 block">
+                <h3 className="cormorant-heading text-3xl font-extrabold tracking-tight text-stone-900 dark:text-stone-50 mt-1.5 leading-none block">
                   {c.value}
-                </span>
-                <span className="text-[9px] font-semibold text-stone-400 dark:text-stone-505 mt-1 block">
+                </h3>
+                <span className="text-[10px] font-semibold text-stone-400 dark:text-stone-500 mt-2 block">
                   {c.subtitle}
                 </span>
               </div>
-              <div className="p-3 rounded-xl bg-stone-100/50 dark:bg-stone-900/50">
+              <div className="p-3 rounded-xl bg-stone-100/60 dark:bg-stone-950/40 shrink-0">
                 <Icon className={`w-5 h-5 ${c.color}`} />
               </div>
             </div>
