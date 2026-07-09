@@ -342,22 +342,22 @@ export default function AdminDashboard() {
             return (
               <div
                 key={i}
-                className="liquid-glass-card relative rounded-2xl p-6 overflow-hidden cursor-pointer group"
+                className="liquid-glass-card relative rounded-2xl p-6 overflow-hidden cursor-pointer group transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(202,138,4,0.06)] dark:hover:shadow-[0_12px_30px_rgba(0,0,0,0.45)]"
               >
                 {/* Corner Glow Accent */}
-                <div className="absolute top-0 right-0 w-24 h-24 bg-linear-to-bl from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-bl-full" />
+                <div className="absolute top-0 right-0 w-24 h-24 bg-linear-to-bl from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-bl-full pointer-events-none" />
                 
                 <div className="flex items-start justify-between">
-                  <div className="space-y-2">
-                    <span className="text-[10px] font-bold tracking-widest text-stone-405 dark:text-stone-500 uppercase">
+                  <div className="space-y-1.5">
+                    <span className="text-[10px] font-bold tracking-widest text-stone-400 dark:text-stone-500 uppercase block">
                       {stat.title}
                     </span>
-                    <h3 className="cormorant-heading text-3xl font-extrabold tracking-tight text-stone-900 dark:text-stone-50">
+                    <h3 className="cormorant-heading text-3xl font-extrabold tracking-tight text-stone-900 dark:text-stone-50 leading-none">
                       {stat.value}
                     </h3>
                   </div>
 
-                  <div className="p-3.5 rounded-xl bg-amber-600/10 dark:bg-amber-500/5 text-amber-655 dark:text-amber-500 shrink-0 group-hover:rotate-6 transition-transform duration-300">
+                  <div className="p-3 rounded-xl bg-stone-100/60 dark:bg-stone-950/40 text-amber-600 dark:text-amber-500 shrink-0 group-hover:scale-110 transition-transform duration-300">
                     <Icon className="w-5.5 h-5.5" />
                   </div>
                 </div>
@@ -365,7 +365,7 @@ export default function AdminDashboard() {
                 <div className="flex items-center gap-2 mt-5 pt-4 border-t border-stone-200/40 dark:border-stone-800/40">
                   <span
                     className={`inline-flex items-center gap-0.5 text-xs font-bold ${
-                      stat.isPositive ? "text-emerald-600 dark:text-emerald-500" : "text-rose-600 dark:text-rose-505"
+                      stat.isPositive ? "text-emerald-600 dark:text-emerald-500" : "text-rose-600 dark:text-rose-500"
                     }`}
                   >
                     {stat.isPositive ? (
@@ -375,7 +375,7 @@ export default function AdminDashboard() {
                     )}
                     {stat.change}
                   </span>
-                  <span className="text-[9.5px] font-bold text-stone-405 dark:text-stone-500 uppercase tracking-wide">
+                  <span className="text-[9px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wide">
                     {stat.desc}
                   </span>
                 </div>

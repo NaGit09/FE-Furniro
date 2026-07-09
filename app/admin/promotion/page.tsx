@@ -24,6 +24,7 @@ import {
   PromotionReq,
 } from "@/schema/request/message/Promotion";
 import { PromotionRes } from "@/schema/response/message/Promotion";
+import AdminKpiCard from "@/components/customs/admin/common/AdminKpiCard";
 
 export default function AdminPromotionPage() {
   // Page Lists & Loading States
@@ -277,27 +278,7 @@ export default function AdminPromotionPage() {
         ].map((c, idx) => {
           const Icon = c.icon;
           return (
-            <div
-              key={idx}
-              className="glass-promo-card rounded-2xl p-6 relative overflow-hidden"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] font-bold tracking-widest text-stone-400 dark:text-stone-500 uppercase block">
-                    {c.title}
-                  </span>
-                  <h3 className="cormorant-heading text-3xl font-extrabold tracking-tight text-stone-900 dark:text-stone-50 mt-1.5 leading-none block">
-                    {c.value}
-                  </h3>
-                  <span className="text-[10px] font-semibold text-stone-400 dark:text-stone-500 mt-2 block">
-                    {c.subtitle}
-                  </span>
-                </div>
-                <div className={`p-3 rounded-xl bg-stone-100/60 dark:bg-stone-950/40 shrink-0 ${c.color}`}>
-                  <Icon className="w-5 h-5" />
-                </div>
-              </div>
-            </div>
+            <AdminKpiCard key={idx} title={c.title} value={c.value} subtitle={c.subtitle} icon={Icon} color={c.color} />
           );
         })}
       </div>
