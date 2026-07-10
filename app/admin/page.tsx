@@ -154,17 +154,7 @@ export default function AdminDashboard() {
         icon: Users,
         color: "from-blue-500 to-indigo-500",
         bgLight: "bg-blue-500/10",
-      },
-      {
-        title: "Inventory Stock",
-        value: stats.inventoryStock,
-        change: stats.stockChange,
-        isPositive: stats.stockPositive,
-        desc: stats.stockDesc,
-        icon: Boxes,
-        color: "from-rose-500 to-orange-500",
-        bgLight: "bg-rose-500/10",
-      },
+      }
     ];
   }, [stats]);
 
@@ -313,76 +303,6 @@ export default function AdminDashboard() {
             <RefreshCw className="w-4 h-4" />
           </button>
         </div>
-      </div>
-
-      {/* ─── UPGRADED KPI Cards Grid (Liquid Glass Styles) ─── */}
-      <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statsLoading || !stats ? (
-          Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="liquid-glass-card relative rounded-2xl p-6 overflow-hidden animate-pulse"
-            >
-              <div className="flex items-start justify-between">
-                <div className="space-y-3 w-2/3">
-                  <div className="h-2.5 bg-stone-200 dark:bg-stone-800 rounded-sm w-1/2" />
-                  <div className="h-7 bg-stone-300 dark:bg-stone-700 rounded-md w-3/4" />
-                </div>
-                <div className="w-12 h-12 rounded-xl bg-stone-200 dark:bg-stone-800" />
-              </div>
-              <div className="flex items-center gap-2 mt-5 pt-4 border-t border-stone-200/40 dark:border-stone-800/40">
-                <div className="h-3 bg-stone-200 dark:bg-stone-800 rounded-sm w-1/4" />
-                <div className="h-2.5 bg-stone-100 dark:bg-stone-850 rounded-sm w-1/2" />
-              </div>
-            </div>
-          ))
-        ) : (
-          activeStats.map((stat, i) => {
-            const Icon = stat.icon;
-            return (
-              <div
-                key={i}
-                className="liquid-glass-card relative rounded-2xl p-6 overflow-hidden cursor-pointer group transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(202,138,4,0.06)] dark:hover:shadow-[0_12px_30px_rgba(0,0,0,0.45)]"
-              >
-                {/* Corner Glow Accent */}
-                <div className="absolute top-0 right-0 w-24 h-24 bg-linear-to-bl from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-bl-full pointer-events-none" />
-                
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1.5">
-                    <span className="text-[10px] font-bold tracking-widest text-stone-400 dark:text-stone-500 uppercase block">
-                      {stat.title}
-                    </span>
-                    <h3 className="cormorant-heading text-3xl font-extrabold tracking-tight text-stone-900 dark:text-stone-50 leading-none">
-                      {stat.value}
-                    </h3>
-                  </div>
-
-                  <div className="p-3 rounded-xl bg-stone-100/60 dark:bg-stone-950/40 text-amber-600 dark:text-amber-500 shrink-0 group-hover:scale-110 transition-transform duration-300">
-                    <Icon className="w-5.5 h-5.5" />
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 mt-5 pt-4 border-t border-stone-200/40 dark:border-stone-800/40">
-                  <span
-                    className={`inline-flex items-center gap-0.5 text-xs font-bold ${
-                      stat.isPositive ? "text-emerald-600 dark:text-emerald-500" : "text-rose-600 dark:text-rose-500"
-                    }`}
-                  >
-                    {stat.isPositive ? (
-                      <TrendingUp className="w-3.5 h-3.5" />
-                    ) : (
-                      <TrendingDown className="w-3.5 h-3.5" />
-                    )}
-                    {stat.change}
-                  </span>
-                  <span className="text-[9px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wide">
-                    {stat.desc}
-                  </span>
-                </div>
-              </div>
-            );
-          })
-        )}
       </div>
 
       {/* ─── Charts & Category Share (Liquid Glass) ─── */}
