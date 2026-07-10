@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 import type { RootState } from "@/stores/store";
 import UserDropdown from "@/components/customs/common/UserLayout/UserDropdown";
 import HeaderCartDrawer from "@/components/customs/common/UserLayout/HeaderCartDrawer";
+import NotificationDropdown from "@/components/customs/common/NotificationDropdown";
 import "@/style/Header.css";
 import { SearchIcon, UserIcon, Menu, ShoppingCart, X, DoorClosed, Sun, Moon } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -170,7 +171,12 @@ const Header = () => {
               )}
             </button>
 
-
+            {/* Notifications */}
+            {auth.isLoggedIn && (
+              <div className="flex items-center justify-center">
+                <NotificationDropdown />
+              </div>
+            )}
 
             <div className="hdr-divider hidden sm:block" aria-hidden="true" />
 

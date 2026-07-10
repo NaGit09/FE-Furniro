@@ -11,6 +11,7 @@ import { parseJwt } from "../lib/utils/jwt";
 import { ProductApi } from "../services/api/Product/product.service";
 import { setWishlist } from "../stores/slices/wishlist.store";
 import "@/style/Header.css";
+import { WebSocketProvider } from "./WebSocketContext";
 
 function AuthInitializer({ children }: { children: ReactNode }) {
 
@@ -93,7 +94,11 @@ export default function StoreProvider({ children }: { children: ReactNode }) {
 
   return (
     <Provider store={store}>
-      <AuthInitializer>{children}</AuthInitializer>
+      <AuthInitializer>
+        <WebSocketProvider>
+          {children}
+        </WebSocketProvider>
+      </AuthInitializer>
     </Provider>
   );
 }

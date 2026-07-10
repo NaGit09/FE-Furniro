@@ -15,11 +15,8 @@ import {
   Boxes,
   Package,
   Mail,
-  Menu,
   X,
   ChevronRight,
-  Sun,
-  Moon,
   LogOut,
   Store,
   CircleDot,
@@ -35,7 +32,6 @@ import { logout as logoutAction } from "@/stores/slices/auth.store";
 import { removeCookie, getCookie } from "@/lib/utils/cookieUtils";
 import { AuthApi } from "@/services/api/Auth/auth.service";
 import { useLanguage } from "@/components/customs/common/LanguageContext";
-import NotificationDropdown from "@/components/customs/common/NotificationDropdown";
 
 /* ─── Menu configurations ───────────────────────────────────── */
 const ADMIN_MENU_ITEMS = [
@@ -47,8 +43,8 @@ const ADMIN_MENU_ITEMS = [
   { labelKey: "subscriptions" as const, href: "/admin/subcription", icon: Mail },
   { labelKey: "promotions" as const, href: "/admin/promotion", icon: Percent },
   { labelKey: "chat" as const, href: "/admin/chat", icon: MessageSquare },
-  { labelKey: "profile" as const, href: "/admin/profile", icon: User },
-  { labelKey: "settings" as const, href: "/admin/settings", icon: Settings },
+  { labelKey: "profile" as const, href: "/user/profile", icon: User },
+  { labelKey: "settings" as const, href: "/user/settings", icon: Settings },
 ] as const;
 
 export default function AdminLayout({
